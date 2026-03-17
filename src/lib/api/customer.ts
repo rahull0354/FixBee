@@ -1,0 +1,75 @@
+import { apiClient } from './client';
+import { ServiceRequest, CreateServiceRequestData, UpdateServiceRequestData, Review, CreateReviewData, UpdateReviewData } from '@/types';
+
+export const customerApi = {
+  // Profile
+  getProfile: async () => {
+    return apiClient.get('/customers/profile');
+  },
+
+  updateProfile: async (data: any) => {
+    return apiClient.put('/customers/profile', data);
+  },
+
+  deactivateAccount: async () => {
+    return apiClient.post('/customers/deactivate-account');
+  },
+
+  // Service Requests
+  createServiceRequest: async (data: CreateServiceRequestData): Promise<ServiceRequest> => {
+    return apiClient.post('/request/create', data);
+  },
+
+  getMyServiceRequests: async (params?: { status?: string; page?: number; limit?: number }) => {
+    const config = params ? { params } : undefined;
+    return apiClient.get('/request/requests/my-services', config);
+  },
+
+  getServiceRequest: async (id: string): Promise<ServiceRequest> => {
+    return apiClient.get(`/request/customer/service-request/${id}`);
+  },
+
+  cancelServiceRequest: async (id: string, reason: string) => {
+    return apiClient.patch(`/request/cancel/${id}`, { reason });
+  },
+
+  rescheduleServiceRequest: async (id: string, data: UpdateServiceRequestData) => {
+    return apiClient.patch(`/request/reschedule/${id}`, data);
+  },
+
+  // Reviews
+  getMyReviews: async () => {
+    return apiClient.get<Review[]>('/review/customer/my-reviews');
+  },
+
+  createReview: async (requestId: string, data: Omit<CreateReviewData, 'requestId'>) => {
+    return apiClient.post(`/review/create/${requestId}`, data);
+  },
+
+  updateReview: async (id: string, data: UpdateReviewData) => {
+    return apiClient.patch(`/review/customer/edit-review/${id}`, data);
+  },
+
+  deleteReview: async (id: string) => {
+    return apiClient.delete(`/review/customer/delete/${id}`);
+  },
+
+  // Categories
+  getCategories: async () => {
+    return apiClient.get('/author/categories');
+  },
+
+  getCategory: async (slug: string) => {
+    return apiClient.get(`/author/category/${slug}`);
+  },
+
+  // Providers
+  getProviders: async (params?: { city?: string; skills?: string; page?: number; limit?: number }) => {
+    const config = params ? { params } : undefined;
+    return apiClient.get('/providers/list', config);
+  },
+
+  getProvider: async (id: string) => {
+    return apiClient.get(`/providers/${id}`);
+  },
+};

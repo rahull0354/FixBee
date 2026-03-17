@@ -1,0 +1,2025 @@
+{
+  "info": {
+    "_postman_id": "c1e39ff9-afe8-4ef7-93ff-4459398e5770",
+    "name": "HSMS-Drizzle",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "51661060",
+    "_collection_link": "https://go.postman.co/collection/51661060-c1e39ff9-afe8-4ef7-93ff-4459398e5770?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Customer",
+      "item": [
+        {
+          "name": "registerCustomer",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Rashi Khanna\",\r\n    \"email\": \"rashi.khanna@example.com\",\r\n    \"password\": \"rashikhanna\",\r\n    \"phone\": \"+91 99300 40050\",\r\n    \"address\": {\r\n      \"street\": \"A/502, Neelam Towers, Sea Link Road\",\r\n      \"city\": \"Kolkata\",\r\n      \"state\": \"West Bengal\",\r\n      \"pincode\": \"400052\",\r\n      \"landmarks\": \"Opposite Sea Link Road\"\r\n    },\r\n    \"profilePicture\": \"https://metro.example.com/rashi-khanna.jpg\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/customers/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "customers",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "loginCustomer",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"rmmehta@enacton.email\",\r\n    \"password\": \"rashikhanna\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/customers/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "customers",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateCustomerDetails",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"rmmehta@enacton.email\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/customers/update-profile/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "customers",
+                "update-profile",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "deactivateAccount",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/customers/deactivate-account/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "customers",
+                "deactivate-account",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "reactivate-account",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/customers/reactivate-account/3bb7440f06fd3ac7275d41c67213c3a56f85eb9dfe599b8904bf6ba72cd1a833",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "customers",
+                "reactivate-account",
+                "3bb7440f06fd3ac7275d41c67213c3a56f85eb9dfe599b8904bf6ba72cd1a833"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "request-reactivation",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"rmmehta@enacton.email\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/customers/request-reactivation/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "customers",
+                "request-reactivation",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getProfileDetails",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/customers/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "customers",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "ServiceProvider",
+      "item": [
+        {
+          "name": "registerServiceProvider",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Amit Sharma\",\r\n    \"email\": \"rmmehta2004@gmail.com\",\r\n    \"password\": \"amitsharma\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/providers/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "providers",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "loginServiceProvider",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"rmmehta2004@gmail.com\",\r\n    \"password\": \"amitsharma\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/providers/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "providers",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateServiceProviderDetails",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{serviceProviderToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"profilePicture\": \"https://metro.example.com/rajesh-kumar.jpg\",\r\n    \"bio\": \"Professional plumber with 12+ years of experience. Expert in tap repairs, pipe leakages, bathroom installations, and emergency plumbing services. Serving Bangalore area.\",\r\n    \"skills\": [\r\n      \"plumbing\",\r\n      \"tap repair\",\r\n      \"pipe repair\",\r\n      \"pipe leakage\",\r\n      \"bathroom installation\",\r\n      \"emergency plumbing\"\r\n    ],\r\n    \"experienceYears\": 12,\r\n    \"certifications\": [\r\n      {\r\n        \"name\": \"Certified Plumber - Karnataka Plumbing Association\",\r\n        \"issuedBy\": \"Karnataka Plumbing Association\",\r\n        \"year\": 2013,\r\n        \"certificateUrl\": \"https://certificates.example.com/rajesh-plumbing-2013.pdf\"\r\n      }\r\n    ],\r\n    \"pricingType\": \"per-visit\",\r\n    \"availabilityStatus\": \"available\",\r\n    \"workingHours\": {\r\n      \"from\": \"08:00\",\r\n      \"to\": \"20:00\",\r\n      \"daysOff\": [\"sunday\"]\r\n    },\r\n    \"serviceArea\": {\r\n      \"cities\": [\"bangalore\", \"bengaluru\"],\r\n      \"areas\": [\r\n        \"indiranagar\",\r\n        \"koramangala\",\r\n        \"hsr layout\",\r\n        \"whitefield\",\r\n        \"electronic city\",\r\n        \"jayanagar\",\r\n        \"btm layout\",\r\n        \"marathahalli\",\r\n        \"yelahanka\"\r\n      ]\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/providers/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "providers",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "deactivateAccount",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{serviceProviderToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/providers/deactivate-account",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "providers",
+                "deactivate-account"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "request-reactivation",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{serviceProviderToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"rmmehta2468@gmail.com\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/providers/request-reactivation",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "providers",
+                "request-reactivation"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getProfileDetails",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{serviceProviderToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"dabhanushali@enacton.email\",\r\n    \"password\": \"rajeshkumar\"\r\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/serviceProvider/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "serviceProvider",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "reactivate-account",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{serviceProviderToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/providers/reactivate-account/b51ea0365d9bb0f6e05f48ac962c33537b8f46d62cea9e78618dea935e7b2e42",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "providers",
+                "reactivate-account",
+                "b51ea0365d9bb0f6e05f48ac962c33537b8f46d62cea9e78618dea935e7b2e42"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "toogleAvailability",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{serviceProviderToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\": \"busy\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/providers/toggleAvailability",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "providers",
+                "toggleAvailability"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getAllServiceProviders",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{serviceProviderToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/providers/list?page=1&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "providers",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getPublicProfile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/providers/list/profile/aece4617-a4e7-4967-b3c1-edfa883bfb13",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "providers",
+                "list",
+                "profile",
+                "aece4617-a4e7-4967-b3c1-edfa883bfb13"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "searchProviders",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{serviceProviderToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/providers/list/search?skills=plumbing&cities=mumbai&minRating=4",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "providers",
+                "list",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "skills",
+                  "value": "plumbing"
+                },
+                {
+                  "key": "cities",
+                  "value": "mumbai"
+                },
+                {
+                  "key": "minRating",
+                  "value": "4"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Auth",
+          "item": [
+            {
+              "name": "loginAdmin",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\": \"dabhanushali@enacton.email\",\r\n    \"password\": \"deepbhanushali\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/author/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "author",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "getProfile",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/author/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "author",
+                    "profile"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "registerAdmin",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"Deep Bhanushali\",\r\n    \"email\": \"dabhanushali@enacton.email\",\r\n    \"password\": \"deepbhanushali\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/author/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "author",
+                    "register"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "CategoryManagement",
+          "item": [
+            {
+              "name": "createServiceCategory",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"name\": \"Carpentry Services\",\r\n    \"slug\": \"carpentry-services\",\r\n    \"description\": \"Skilled carpentry services for furniture repair, installation, woodwork, and custom carpentry solutions for your home.\",\r\n    \"icon\": \"🪑\",\r\n    \"priceRange\": {\r\n      \"min\": 800,\r\n      \"max\": 20000,\r\n      \"unit\": \"per job\"\r\n    },\r\n    \"commonServices\": [\r\n      {\r\n        \"name\": \"Door Repair\",\r\n        \"typicalPrice\": 1200,\r\n        \"duration\": \"2-3 hours\"\r\n      },\r\n      {\r\n        \"name\": \"Furniture Assembly\",\r\n        \"typicalPrice\": 1500,\r\n        \"duration\": \"2-4 hours\"\r\n      },\r\n      {\r\n        \"name\": \" shelf Installation\",\r\n        \"typicalPrice\": 1000,\r\n        \"duration\": \"1-2 hours\"\r\n      },\r\n      {\r\n        \"name\": \"Window Frame Repair\",\r\n        \"typicalPrice\": 2000,\r\n        \"duration\": \"3-4 hours\"\r\n      },\r\n      {\r\n        \"name\": \"Custom Cabinet Making\",\r\n        \"typicalPrice\": 15000,\r\n        \"duration\": \"2-3 days\"\r\n      }\r\n    ],\r\n    \"requiredSkills\": [\r\n      \"woodworking\",\r\n      \"furniture assembly\",\r\n      \"measuring and cutting\",\r\n      \"finishing\",\r\n      \"power tools\",\r\n      \"design interpretation\",\r\n      \"precision work\"\r\n    ]\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/author/createCategory",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "author",
+                    "createCategory"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "getCategoryById",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/author/category/b98b63ba-b9df-4d49-8c6f-15c39a502037",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "author",
+                    "category",
+                    "b98b63ba-b9df-4d49-8c6f-15c39a502037"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "updateCategoryDetails",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"icon\": \"❄️\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/author/category/update/42eaf49a-4cee-46fd-8de8-930a6fd56ef3",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "author",
+                    "category",
+                    "update",
+                    "42eaf49a-4cee-46fd-8de8-930a6fd56ef3"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "toggleCategoryStatus",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/author/category/42eaf49a-4cee-46fd-8de8-930a6fd56ef3/toggle",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "author",
+                    "category",
+                    "42eaf49a-4cee-46fd-8de8-930a6fd56ef3",
+                    "toggle"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "deleteCategory",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/author/category/delete/4aaf444f-088a-4473-8adb-7ced88882b18",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "author",
+                    "category",
+                    "delete",
+                    "4aaf444f-088a-4473-8adb-7ced88882b18"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "getAllCategories",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/author/categories?isActive=true",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "author",
+                    "categories"
+                  ],
+                  "query": [
+                    {
+                      "key": "isActive",
+                      "value": "true"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "ServiceProvider Management",
+          "item": [
+            {
+              "name": "getAllServiceProviders",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/author/serviceProviders?search=kaushal",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "author",
+                    "serviceProviders"
+                  ],
+                  "query": [
+                    {
+                      "key": "search",
+                      "value": "kaushal"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "getServiceProviderById",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/author/serviceProvider/b02c15ff-7498-4d05-b277-75504af7bd48",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "author",
+                    "serviceProvider",
+                    "b02c15ff-7498-4d05-b277-75504af7bd48"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "suspendServiceProvider",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"suspensionReason\" : \"Miscounduct with the customer\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/author/serviceProvider/suspend/b02c15ff-7498-4d05-b277-75504af7bd48",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "author",
+                    "serviceProvider",
+                    "suspend",
+                    "b02c15ff-7498-4d05-b277-75504af7bd48"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "unSuspendServiceProvider",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/author/serviceProvider/un-suspend/b02c15ff-7498-4d05-b277-75504af7bd48",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "author",
+                    "serviceProvider",
+                    "un-suspend",
+                    "b02c15ff-7498-4d05-b277-75504af7bd48"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Customer Management",
+          "item": [
+            {
+              "name": "getAllCustomers",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/author/customers",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "author",
+                    "customers"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "getCustomerById",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/author/customer/744fe75b-596b-4ebb-829f-5bfc4c3f593b",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "author",
+                    "customer",
+                    "744fe75b-596b-4ebb-829f-5bfc4c3f593b"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Dashboard",
+          "item": [
+            {
+              "name": "getDashboardStats",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{adminToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/author/dashboard",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "author",
+                    "dashboard"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Service Requests",
+      "item": [
+        {
+          "name": "createServiceRequest",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"serviceType\": \"plumbing\",\r\n    \"serviceCategoryId\": \"b98b63ba-b9df-4d49-8c6f-15c39a502037\",\r\n    \"serviceTitle\": \"Bathroom Installation - Complete Setup\",\r\n    \"serviceDescription\": \"Need complete bathroom installation with new fixtures, piping, drainage system, and water connection for 6x8 feet bathroom in Indiranagar, Bangalore.\",\r\n    \"commonServiceName\": \"Bathroom Installation\",\r\n    \"schedule\": {\r\n      \"date\": \"2026-03-01\",\r\n      \"timeSlot\": \"morning\",\r\n      \"preferredTime\": \"9:00 AM\"\r\n    },\r\n    \"serviceAddress\": {\r\n      \"street\": \"123, 4th Main, 5th Cross, OSD Layout\",\r\n      \"city\": \"Bangalore\",\r\n      \"state\": \"Karnataka\",\r\n      \"pincode\": \"560038\",\r\n      \"landmarks\": \"Near Indiranagar Metro Station\"\r\n    },\r\n    \"beforeImages\": []\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/request/create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "request",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getMyServices",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/request/requests/my-services",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "request",
+                "requests",
+                "my-services"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getServiceById",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/request/customer/service-request/d913dc0b-9b65-45f4-ba41-654606be2ca2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "request",
+                "customer",
+                "service-request",
+                "d913dc0b-9b65-45f4-ba41-654606be2ca2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "cancelServiceRequest",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"cancellationReason\": \"No longer needed. Issue resolved by my own\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/request/cancel/d913dc0b-9b65-45f4-ba41-654606be2ca2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "request",
+                "cancel",
+                "d913dc0b-9b65-45f4-ba41-654606be2ca2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "rescheduleServiceRequest",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"schedule\": {\r\n      \"date\": \"2026-02-24T14:00:00.000Z\",\r\n      \"timeSlot\": \"afternoon\",\r\n      \"preferredTime\": \"12:00 PM - 2:00 PM\"\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/request/reschedule/d913dc0b-9b65-45f4-ba41-654606be2ca2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "request",
+                "reschedule",
+                "d913dc0b-9b65-45f4-ba41-654606be2ca2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "acceptRequest",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{serviceProviderToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/request/accept/d913dc0b-9b65-45f4-ba41-654606be2ca2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "request",
+                "accept",
+                "d913dc0b-9b65-45f4-ba41-654606be2ca2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getAvailableRequests - Provider",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{serviceProviderToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/request/available-requests",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "request",
+                "available-requests"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getMyAsignedRequests",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Visualization Script",
+                  "// Visualization Script",
+                  "var template = `",
+                  "<div style=\"font-family: Arial, sans-serif; padding: 16px;\">",
+                  "  <h2>My Assigned Requests Overview</h2>",
+                  "  <div style=\"display: flex; flex-wrap: wrap; gap: 24px;\">",
+                  "    <div style=\"flex: 1 1 400px; min-width: 320px;\">",
+                  "      <h3>Estimated vs Final Price per Request</h3>",
+                  "      <canvas id=\"priceChart\" height=\"120\"></canvas>",
+                  "    </div>",
+                  "    <div style=\"flex: 0 1 320px; min-width: 280px;\">",
+                  "      <h3>Status Distribution</h3>",
+                  "      <canvas id=\"statusChart\" height=\"120\"></canvas>",
+                  "    </div>",
+                  "  </div>",
+                  "  <p style=\"margin-top: 16px; font-size: 12px; color: #666;\">",
+                  "    Data source: /serviceRequest/requests/my-assigned-requests",
+                  "  </p>",
+                  "</div>",
+                  "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js\"></script>",
+                  "<script>",
+                  "  (function() {",
+                  "    function safeGet(obj, path, fallback) {",
+                  "      try {",
+                  "        return path.split('.').reduce(function(acc, key) { return acc && acc[key]; }, obj) || fallback;",
+                  "      } catch (e) {",
+                  "        return fallback;",
+                  "      }",
+                  "    }",
+                  "",
+                  "    pm.getData(function (err, data) {",
+                  "      if (err || !data) { return; }",
+                  "",
+                  "      var items = Array.isArray(data.items) ? data.items : [];",
+                  "",
+                  "      var labels = items.map(function(item) {",
+                  "        return item.serviceTitle || item._id || 'N/A';",
+                  "      });",
+                  "      var estimatedPrices = items.map(function(item) {",
+                  "        return Number(item.estimatedPrice) || 0;",
+                  "      });",
+                  "      var finalPrices = items.map(function(item) {",
+                  "        return Number(item.finalPrice) || 0;",
+                  "      });",
+                  "",
+                  "      var statusBuckets = {",
+                  "        assigned: 0,",
+                  "        inProgress: 0,",
+                  "        completed: 0,",
+                  "        cancelled: 0,",
+                  "        other: 0",
+                  "      };",
+                  "",
+                  "      items.forEach(function(item) {",
+                  "        var status = (item.status || '').toLowerCase();",
+                  "        if (status === 'assigned') statusBuckets.assigned++;",
+                  "        else if (status === 'inprogress' || status === 'in_progress') statusBuckets.inProgress++;",
+                  "        else if (status === 'completed') statusBuckets.completed++;",
+                  "        else if (status === 'cancelled' || status === 'canceled') statusBuckets.cancelled++;",
+                  "        else statusBuckets.other++;",
+                  "      });",
+                  "",
+                  "      var priceCtx = document.getElementById('priceChart');",
+                  "      if (priceCtx) {",
+                  "        new Chart(priceCtx, {",
+                  "          type: 'bar',",
+                  "          data: {",
+                  "            labels: labels,",
+                  "            datasets: [",
+                  "              {",
+                  "                label: 'Estimated Price',",
+                  "                backgroundColor: 'rgba(54, 162, 235, 0.6)',",
+                  "                borderColor: 'rgba(54, 162, 235, 1)',",
+                  "                borderWidth: 1,",
+                  "                data: estimatedPrices",
+                  "              },",
+                  "              {",
+                  "                label: 'Final Price',",
+                  "                backgroundColor: 'rgba(255, 99, 132, 0.6)',",
+                  "                borderColor: 'rgba(255, 99, 132, 1)',",
+                  "                borderWidth: 1,",
+                  "                data: finalPrices",
+                  "              }",
+                  "            ]",
+                  "          },",
+                  "          options: {",
+                  "            responsive: true,",
+                  "            legend: { position: 'top' },",
+                  "            title: {",
+                  "              display: false",
+                  "            },",
+                  "            scales: {",
+                  "              xAxes: [{",
+                  "                ticks: {",
+                  "                  autoSkip: false,",
+                  "                  maxRotation: 45,",
+                  "                  minRotation: 0",
+                  "                }",
+                  "              }],",
+                  "              yAxes: [{",
+                  "                ticks: {",
+                  "                  beginAtZero: true",
+                  "                }",
+                  "              }]",
+                  "            }",
+                  "          }",
+                  "        });",
+                  "      }",
+                  "",
+                  "      var statusCtx = document.getElementById('statusChart');",
+                  "      if (statusCtx) {",
+                  "        new Chart(statusCtx, {",
+                  "          type: 'doughnut',",
+                  "          data: {",
+                  "            labels: ['Assigned', 'In Progress', 'Completed', 'Cancelled', 'Other'],",
+                  "            datasets: [{",
+                  "              data: [",
+                  "                statusBuckets.assigned,",
+                  "                statusBuckets.inProgress,",
+                  "                statusBuckets.completed,",
+                  "                statusBuckets.cancelled,",
+                  "                statusBuckets.other",
+                  "              ],",
+                  "              backgroundColor: [",
+                  "                'rgba(54, 162, 235, 0.7)',",
+                  "                'rgba(255, 206, 86, 0.7)',",
+                  "                'rgba(75, 192, 192, 0.7)',",
+                  "                'rgba(255, 99, 132, 0.7)',",
+                  "                'rgba(201, 203, 207, 0.7)'",
+                  "              ],",
+                  "              borderColor: [",
+                  "                'rgba(54, 162, 235, 1)',",
+                  "                'rgba(255, 206, 86, 1)',",
+                  "                'rgba(75, 192, 192, 1)',",
+                  "                'rgba(255, 99, 132, 1)',",
+                  "                'rgba(201, 203, 207, 1)'",
+                  "              ],",
+                  "              borderWidth: 1",
+                  "            }]",
+                  "          },",
+                  "          options: {",
+                  "            responsive: true,",
+                  "            legend: { position: 'right' }",
+                  "          }",
+                  "        });",
+                  "      }",
+                  "    });",
+                  "  })();",
+                  "</script>",
+                  "`;",
+                  "",
+                  "function createPayload() {",
+                  "  var json;",
+                  "  try {",
+                  "    json = pm.response.json();",
+                  "  } catch (e) {",
+                  "    json = {};",
+                  "  }",
+                  "",
+                  "  var dataArray = Array.isArray(json.data) ? json.data : [];",
+                  "",
+                  "  return {",
+                  "    items: dataArray.map(function(item) {",
+                  "      return {",
+                  "        _id: item._id,",
+                  "        serviceTitle: item.serviceTitle,",
+                  "        estimatedPrice: item.estimatedPrice,",
+                  "        finalPrice: item.finalPrice,",
+                  "        status: item.status",
+                  "      };",
+                  "    })",
+                  "  };",
+                  "}",
+                  "",
+                  "pm.visualizer.set(template, createPayload());"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{serviceProviderToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/request/my-assigned-requests",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "request",
+                "my-assigned-requests"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "startService",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{serviceProviderToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/request/start/d913dc0b-9b65-45f4-ba41-654606be2ca2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "request",
+                "start",
+                "d913dc0b-9b65-45f4-ba41-654606be2ca2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "completeService",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{serviceProviderToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"afterImages\": \"\",\r\n    \"finalPrice\": 3500\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/request/complete/d913dc0b-9b65-45f4-ba41-654606be2ca2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "request",
+                "complete",
+                "d913dc0b-9b65-45f4-ba41-654606be2ca2"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        {
+          "name": "createReview",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"rating\": 3,\r\n    \"comment\": \"The provider was knowledgeable and assembled the furniture efficiently. Minor delay in arrival but work quality was great.\",\r\n    \"detailedRatings\": {\r\n      \"punctuality\": 2,\r\n      \"quality\": 5,\r\n      \"behaviour\": 5,\r\n      \"valueForMoney\": 4\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/review/create/d913dc0b-9b65-45f4-ba41-654606be2ca2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "review",
+                "create",
+                "d913dc0b-9b65-45f4-ba41-654606be2ca2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getProviderReviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/review/provider/aece4617-a4e7-4967-b3c1-edfa883bfb13",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "review",
+                "provider",
+                "aece4617-a4e7-4967-b3c1-edfa883bfb13"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getMyReviews - Customer",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/review/customer/my-reviews",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "review",
+                "customer",
+                "my-reviews"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "respondToReview - Provider",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{serviceProviderToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"comment\": \"Thanks for the review. Glad that my service helped you build your perfect dreamy cupboard.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/review/provider/respond/c85cf138-b67d-4cb4-a876-fd2553e384c0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "review",
+                "provider",
+                "respond",
+                "c85cf138-b67d-4cb4-a876-fd2553e384c0"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "updateReview - Customer",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"rating\": 4,\r\n    \"comment\": \"Good service overall. The provider was knowledgeable. Minor delay in arrival but work quality was great. Would recommend to go with this provider for any carpentery service\",\r\n    \"detailedRatings\": {\r\n      \"punctuality\": 2,\r\n      \"quality\": 5,\r\n      \"behaviour\": 3,\r\n      \"valueForMoney\": 3\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/review/customer/edit-review/83d334e2-5cf5-4c58-85fd-1058557f5959",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "review",
+                "customer",
+                "edit-review",
+                "83d334e2-5cf5-4c58-85fd-1058557f5959"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "deleteReview - Customer",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{customerToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/review/customer/delete/83d334e2-5cf5-4c58-85fd-1058557f5959",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "review",
+                "customer",
+                "delete",
+                "83d334e2-5cf5-4c58-85fd-1058557f5959"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "myReviews - Provider",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{serviceProviderToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/review/provider/my-reviews",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "review",
+                "provider",
+                "my-reviews"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "flagReview - Admin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"reason\": \"violation of T&C\",\r\n    \"hideReview\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/review/admin/flag/c85cf138-b67d-4cb4-a876-fd2553e384c0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "review",
+                "admin",
+                "flag",
+                "c85cf138-b67d-4cb4-a876-fd2553e384c0"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "unFlagReview - Admin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/review/admin/un-flag/c85cf138-b67d-4cb4-a876-fd2553e384c0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "review",
+                "admin",
+                "un-flag",
+                "c85cf138-b67d-4cb4-a876-fd2553e384c0"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "toggleReviewVisibility - Admin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/review/admin/visibility/c85cf138-b67d-4cb4-a876-fd2553e384c0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "review",
+                "admin",
+                "visibility",
+                "c85cf138-b67d-4cb4-a876-fd2553e384c0"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getAllReviews - Admin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/review/admin/all-reviews?isVisible=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "review",
+                "admin",
+                "all-reviews"
+              ],
+              "query": [
+                {
+                  "key": "isVisible",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getReviewById",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/review/general/5e7bf324-43fa-4c76-b381-2b2a2b675def",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "review",
+                "general",
+                "5e7bf324-43fa-4c76-b381-2b2a2b675def"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
