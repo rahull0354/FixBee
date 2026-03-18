@@ -22,14 +22,14 @@ export function useRequireAuth(requiredRole?: UserRole) {
   if (!auth.loading && !auth.isAuthenticated) {
     // Redirect to login if not authenticated
     if (typeof window !== 'undefined') {
-      window.location.href = `/auth/login${requiredRole ? `/${requiredRole}` : ''}`;
+      window.location.href = `/login${requiredRole ? `/${requiredRole}` : ''}`;
     }
   }
 
   if (requiredRole && auth.user?.role !== requiredRole) {
     // Redirect if role doesn't match
     if (typeof window !== 'undefined') {
-      window.location.href = `/auth/login/${requiredRole}`;
+      window.location.href = `/login/${requiredRole}`;
     }
   }
 

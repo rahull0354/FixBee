@@ -36,14 +36,4 @@ export const authApi = {
   adminLogout: async (): Promise<void> => {
     return apiClient.post('/author/logout');
   },
-
-  // Verify token (for checking authentication status)
-  verifyToken: async (role: 'customer' | 'provider' | 'admin') => {
-    return apiClient.get(`/${role}/verify-token`);
-  },
-
-  // Refresh token
-  refreshToken: async (role: 'customer' | 'provider' | 'admin') => {
-    return apiClient.post(`/${role}/refresh-token`);
-  },
 };

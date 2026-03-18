@@ -155,7 +155,7 @@ export function RegisterCustomerForm() {
               <h2 className="text-3xl font-bold bg-linear-to-r from-sky-500 via-blue-500 to-indigo-500 bg-clip-text text-transparent mb-1">
                 Join FixBee Today
               </h2>
-              <p className="text-gray-600 font-medium">Create your customer account</p>
+              <p className="text-gray-800 font-medium">Create your customer account</p>
               <p className="text-sm text-gray-500 mt-1">Book home services from verified professionals</p>
             </div>
 
@@ -173,13 +173,13 @@ export function RegisterCustomerForm() {
 
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="name" className="text-gray-700 font-medium">
+                      <Label htmlFor="name" className="text-gray-800 font-medium">
                         Full Name <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="name"
                         placeholder="John Doe"
-                        className="h-11 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white/50 backdrop-blur-sm"
+                        className="h-11 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white"
                         {...register('name')}
                         disabled={isLoading}
                       />
@@ -192,16 +192,16 @@ export function RegisterCustomerForm() {
 
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="email" className="text-gray-700 font-medium">
+                        <Label htmlFor="email" className="text-gray-800 font-medium">
                           Email Address <span className="text-red-500">*</span>
                         </Label>
                         <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-sky-600" />
                           <Input
                             id="email"
                             type="email"
                             placeholder="john@example.com"
-                            className="h-11 pl-10 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white/50 backdrop-blur-sm"
+                            className="h-11 pl-10 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white"
                             {...register('email')}
                             disabled={isLoading}
                           />
@@ -214,16 +214,16 @@ export function RegisterCustomerForm() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="phone" className="text-gray-700 font-medium">
+                        <Label htmlFor="phone" className="text-gray-800 font-medium">
                           Phone Number <span className="text-red-500">*</span>
                         </Label>
                         <div className="relative">
-                          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-sky-600" />
                           <Input
                             id="phone"
                             type="tel"
                             placeholder="+1 (555) 000-0000"
-                            className="h-11 pl-10 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white/50 backdrop-blur-sm"
+                            className="h-11 pl-10 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white"
                             {...register('phone')}
                             disabled={isLoading}
                           />
@@ -237,16 +237,16 @@ export function RegisterCustomerForm() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="password" className="text-gray-700 font-medium">
+                      <Label htmlFor="password" className="text-gray-800 font-medium">
                         Password <span className="text-red-500">*</span>
                       </Label>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-sky-600" />
                         <Input
                           id="password"
                           type="password"
                           placeholder="••••••••"
-                          className="h-11 pl-10 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white/50 backdrop-blur-sm"
+                          className="h-11 pl-10 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white"
                           {...register('password')}
                           disabled={isLoading}
                         />
@@ -263,14 +263,14 @@ export function RegisterCustomerForm() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="profilePicture" className="text-gray-700 font-medium">
-                        Profile Picture URL <span className="text-gray-400">(Optional)</span>
+                      <Label htmlFor="profilePicture" className="text-gray-800 font-medium">
+                        Profile Picture URL <span className="text-gray-800">(Optional)</span>
                       </Label>
                       <Input
                         id="profilePicture"
                         type="url"
                         placeholder="https://example.com/photo.jpg"
-                        className="h-11 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white/50 backdrop-blur-sm"
+                        className="h-11 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white"
                         {...register('profilePicture')}
                         disabled={isLoading}
                       />
@@ -294,16 +294,19 @@ export function RegisterCustomerForm() {
 
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="address.street" className="text-gray-700 font-medium">
+                      <Label htmlFor="address.street" className="text-gray-800 font-medium">
                         Street Address <span className="text-red-500">*</span>
                       </Label>
-                      <Input
-                        id="address.street"
-                        placeholder="123 Main Street, Apt 4B"
-                        className="h-11 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white/50 backdrop-blur-sm"
-                        {...register('address.street')}
-                        disabled={isLoading}
-                      />
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-sky-600" />
+                        <Input
+                          id="address.street"
+                          placeholder="123 Main Street, Apt 4B"
+                          className="h-11 pl-10 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white"
+                          {...register('address.street')}
+                          disabled={isLoading}
+                        />
+                      </div>
                       {errors.address?.street && (
                         <p className="text-sm text-red-500 flex items-center gap-1">
                           <span>•</span> {errors.address.street.message}
@@ -313,16 +316,19 @@ export function RegisterCustomerForm() {
 
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="address.city" className="text-gray-700 font-medium">
+                        <Label htmlFor="address.city" className="text-gray-800 font-medium">
                           City <span className="text-red-500">*</span>
                         </Label>
-                        <Input
-                          id="address.city"
-                          placeholder="New York"
-                          className="h-11 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white/50 backdrop-blur-sm"
-                          {...register('address.city')}
-                          disabled={isLoading}
-                        />
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-sky-600" />
+                          <Input
+                            id="address.city"
+                            placeholder="New York"
+                            className="h-11 pl-10 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white"
+                            {...register('address.city')}
+                            disabled={isLoading}
+                          />
+                        </div>
                         {errors.address?.city && (
                           <p className="text-sm text-red-500 flex items-center gap-1">
                             <span>•</span> {errors.address.city.message}
@@ -331,16 +337,19 @@ export function RegisterCustomerForm() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="address.state" className="text-gray-700 font-medium">
+                        <Label htmlFor="address.state" className="text-gray-800 font-medium">
                           State <span className="text-red-500">*</span>
                         </Label>
-                        <Input
-                          id="address.state"
-                          placeholder="NY"
-                          className="h-11 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white/50 backdrop-blur-sm"
-                          {...register('address.state')}
-                          disabled={isLoading}
-                        />
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-sky-600" />
+                          <Input
+                            id="address.state"
+                            placeholder="NY"
+                            className="h-11 pl-10 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white"
+                            {...register('address.state')}
+                            disabled={isLoading}
+                          />
+                        </div>
                         {errors.address?.state && (
                           <p className="text-sm text-red-500 flex items-center gap-1">
                             <span>•</span> {errors.address.state.message}
@@ -351,16 +360,19 @@ export function RegisterCustomerForm() {
 
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="address.zipCode" className="text-gray-700 font-medium">
-                          ZIP Code <span className="text-red-500">*</span>
+                        <Label htmlFor="address.zipCode" className="text-gray-800 font-medium">
+                          PIN Code <span className="text-red-500">*</span>
                         </Label>
-                        <Input
-                          id="address.zipCode"
-                          placeholder="10001"
-                          className="h-11 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white/50 backdrop-blur-sm"
-                          {...register('address.zipCode')}
-                          disabled={isLoading}
-                        />
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-sky-600" />
+                          <Input
+                            id="address.zipCode"
+                            placeholder="100001"
+                            className="h-11 pl-10 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white"
+                            {...register('address.zipCode')}
+                            disabled={isLoading}
+                          />
+                        </div>
                         {errors.address?.zipCode && (
                           <p className="text-sm text-red-500 flex items-center gap-1">
                             <span>•</span> {errors.address.zipCode.message}
@@ -369,16 +381,19 @@ export function RegisterCustomerForm() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="address.country" className="text-gray-700 font-medium">
-                          Country <span className="text-gray-400">(Optional)</span>
+                        <Label htmlFor="address.country" className="text-gray-800 font-medium">
+                          Country <span className="text-gray-800">(Optional)</span>
                         </Label>
-                        <Input
-                          id="address.country"
-                          placeholder="United States"
-                          className="h-11 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white/50 backdrop-blur-sm"
-                          {...register('address.country')}
-                          disabled={isLoading}
-                        />
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-sky-600" />
+                          <Input
+                            id="address.country"
+                            placeholder="United States"
+                            className="h-11 pl-10 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white"
+                            {...register('address.country')}
+                            disabled={isLoading}
+                          />
+                        </div>
                         {errors.address?.country && (
                           <p className="text-sm text-red-500 flex items-center gap-1">
                             <span>•</span> {errors.address.country.message}
@@ -408,7 +423,7 @@ export function RegisterCustomerForm() {
 
               {/* Login Link */}
               <div className="mt-6 text-center">
-                <p className="text-gray-600">
+                <p className="text-gray-800">
                   Already have an account?{' '}
                   <Link
                     href="/login/customer"
@@ -423,7 +438,7 @@ export function RegisterCustomerForm() {
               <div className="mt-4 text-center">
                 <Link
                   href="/"
-                  className="text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors"
+                  className="text-sm text-gray-500 hover:text-gray-800 font-medium transition-colors"
                 >
                   ← Back to home
                 </Link>

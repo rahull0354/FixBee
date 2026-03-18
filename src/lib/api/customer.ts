@@ -8,7 +8,7 @@ export const customerApi = {
   },
 
   updateProfile: async (data: any) => {
-    return apiClient.put('/customers/profile', data);
+    return apiClient.put('/customers/update-profile', data);
   },
 
   deactivateAccount: async () => {
@@ -70,6 +70,6 @@ export const customerApi = {
   },
 
   getProvider: async (id: string) => {
-    return apiClient.get(`/providers/${id}`);
+    return apiClient.get(`/providers/list/profile/${id}`);
   },
 };

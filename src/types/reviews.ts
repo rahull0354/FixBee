@@ -31,6 +31,7 @@ export interface Review {
   serviceRequest?: {
     id: string;
     title: string;
+    serviceType?: string;
   };
 }
 

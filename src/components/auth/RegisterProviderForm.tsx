@@ -155,7 +155,7 @@ export function RegisterProviderForm() {
               <h2 className="text-3xl font-bold bg-linear-to-r from-emerald-500 via-green-500 to-teal-500 bg-clip-text text-transparent mb-1">
                 Create Provider Account
               </h2>
-              <p className="text-gray-600 font-medium">Join FixBee as a service provider</p>
+              <p className="text-gray-800 font-medium">Join FixBee as a service provider</p>
               <p className="text-sm text-gray-500 mt-1">Grow your business with us</p>
             </div>
 
@@ -163,15 +163,15 @@ export function RegisterProviderForm() {
             <div className="px-8 py-6">
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-gray-700 font-medium">
+                  <Label htmlFor="name" className="text-gray-800 font-medium">
                     Full Name <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
-                    <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-600" />
                     <Input
                       id="name"
                       placeholder="John Doe"
-                      className="h-11 pl-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/20 bg-white/50 backdrop-blur-sm"
+                      className="h-11 pl-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/20 bg-white"
                       {...register('name')}
                       disabled={isLoading}
                     />
@@ -184,16 +184,16 @@ export function RegisterProviderForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-gray-700 font-medium">
+                  <Label htmlFor="email" className="text-gray-800 font-medium">
                     Email Address <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-600" />
                     <Input
                       id="email"
                       type="email"
                       placeholder="john@example.com"
-                      className="h-11 pl-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/20 bg-white/50 backdrop-blur-sm"
+                      className="h-11 pl-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/20 bg-white"
                       {...register('email')}
                       disabled={isLoading}
                     />
@@ -206,16 +206,16 @@ export function RegisterProviderForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-gray-700 font-medium">
-                    Phone Number <span className="text-gray-400">(Optional)</span>
+                  <Label htmlFor="phone" className="text-gray-800 font-medium">
+                    Phone Number <span className="text-gray-800">(Optional)</span>
                   </Label>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-600" />
                     <Input
                       id="phone"
                       type="tel"
                       placeholder="+1 (555) 000-0000"
-                      className="h-11 pl-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/20 bg-white/50 backdrop-blur-sm"
+                      className="h-11 pl-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/20 bg-white"
                       {...register('phone')}
                       disabled={isLoading}
                     />
@@ -228,16 +228,16 @@ export function RegisterProviderForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-gray-700 font-medium">
+                  <Label htmlFor="password" className="text-gray-800 font-medium">
                     Password <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-600" />
                     <Input
                       id="password"
                       type="password"
                       placeholder="••••••••"
-                      className="h-11 pl-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/20 bg-white/50 backdrop-blur-sm"
+                      className="h-11 pl-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/20 bg-white"
                       {...register('password')}
                       disabled={isLoading}
                     />
@@ -285,7 +285,7 @@ export function RegisterProviderForm() {
 
               {/* Login Link */}
               <div className="mt-6 text-center">
-                <p className="text-gray-600">
+                <p className="text-gray-800">
                   Already have an account?{' '}
                   <Link
                     href="/login/provider"
@@ -300,7 +300,7 @@ export function RegisterProviderForm() {
               <div className="mt-4 text-center">
                 <Link
                   href="/"
-                  className="text-sm text-gray-500 hover:text-gray-700 font-medium transition-colors"
+                  className="text-sm text-gray-500 hover:text-gray-800 font-medium transition-colors"
                 >
                   ← Back to home
                 </Link>

@@ -44,7 +44,7 @@ export default function LoginPage() {
   return (
     <div className="h-screen w-screen flex overflow-hidden">
       {/* Left Side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 h-full bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 h-full bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 relative overflow-hidden">
         {/* Animated background shapes */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-20 right-20 w-96 h-96 bg-linear-to-br from-sky-500 via-blue-500 to-indigo-500 rounded-full blur-3xl opacity-20 animate-pulse" />
@@ -140,7 +140,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right Side - Role Selection */}
-      <div className="w-full lg:w-1/2 h-full flex items-center justify-center px-4 py-12 bg-gradient-to-br from-sky-50 via-white to-blue-50 relative overflow-y-auto">
+      <div className="w-full lg:w-1/2 h-full flex items-center justify-center px-4 py-12 bg-linear-to-br from-sky-50 via-white to-blue-50 relative overflow-y-auto">
         {/* Animated background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-20 right-20 w-72 h-72 bg-linear-to-br from-sky-200/20 to-blue-200/20 rounded-full blur-3xl animate-pulse" />
@@ -178,7 +178,7 @@ export default function LoginPage() {
                 >
                   <div className={`backdrop-blur-xl bg-white/80 rounded-3xl shadow-xl border-2 ${role.borderColor} overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] hover:-translate-y-1 h-full`}>
                     {/* Card Header */}
-                    <div className={`bg-gradient-to-br ${role.bgGradient} px-6 py-8 text-center`}>
+                    <div className={`bg-linear-to-br ${role.bgGradient} px-6 py-8 text-center`}>
                       <div className={`w-20 h-20 bg-linear-to-br ${role.gradient} rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl group-hover:scale-110 transition-transform`}>
                         <Icon className="h-10 w-10 text-white" />
                       </div>

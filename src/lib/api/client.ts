@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 // Simplified config type for our helper methods
 type ApiConfig = {
@@ -23,7 +23,30 @@ class ApiClient {
     // Request interceptor
     this.client.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
-        // Token is handled via httpOnly cookies, so we don't need to add it manually
+        // Log outgoing requests for debugging
+        if (typeof window !== 'undefined') {
+          console.log(`[API ${config.method?.toUpperCase()}]`, config.url, {
+            params: config.params,
+            hasData: !!config.data,
+          });
+        }
+
+        // Try to get token from cookie as fallback for Authorization header
+        // Some backends expect Authorization header even with cookies
+        if (typeof document !== 'undefined') {
+          const getCookie = (name: string) => {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop()?.split(';').shift();
+            return null;
+          };
+
+          const token = getCookie('auth_token');
+          if (token && config.headers) {
+            config.headers.Authorization = `Bearer ${token}`;
+          }
+        }
+
         return config;
       },
       (error: AxiosError) => {
@@ -31,20 +54,56 @@ class ApiClient {
       }
     );
 
-    // Response interceptor
+    // Response interceptor - unwrap backend response format
     this.client.interceptors.response.use(
       (response: AxiosResponse) => {
-        return response;
+        // Handle backend response format: { message, success, data }
+        const backendResponse = response.data as any;
+
+        // If success is false, create an error but preserve axios structure
+        if (backendResponse.success === false) {
+          const error: any = new Error(backendResponse.message || 'Request failed');
+          // Preserve all axios error properties
+          error.config = response.config;
+          error.response = {
+            ...response,
+            data: backendResponse
+          };
+          error.isAxiosError = true;
+          throw error;
+        }
+
+        // Extract the actual data from the backend response
+        // Backend sends: { message, success, user/data/customer/provider/author }
+        // We want to return the actual data (user, customer, etc)
+        const data = backendResponse.data || backendResponse.user || backendResponse.customer || backendResponse.provider || backendResponse.author;
+
+        // Return the data in the expected format
+        return {
+          ...response,
+          data: data !== undefined ? data : backendResponse
+        };
       },
-      async (error: AxiosError) => {
-        if (error.response?.status === 401) {
+      (error: AxiosError | any) => {
+        // Log errors for debugging
+        if (typeof window !== 'undefined') {
+          console.error('[API ERROR]', {
+            url: error.config?.url,
+            status: error?.response?.status,
+            statusText: error?.response?.statusText,
+            data: error?.response?.data,
+            message: error?.message,
+          });
+        }
+
+        if (error?.response?.status === 401) {
           // Token expired or invalid
           // Could trigger a refresh or redirect to login
           if (typeof window !== 'undefined') {
             const currentPath = window.location.pathname;
-            if (!currentPath.includes('/auth')) {
+            if (!currentPath.includes('/login') && !currentPath.includes('/register') && !currentPath.includes('/forgot-password')) {
               // Redirect to login page preserving the intended destination
-              window.location.href = `/auth/login?redirect=${encodeURIComponent(currentPath)}`;
+              window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
             }
           }
         }

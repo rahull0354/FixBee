@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useAuth } from "@/components/auth/AuthProvider";
 import {
   Wrench,
   User,
@@ -38,6 +39,22 @@ import {
 } from "lucide-react";
 
 export default function Home() {
+  const { user, isAuthenticated } = useAuth();
+
+  // Get dashboard URL based on user role
+  const getDashboardUrl = () => {
+    if (!user?.role) return "/login";
+    switch (user.role) {
+      case "customer":
+        return "/customer/dashboard";
+      case "provider":
+        return "/provider/dashboard";
+      case "admin":
+        return "/admin/dashboard";
+      default:
+        return "/login";
+    }
+  };
   return (
     <div className="min-h-screen bg-linear-to-br from-sky-50 via-white to-blue-50">
       {/* Animated 3D Background Shapes */}
@@ -68,18 +85,37 @@ export default function Home() {
               </span>
             </Link>
             <div className="flex items-center gap-4">
-              <Link
-                href="/login"
-                className="text-gray-600 hover:text-sky-600 transition-colors font-medium"
-              >
-                Login
-              </Link>
-              <Button
-                className="bg-linear-to-r from-sky-400 via-blue-400 to-indigo-400 hover:from-sky-500 hover:via-blue-500 hover:to-indigo-500 text-white shadow-xl hover:shadow-2xl transition-all hover:scale-105"
-                asChild
-              >
-                <Link href="/register">Get Started</Link>
-              </Button>
+              {isAuthenticated && user ? (
+                <>
+                  <span className="text-sm text-gray-600">
+                    Welcome back, <span className="font-semibold text-sky-600">{user.name?.split(" ")[0]}</span>!
+                  </span>
+                  <Button
+                    className="bg-linear-to-r from-sky-400 via-blue-400 to-indigo-400 hover:from-sky-500 hover:via-blue-500 hover:to-indigo-500 text-white shadow-xl hover:shadow-2xl transition-all hover:scale-105"
+                    asChild
+                  >
+                    <Link href={getDashboardUrl()}>
+                      <HomeIcon className="mr-2 h-4 w-4" />
+                      Dashboard
+                    </Link>
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="text-gray-600 hover:text-sky-600 transition-colors font-medium"
+                  >
+                    Login
+                  </Link>
+                  <Button
+                    className="bg-linear-to-r from-sky-400 via-blue-400 to-indigo-400 hover:from-sky-500 hover:via-blue-500 hover:to-indigo-500 text-white shadow-xl hover:shadow-2xl transition-all hover:scale-105"
+                    asChild
+                  >
+                    <Link href="/register">Get Started</Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -343,109 +379,140 @@ export default function Home() {
       {/* Services Section with 3D Hover Effects */}
       <section className="py-24 bg-linear-to-b from-white to-gray-50">
         <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold mb-4 text-gray-900">
-              Choose Your{" "}
-              <span className="bg-linear-to-r from-sky-500 via-blue-500 to-indigo-500 bg-clip-text text-transparent">
-                Role
-              </span>
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Join thousands of satisfied customers and skilled providers on our
-              platform
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto">
-            {[
-              {
-                title: "Customer",
-                icon: User,
-                href: "/auth/register/customer",
-                desc: "Post service requests and connect with skilled providers",
-                features: [
-                  "Verified providers",
-                  "Transparent pricing",
-                  "Easy booking",
-                  "24/7 Support",
-                ],
-                color: "sky",
-                gradient: "from-sky-400 to-sky-500",
-                bgGradient: "from-sky-50 to-sky-100",
-                borderColor: "border-sky-200",
-              },
-              {
-                title: "Service Provider",
-                icon: Wrench,
-                href: "/auth/register/provider",
-                desc: "Grow your business and reach more customers",
-                features: [
-                  "Flexible schedule",
-                  "Instant payments",
-                  "Build reputation",
-                  "Analytics",
-                ],
-                color: "teal",
-                gradient: "from-teal-400 to-teal-500",
-                bgGradient: "from-teal-50 to-teal-100",
-                borderColor: "border-teal-200",
-              },
-              {
-                title: "Admin",
-                icon: Shield,
-                href: "/auth/login/admin",
-                desc: "Manage and monitor the entire platform",
-                features: [
-                  "User management",
-                  "Analytics dashboard",
-                  "Review moderation",
-                  "Full control",
-                ],
-                color: "blue",
-                gradient: "from-blue-400 to-blue-500",
-                bgGradient: "from-blue-50 to-blue-100",
-                borderColor: "border-blue-200",
-              },
-            ].map((role, i) => (
-              <Card
-                key={i}
-                className={`group relative overflow-hidden border-2 ${role.borderColor} hover:border-${role.color}-300 transition-all bg-linear-to-br ${role.bgGradient} hover:scale-105 hover:shadow-2xl hover:-translate-y-2`}
-                style={{ transformStyle: "preserve-3d", perspective: "1000px" }}
+          {isAuthenticated && user ? (
+            <div className="text-center max-w-4xl mx-auto">
+              <div className="mb-8">
+                <div className="w-32 h-32 bg-linear-to-br from-sky-400 via-blue-400 to-indigo-400 rounded-full flex items-center justify-center mx-auto shadow-2xl">
+                  <CheckCircle2 className="h-16 w-16 text-white" />
+                </div>
+              </div>
+              <h2 className="text-5xl font-bold mb-6 text-gray-900">
+                Welcome Back,{" "}
+                <span className="bg-linear-to-r from-sky-500 via-blue-500 to-indigo-500 bg-clip-text text-transparent">
+                  {user.name}!
+                </span>
+              </h2>
+              <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+                You are logged in as a <span className="font-semibold text-sky-600 capitalize">{user.role}</span>
+              </p>
+              <Button
+                className="bg-linear-to-r from-sky-400 via-blue-400 to-indigo-400 hover:from-sky-500 hover:via-blue-500 hover:to-indigo-500 text-white shadow-xl hover:shadow-2xl transition-all hover:scale-105 px-12 py-6 text-lg"
+                size="lg"
+                asChild
               >
-                <div className="absolute inset-0 bg-linear-to-br from-white/0 to-white/50 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <CardContent className="p-8 text-center relative">
-                  <div
-                    className={`w-24 h-24 bg-linear-to-br ${role.gradient} rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl group-hover:scale-110 group-hover:rotate-6 transition-all`}
+                <Link href={getDashboardUrl()}>
+                  <HomeIcon className="mr-2 h-5 w-5" />
+                  Go to Dashboard
+                </Link>
+              </Button>
+            </div>
+          ) : (
+            <>
+              <div className="text-center mb-16">
+                <h2 className="text-5xl font-bold mb-4 text-gray-900">
+                  Choose Your{" "}
+                  <span className="bg-linear-to-r from-sky-500 via-blue-500 to-indigo-500 bg-clip-text text-transparent">
+                    Role
+                  </span>
+                </h2>
+                <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                  Join thousands of satisfied customers and skilled providers on our
+                  platform
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto">
+                {[
+                  {
+                    title: "Customer",
+                    icon: User,
+                    href: "/register/customer",
+                    desc: "Post service requests and connect with skilled providers",
+                    features: [
+                      "Verified providers",
+                      "Transparent pricing",
+                      "Easy booking",
+                      "24/7 Support",
+                    ],
+                    color: "sky",
+                    gradient: "from-sky-400 to-sky-500",
+                    bgGradient: "from-sky-50 to-sky-100",
+                    borderColor: "border-sky-200",
+                  },
+                  {
+                    title: "Service Provider",
+                    icon: Wrench,
+                    href: "/register/provider",
+                    desc: "Grow your business and reach more customers",
+                    features: [
+                      "Flexible schedule",
+                      "Instant payments",
+                      "Build reputation",
+                      "Analytics",
+                    ],
+                    color: "teal",
+                    gradient: "from-teal-400 to-teal-500",
+                    bgGradient: "from-teal-50 to-teal-100",
+                    borderColor: "border-teal-200",
+                  },
+                  {
+                    title: "Admin",
+                    icon: Shield,
+                    href: "/login/admin",
+                    desc: "Manage and monitor the entire platform",
+                    features: [
+                      "User management",
+                      "Analytics dashboard",
+                      "Review moderation",
+                      "Full control",
+                    ],
+                    color: "blue",
+                    gradient: "from-blue-400 to-blue-500",
+                    bgGradient: "from-blue-50 to-blue-100",
+                    borderColor: "border-blue-200",
+                  },
+                ].map((role, i) => (
+                  <Card
+                    key={i}
+                    className={`group relative overflow-hidden border-2 ${role.borderColor} hover:border-${role.color}-300 transition-all bg-linear-to-br ${role.bgGradient} hover:scale-105 hover:shadow-2xl hover:-translate-y-2`}
+                    style={{ transformStyle: "preserve-3d", perspective: "1000px" }}
                   >
-                    <role.icon className="h-12 w-12 text-white" />
-                  </div>
-                  <h3 className="text-3xl font-bold mb-4 text-gray-900">
-                    {role.title}
-                  </h3>
-                  <p className="text-gray-600 mb-6">{role.desc}</p>
-                  <ul className="space-y-3 mb-6 text-left">
-                    {role.features.map((feature, fi) => (
-                      <li
-                        key={fi}
-                        className="flex items-center gap-3 text-sm text-gray-700"
+                    <div className="absolute inset-0 bg-linear-to-br from-white/0 to-white/50 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <CardContent className="p-8 text-center relative">
+                      <div
+                        className={`w-24 h-24 bg-linear-to-br ${role.gradient} rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl group-hover:scale-110 group-hover:rotate-6 transition-all`}
                       >
-                        <CheckCircle2
-                          className={`h-5 w-5 text-${role.color}-500 shrink-0`}
-                        />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  <Button
-                    className={`w-full bg-linear-to-r ${role.gradient} hover:shadow-xl transition-all hover:scale-105`}
-                    asChild
-                  >
-                    <Link href={role.href}>Get Started</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                        <role.icon className="h-12 w-12 text-white" />
+                      </div>
+                      <h3 className="text-3xl font-bold mb-4 text-gray-900">
+                        {role.title}
+                      </h3>
+                      <p className="text-gray-600 mb-6">{role.desc}</p>
+                      <ul className="space-y-3 mb-6 text-left">
+                        {role.features.map((feature, fi) => (
+                          <li
+                            key={fi}
+                            className="flex items-center gap-3 text-sm text-gray-700"
+                          >
+                            <CheckCircle2
+                              className={`h-5 w-5 text-${role.color}-500 shrink-0`}
+                            />
+                            {feature}
+                          </li>
+                        ))}
+                      </ul>
+                      <Button
+                        className={`w-full bg-linear-to-r ${role.gradient} hover:shadow-xl transition-all hover:scale-105`}
+                        asChild
+                      >
+                        <Link href={role.href}>Get Started</Link>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </section>
 
@@ -967,30 +1034,76 @@ export default function Home() {
             <div>
               <h4 className="font-bold text-lg mb-6 text-gray-900">Platform</h4>
               <ul className="space-y-3">
-                <li>
-                  <Link
-                    href="/register/customer"
-                    className="text-gray-600 hover:text-sky-600 transition-colors"
-                  >
-                    For Customers
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/register/provider"
-                    className="text-gray-600 hover:text-sky-600 transition-colors"
-                  >
-                    For Providers
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/login/admin"
-                    className="text-gray-600 hover:text-sky-600 transition-colors"
-                  >
-                    Admin Login
-                  </Link>
-                </li>
+                {!isAuthenticated && (
+                  <>
+                    <li>
+                      <Link
+                        href="/register/customer"
+                        className="text-gray-600 hover:text-sky-600 transition-colors"
+                      >
+                        For Customers
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/register/provider"
+                        className="text-gray-600 hover:text-sky-600 transition-colors"
+                      >
+                        For Providers
+                      </Link>
+                    </li>
+                  </>
+                )}
+                {isAuthenticated && user?.role === "customer" && (
+                  <li>
+                    <Link
+                      href="/customer/dashboard"
+                      className="text-gray-600 hover:text-sky-600 transition-colors"
+                    >
+                      Customer Dashboard
+                    </Link>
+                  </li>
+                )}
+                {isAuthenticated && user?.role === "provider" && (
+                  <li>
+                    <Link
+                      href="/provider/dashboard"
+                      className="text-gray-600 hover:text-sky-600 transition-colors"
+                    >
+                      Provider Dashboard
+                    </Link>
+                  </li>
+                )}
+                {isAuthenticated && user?.role === "admin" && (
+                  <li>
+                    <Link
+                      href="/admin/dashboard"
+                      className="text-gray-600 hover:text-sky-600 transition-colors"
+                    >
+                      Admin Dashboard
+                    </Link>
+                  </li>
+                )}
+                {!isAuthenticated && (
+                  <li>
+                    <Link
+                      href="/login/admin"
+                      className="text-gray-600 hover:text-sky-600 transition-colors"
+                    >
+                      Admin Login
+                    </Link>
+                  </li>
+                )}
+                {isAuthenticated && user?.role === "admin" && (
+                  <li>
+                    <Link
+                      href="/admin/dashboard"
+                      className="text-gray-600 hover:text-sky-600 transition-colors"
+                    >
+                      Admin Dashboard
+                    </Link>
+                  </li>
+                )}
               </ul>
             </div>
 

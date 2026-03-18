@@ -8,6 +8,15 @@ export interface User {
   phone?: string;
   profilePicture?: string;
   isVerified?: boolean;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+  };
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
 }
 
 export interface AuthState {

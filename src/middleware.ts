@@ -1,90 +1,102 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-// Routes that don't require authentication
 const publicRoutes = [
-  '/',
-  '/auth/login',
-  '/auth/login/customer',
-  '/auth/login/provider',
-  '/auth/login/admin',
-  '/auth/register/customer',
-  '/auth/register/provider',
-  '/auth/forgot-password',
+  "/",
+  "/login",
+  "/login/customer",
+  "/login/provider",
+  "/login/admin",
+  "/register",
+  "/register/customer",
+  "/register/provider",
+  "/forgot-password",
 ];
 
-// Role-specific route prefixes
-const roleRoutes = {
-  customer: '/customer',
-  provider: '/provider',
-  admin: '/admin',
+// Role-based dashboard mappings
+const dashboardRoutes = {
+  customer: "/customer/dashboard",
+  provider: "/provider/dashboard",
+  admin: "/admin/dashboard",
 };
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Get auth token from cookies
-  const token = request.cookies.get('auth_token')?.value;
-  const userRole = request.cookies.get('user_role')?.value as 'customer' | 'provider' | 'admin' | null;
+  // Get authentication indicators from cookies
+  const authToken = request.cookies.get("auth_token")?.value;
+  const userRole = request.cookies.get("user_role")?.value as
+    | "customer"
+    | "provider"
+    | "admin"
+    | null;
 
-  // Check if the route is public
-  const isPublicRoute = publicRoutes.some((route) => pathname === route || pathname.startsWith(route));
+  // Check if current path is a public route
+  const isPublicRoute = publicRoutes.includes(pathname);
 
-  // If accessing a protected route without authentication, redirect to login
-  if (!isPublicRoute && !token) {
-    const loginUrl = new URL('/auth/login', request.url);
-    loginUrl.searchParams.set('redirect', pathname);
+  if (!isPublicRoute && !authToken && !userRole) {
+    // Determine the appropriate login page based on the requested path
+    let loginPath = "/login";
+
+    if (pathname.startsWith("/customer")) {
+      loginPath = "/login/customer";
+    } else if (pathname.startsWith("/provider")) {
+      loginPath = "/login/provider";
+    } else if (pathname.startsWith("/admin")) {
+      loginPath = "/login/admin";
+    }
+
+    const loginUrl = new URL(loginPath, request.url);
+    loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // If authenticated, check role-based access
-  if (token && userRole) {
-    // Redirect customer away from provider/admin routes
-    if (userRole === 'customer' && (pathname.startsWith('/provider') || pathname.startsWith('/admin'))) {
-      return NextResponse.redirect(new URL('/customer/dashboard', request.url));
-    }
-
-    // Redirect provider away from customer/admin routes
-    if (userRole === 'provider' && (pathname.startsWith('/customer') || pathname.startsWith('/admin'))) {
-      return NextResponse.redirect(new URL('/provider/dashboard', request.url));
-    }
-
-    // Redirect admin away from customer/provider routes
-    if (userRole === 'admin' && (pathname.startsWith('/customer') || pathname.startsWith('/provider'))) {
-      return NextResponse.redirect(new URL('/admin/dashboard', request.url));
-    }
-
-    // If accessing role-specific routes without the correct role, redirect
-    if (pathname.startsWith('/customer') && userRole !== 'customer') {
-      return NextResponse.redirect(new URL('/auth/login/customer', request.url));
-    }
-    if (pathname.startsWith('/provider') && userRole !== 'provider') {
-      return NextResponse.redirect(new URL('/auth/login/provider', request.url));
-    }
-    if (pathname.startsWith('/admin') && userRole !== 'admin') {
-      return NextResponse.redirect(new URL('/auth/login/admin', request.url));
+  if (
+    userRole &&
+    (pathname.startsWith("/login") ||
+      pathname.startsWith("/register") ||
+      pathname === "/forgot-password")
+  ) {
+    // Redirect to appropriate dashboard
+    const dashboardPath = dashboardRoutes[userRole];
+    if (dashboardPath) {
+      return NextResponse.redirect(new URL(dashboardPath, request.url));
     }
   }
 
-  // If accessing auth pages while authenticated, redirect to appropriate dashboard
-  if (token && userRole && pathname.startsWith('/auth')) {
-    const dashboardRoute = roleRoutes[userRole];
-    return NextResponse.redirect(new URL(`${dashboardRoute}/dashboard`, request.url));
+  if (userRole) {
+    // Customer trying to access provider/admin routes
+    if (
+      userRole === "customer" &&
+      (pathname.startsWith("/provider") || pathname.startsWith("/admin"))
+    ) {
+      return NextResponse.redirect(new URL("/customer/dashboard", request.url));
+    }
+
+    // Provider trying to access customer/admin routes
+    if (
+      userRole === "provider" &&
+      (pathname.startsWith("/customer") || pathname.startsWith("/admin"))
+    ) {
+      return NextResponse.redirect(new URL("/provider/dashboard", request.url));
+    }
+
+    // Admin trying to access customer/provider routes
+    if (
+      userRole === "admin" &&
+      (pathname.startsWith("/customer") || pathname.startsWith("/provider"))
+    ) {
+      return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+    }
   }
 
+  // Allow the request to proceed
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    // Match all paths except API routes, static files, and Next.js internals
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

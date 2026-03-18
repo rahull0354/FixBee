@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, User, Wrench, Shield, Wrench as FixBeeIcon, Home, Star, CheckCircle2, Zap, ShieldCheck } from 'lucide-react';
+import { Loader2, User, Wrench, Shield, Wrench as FixBeeIcon, Home, Star, CheckCircle2, Zap, ShieldCheck, Mail, Lock } from 'lucide-react';
 
 interface LoginFormProps {
   role: 'customer' | 'provider' | 'admin';
@@ -93,11 +93,12 @@ export function LoginForm({ role }: LoginFormProps) {
     setIsLoading(true);
     try {
       await login(data.email, data.password, role);
-      router.push(config.redirectPath);
-      router.refresh();
+
+      // Use window.location.href for full navigation to ensure cookies are set
+      // and middleware runs on the new page
+      window.location.href = config.redirectPath;
     } catch (error) {
       // Error is handled by the login function
-    } finally {
       setIsLoading(false);
     }
   };
@@ -219,14 +220,17 @@ export function LoginForm({ role }: LoginFormProps) {
                   <Label htmlFor="email" className="text-gray-700 font-medium">
                     Email Address
                   </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="name@example.com"
-                    className="h-12 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white/50 backdrop-blur-sm"
-                    {...register('email')}
-                    disabled={isLoading}
-                  />
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-sky-600" />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="name@example.com"
+                      className="h-12 pl-10 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white"
+                      {...register('email')}
+                      disabled={isLoading}
+                    />
+                  </div>
                   {errors.email && (
                     <p className="text-sm text-red-500 flex items-center gap-1">
                       <span>•</span> {errors.email.message}
@@ -243,14 +247,17 @@ export function LoginForm({ role }: LoginFormProps) {
                       Forgot password?
                     </Link>
                   </div>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    className="h-12 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white/50 backdrop-blur-sm"
-                    {...register('password')}
-                    disabled={isLoading}
-                  />
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-sky-600" />
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="••••••••"
+                      className="h-12 pl-10 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white"
+                      {...register('password')}
+                      disabled={isLoading}
+                    />
+                  </div>
                   {errors.password && (
                     <p className="text-sm text-red-500 flex items-center gap-1">
                       <span>•</span> {errors.password.message}
