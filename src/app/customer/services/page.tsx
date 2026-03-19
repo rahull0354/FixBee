@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { customerApi } from '@/lib/api';
-import { Category } from '@/types';
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { customerApi } from "@/lib/api";
+import { Category } from "@/types";
 import {
   Search,
   SlidersHorizontal,
@@ -12,9 +12,9 @@ import {
   DollarSign,
   ChevronRight,
   X,
-} from 'lucide-react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
+} from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -22,13 +22,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 export default function BrowseServicesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [maxPrice, setMaxPrice] = useState<number>(10000);
@@ -53,9 +53,12 @@ export default function BrowseServicesPage() {
           cat.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           cat.commonServices.some((service) => {
             // Handle both string and object formats
-            const serviceName = typeof service === 'string' ? service : service.name;
-            return serviceName.toLowerCase().includes(searchQuery.toLowerCase());
-          })
+            const serviceName =
+              typeof service === "string" ? service : service.name;
+            return serviceName
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase());
+          }),
       );
     }
 
@@ -68,11 +71,11 @@ export default function BrowseServicesPage() {
     }
 
     setFilteredCategories(filtered);
-    setHasActiveFilters(searchQuery !== '' || maxPrice < 10000);
+    setHasActiveFilters(searchQuery !== "" || maxPrice < 10000);
   };
 
   const clearFilters = () => {
-    setSearchQuery('');
+    setSearchQuery("");
     setMaxPrice(10000);
     setFilterDialogOpen(false);
   };
@@ -89,8 +92,8 @@ export default function BrowseServicesPage() {
       setCategories(data);
       setFilteredCategories(data);
     } catch (error) {
-      console.error('Error loading categories:', error);
-      toast.error('Failed to load service categories');
+      console.error("Error loading categories:", error);
+      toast.error("Failed to load service categories");
     } finally {
       setLoading(false);
     }
@@ -111,7 +114,9 @@ export default function BrowseServicesPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Browse Services</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">
+          Browse Services
+        </h1>
         <p className="text-gray-600">Explore our wide range of home services</p>
       </div>
 
@@ -132,13 +137,15 @@ export default function BrowseServicesPage() {
             onClick={() => setFilterDialogOpen(true)}
             className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-shadow ${
               hasActiveFilters
-                ? 'bg-linear-to-r from-amber-400 via-orange-400 to-red-400 text-white'
-                : 'bg-linear-to-r from-sky-400 via-blue-400 to-indigo-400 text-white'
+                ? "bg-linear-to-r from-amber-400 via-orange-400 to-red-400 text-white"
+                : "bg-linear-to-r from-sky-400 via-blue-400 to-indigo-400 text-white"
             }`}
           >
             <SlidersHorizontal className="h-5 w-5" />
             Filters
-            {hasActiveFilters && <span className="w-2 h-2 bg-white rounded-full animate-pulse" />}
+            {hasActiveFilters && (
+              <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
+            )}
           </button>
           {hasActiveFilters && (
             <button
@@ -158,9 +165,12 @@ export default function BrowseServicesPage() {
           <div className="w-20 h-20 bg-sky-50 rounded-full flex items-center justify-center mx-auto mb-4">
             <Briefcase className="h-10 w-10 text-sky-400" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-800 mb-2">No services found</h3>
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">
+            No services found
+          </h3>
           <p className="text-gray-500">
-            Try adjusting your search or filters to find what you're looking for.
+            Try adjusting your search or filters to find what you're looking
+            for.
           </p>
         </div>
       ) : (
@@ -187,7 +197,9 @@ export default function BrowseServicesPage() {
 
               {/* Description */}
               {category.description && (
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{category.description}</p>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                  {category.description}
+                </p>
               )}
 
               {/* Price Range */}
@@ -195,7 +207,8 @@ export default function BrowseServicesPage() {
                 <div className="flex items-center gap-2 mb-4">
                   <DollarSign className="h-4 w-4 text-emerald-600" />
                   <span className="text-sm text-gray-700 font-medium">
-                    {category.priceRange.min} - {category.priceRange.max} {category.priceRange.unit}
+                    {category.priceRange.min} - {category.priceRange.max}{" "}
+                    {category.priceRange.unit}
                   </span>
                 </div>
               )}
@@ -205,18 +218,25 @@ export default function BrowseServicesPage() {
                 <div className="mb-4">
                   <p className="text-xs text-gray-500 mb-2">Common services:</p>
                   <div className="flex flex-wrap gap-2">
-                    {category.commonServices.slice(0, 3).map((service, index) => {
-                      // Handle both string and object formats
-                      const serviceName = typeof service === 'string' ? service : service.name;
-                      return (
-                        <span
-                          key={typeof service === 'string' ? index : service._id || index}
-                          className="px-3 py-1 bg-sky-50 text-sky-700 text-xs rounded-full border border-sky-200"
-                        >
-                          {serviceName}
-                        </span>
-                      );
-                    })}
+                    {category.commonServices
+                      .slice(0, 3)
+                      .map((service, index) => {
+                        // Handle both string and object formats
+                        const serviceName =
+                          typeof service === "string" ? service : service.name;
+                        return (
+                          <span
+                            key={
+                              typeof service === "string"
+                                ? index
+                                : service._id || index
+                            }
+                            className="px-3 py-1 bg-sky-50 text-sky-700 text-xs rounded-full border border-sky-200"
+                          >
+                            {serviceName}
+                          </span>
+                        );
+                      })}
                     {category.commonServices.length > 3 && (
                       <span className="px-3 py-1 bg-sky-50 text-sky-700 text-xs rounded-full border border-sky-200">
                         +{category.commonServices.length - 3}
@@ -237,9 +257,9 @@ export default function BrowseServicesPage() {
 
       {/* Filter Dialog */}
       <Dialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen}>
-        <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden bg-white">
+        <DialogContent className="sm:max-w-137.5 p-0 overflow-hidden bg-white">
           {/* Header with Gradient */}
-          <div className="bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-500 px-6 py-5 text-white">
+          <div className="bg-linear-to-r from-sky-500 via-blue-500 to-indigo-500 px-6 py-5 text-white">
             <DialogHeader className="space-y-1">
               <DialogTitle className="text-2xl font-bold flex items-center gap-2">
                 <SlidersHorizontal className="h-6 w-6" />
@@ -255,16 +275,23 @@ export default function BrowseServicesPage() {
             {/* Max Price Filter */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label htmlFor="maxPrice" className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                <Label
+                  htmlFor="maxPrice"
+                  className="text-lg font-bold text-gray-800 flex items-center gap-2"
+                >
                   <DollarSign className="h-5 w-5 text-emerald-600" />
                   Maximum Price
                 </Label>
-                <span className={`px-4 py-2 rounded-xl font-bold text-lg ${
-                  maxPrice >= 10000
-                    ? 'bg-gray-100 text-gray-600'
-                    : 'bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border border-emerald-200'
-                }`}>
-                  {maxPrice >= 10000 ? 'Any Price' : `$${maxPrice.toLocaleString()}`}
+                <span
+                  className={`px-4 py-2 rounded-xl font-bold text-lg ${
+                    maxPrice >= 10000
+                      ? "bg-gray-100 text-gray-600"
+                      : "bg-linear-to-r from-emerald-50 to-teal-50 text-emerald-700 border border-emerald-200"
+                  }`}
+                >
+                  {maxPrice >= 10000
+                    ? "Any Price"
+                    : `$${maxPrice.toLocaleString()}`}
                 </span>
               </div>
 
@@ -278,7 +305,7 @@ export default function BrowseServicesPage() {
                   step="100"
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(Number(e.target.value))}
-                  className="w-full h-3 bg-gradient-to-r from-sky-100 via-blue-100 to-indigo-100 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-gradient-to-br [&::-webkit-slider-thumb]:from-sky-400 [&::-webkit-slider-thumb]:to-blue-500 [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:transition-transform [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-gradient-to-br [&::-moz-range-thumb]:from-sky-400 [&::-moz-range-thumb]:to-blue-500 [&::-moz-range-thumb]:shadow-lg [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:hover:scale-110 [&::-moz-range-thumb]:transition-transform"
+                  className="w-full h-3 bg-linear-to-r from-sky-100 via-blue-100 to-indigo-100 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-linear-to-br [&::-webkit-slider-thumb]:from-sky-400 [&::-webkit-slider-thumb]:to-blue-500 [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:transition-transform [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-linear-to-br [&::-moz-range-thumb]:from-sky-400 [&::-moz-range-thumb]:to-blue-500 [&::-moz-range-thumb]:shadow-lg [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:hover:scale-110 [&::-moz-range-thumb]:transition-transform"
                 />
                 <div className="flex justify-between text-xs text-gray-500 mt-3 font-medium">
                   <span>$0</span>
@@ -292,19 +319,19 @@ export default function BrowseServicesPage() {
               {/* Price Presets */}
               <div className="flex flex-wrap gap-2">
                 {[
-                  { label: 'Under $500', value: 500 },
-                  { label: '$500 - $1K', value: 1000 },
-                  { label: '$1K - $2.5K', value: 2500 },
-                  { label: '$2.5K - $5K', value: 5000 },
-                  { label: 'Any Price', value: 10000 },
+                  { label: "Under $500", value: 500 },
+                  { label: "$500 - $1K", value: 1000 },
+                  { label: "$1K - $2.5K", value: 2500 },
+                  { label: "$2.5K - $5K", value: 5000 },
+                  { label: "Any Price", value: 10000 },
                 ].map((preset) => (
                   <button
                     key={preset.label}
                     onClick={() => setMaxPrice(preset.value)}
                     className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                       maxPrice === preset.value
-                        ? 'bg-gradient-to-r from-sky-400 to-blue-500 text-white shadow-md'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? "bg-linear-to-r from-sky-400 to-blue-500 text-white shadow-md"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     }`}
                   >
                     {preset.label}
@@ -315,7 +342,7 @@ export default function BrowseServicesPage() {
 
             {/* Active Filters Summary */}
             {hasActiveFilters && (
-              <div className="bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-50 rounded-2xl p-5 border-2 border-sky-200">
+              <div className="bg-linear-to-br from-sky-50 via-blue-50 to-indigo-50 rounded-2xl p-5 border-2 border-sky-200">
                 <p className="text-base font-bold text-sky-800 mb-3 flex items-center gap-2">
                   <span className="w-2 h-2 bg-sky-500 rounded-full animate-pulse" />
                   Active Filters
@@ -327,8 +354,12 @@ export default function BrowseServicesPage() {
                         <Search className="h-4 w-4 text-sky-600" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-xs text-gray-500 font-medium">Search Query</p>
-                        <p className="text-sm font-semibold text-gray-800">"{searchQuery}"</p>
+                        <p className="text-xs text-gray-500 font-medium">
+                          Search Query
+                        </p>
+                        <p className="text-sm font-semibold text-gray-800">
+                          "{searchQuery}"
+                        </p>
                       </div>
                     </div>
                   )}
@@ -338,8 +369,12 @@ export default function BrowseServicesPage() {
                         <DollarSign className="h-4 w-4 text-emerald-600" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-xs text-gray-500 font-medium">Maximum Price</p>
-                        <p className="text-sm font-semibold text-gray-800">${maxPrice.toLocaleString()}</p>
+                        <p className="text-xs text-gray-500 font-medium">
+                          Maximum Price
+                        </p>
+                        <p className="text-sm font-semibold text-gray-800">
+                          ${maxPrice.toLocaleString()}
+                        </p>
                       </div>
                     </div>
                   )}
@@ -351,7 +386,11 @@ export default function BrowseServicesPage() {
             <div className="flex items-center justify-center gap-2 text-sm text-gray-600 bg-gray-50 rounded-xl px-4 py-3">
               <Briefcase className="h-4 w-4" />
               <span className="font-medium">
-                Showing <strong className="text-sky-600">{filteredCategories.length}</strong> of {categories.length} services
+                Showing{" "}
+                <strong className="text-sky-600">
+                  {filteredCategories.length}
+                </strong>{" "}
+                of {categories.length} services
               </span>
             </div>
           </div>
@@ -370,7 +409,7 @@ export default function BrowseServicesPage() {
               </Button>
               <Button
                 onClick={applyFilters}
-                className="w-full sm:w-auto h-11 text-base font-semibold bg-gradient-to-r from-sky-400 via-blue-400 to-indigo-400 hover:from-sky-500 hover:via-blue-500 hover:to-indigo-500 text-white shadow-md hover:shadow-lg transition-all"
+                className="w-full sm:w-auto h-11 text-base font-semibold bg-linear-to-r from-sky-400 via-blue-400 to-indigo-400 hover:from-sky-500 hover:via-blue-500 hover:to-indigo-500 text-white shadow-md hover:shadow-lg transition-all"
               >
                 <SlidersHorizontal className="mr-2 h-4 w-4" />
                 Apply Filters
@@ -387,3 +426,4 @@ export default function BrowseServicesPage() {
     </div>
   );
 }
+

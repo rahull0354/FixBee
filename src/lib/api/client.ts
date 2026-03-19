@@ -23,14 +23,6 @@ class ApiClient {
     // Request interceptor
     this.client.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
-        // Log outgoing requests for debugging
-        if (typeof window !== 'undefined') {
-          console.log(`[API ${config.method?.toUpperCase()}]`, config.url, {
-            params: config.params,
-            hasData: !!config.data,
-          });
-        }
-
         // Try to get token from cookie as fallback for Authorization header
         // Some backends expect Authorization header even with cookies
         if (typeof document !== 'undefined') {
@@ -85,17 +77,6 @@ class ApiClient {
         };
       },
       (error: AxiosError | any) => {
-        // Log errors for debugging
-        if (typeof window !== 'undefined') {
-          console.error('[API ERROR]', {
-            url: error.config?.url,
-            status: error?.response?.status,
-            statusText: error?.response?.statusText,
-            data: error?.response?.data,
-            message: error?.message,
-          });
-        }
-
         if (error?.response?.status === 401) {
           // Token expired or invalid
           // Could trigger a refresh or redirect to login

@@ -59,17 +59,17 @@ export default function Home() {
     <div className="min-h-screen bg-linear-to-br from-sky-50 via-white to-blue-50">
       {/* Animated 3D Background Shapes */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 right-20 w-72 h-72 bg-linear-to-br from-sky-200/20 to-blue-200/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 left-20 w-96 h-96 bg-linear-to-br from-blue-200/20 to-indigo-200/20 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-linear-to-br from-teal-200/20 to-cyan-200/20 rounded-full blur-3xl animate-pulse delay-2000" />
+        <div className="absolute top-20 right-20 w-72 h-72 bg-linear-to-br from-sky-200/20 sm:from-sky-200/30 to-blue-200/20 sm:to-blue-200/30 rounded-full blur-3xl animate-pulse -z-10 sm:z-0" />
+        <div className="absolute bottom-20 left-20 w-96 h-96 bg-linear-to-br from-blue-200/20 sm:from-blue-200/30 to-indigo-200/20 sm:to-indigo-200/30 rounded-full blur-3xl animate-pulse delay-1000 -z-10 sm:z-0" />
+        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-linear-to-br from-teal-200/20 sm:from-teal-200/30 to-cyan-200/20 sm:to-cyan-200/30 rounded-full blur-3xl animate-pulse delay-2000 -z-10 sm:z-0" />
       </div>
 
       {/* 3D Floating Elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-40 left-10 w-16 h-16 bg-linear-to-br from-sky-400 to-sky-500 rounded-2xl shadow-2xl transform rotate-12 animate-float" />
-        <div className="absolute top-60 right-20 w-12 h-12 bg-linear-to-br from-blue-400 to-blue-500 rounded-xl shadow-2xl transform -rotate-12 animate-float-delay-1" />
-        <div className="absolute bottom-40 right-40 w-14 h-14 bg-linear-to-br from-teal-400 to-teal-500 rounded-2xl shadow-2xl transform rotate-6 animate-float-delay-2" />
-        <div className="absolute bottom-60 left-32 w-10 h-10 bg-linear-to-br from-indigo-400 to-indigo-500 rounded-xl shadow-2xl transform -rotate-6 animate-float-delay-3" />
+        <div className="absolute top-40 left-10 w-16 h-16 bg-linear-to-br from-sky-400/80 sm:from-sky-400 to-sky-500/80 sm:to-sky-500 rounded-2xl shadow-2xl transform rotate-12 animate-float -z-10 sm:z-0" />
+        <div className="absolute top-60 right-20 w-12 h-12 bg-linear-to-br from-blue-400/80 sm:from-blue-400 to-blue-500/80 sm:to-blue-500 rounded-xl shadow-2xl transform -rotate-12 animate-float-delay-1 -z-10 sm:z-0" />
+        <div className="absolute bottom-40 right-40 w-14 h-14 bg-linear-to-br from-teal-400/80 sm:from-teal-400 to-teal-500/80 sm:to-teal-500 rounded-2xl shadow-2xl transform rotate-6 animate-float-delay-2 -z-10 sm:z-0" />
+        <div className="absolute bottom-60 left-32 w-10 h-10 bg-linear-to-br from-indigo-400/80 sm:from-indigo-400 to-indigo-500/80 sm:to-indigo-500 rounded-xl shadow-2xl transform -rotate-6 animate-float-delay-3 -z-10 sm:z-0" />
       </div>
 
       {/* Navigation */}
@@ -84,19 +84,21 @@ export default function Home() {
                 FixBee
               </span>
             </Link>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               {isAuthenticated && user ? (
                 <>
-                  <span className="text-sm text-gray-600">
-                    Welcome back, <span className="font-semibold text-sky-600">{user.name?.split(" ")[0]}</span>!
+                  <span className="text-xs sm:text-sm text-gray-600 hidden xs:inline-block">
+                    Welcome, <span className="font-semibold text-sky-600">{user.name?.split(" ")[0]}</span>
                   </span>
                   <Button
-                    className="bg-linear-to-r from-sky-400 via-blue-400 to-indigo-400 hover:from-sky-500 hover:via-blue-500 hover:to-indigo-500 text-white shadow-xl hover:shadow-2xl transition-all hover:scale-105"
+                    size="sm"
+                    className="bg-linear-to-r from-sky-400 via-blue-400 to-indigo-400 hover:from-sky-500 hover:via-blue-500 hover:to-indigo-500 text-white shadow-xl hover:shadow-2xl transition-all hover:scale-105 text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-2.5"
                     asChild
                   >
                     <Link href={getDashboardUrl()}>
-                      <HomeIcon className="mr-2 h-4 w-4" />
-                      Dashboard
+                      <HomeIcon className="mr-1.5 h-3.5 w-3.5 sm:mr-2 sm:h-4 sm:w-4" />
+                      <span className="hidden sm:inline">Dashboard</span>
+                      <span className="sm:hidden">Go</span>
                     </Link>
                   </Button>
                 </>
@@ -104,15 +106,20 @@ export default function Home() {
                 <>
                   <Link
                     href="/login"
-                    className="text-gray-600 hover:text-sky-600 transition-colors font-medium"
+                    className="text-gray-600 hover:text-sky-600 transition-colors font-medium text-xs sm:text-sm"
                   >
-                    Login
+                    <span className="hidden sm:inline">Login</span>
+                    <span className="sm:hidden">Sign In</span>
                   </Link>
                   <Button
-                    className="bg-linear-to-r from-sky-400 via-blue-400 to-indigo-400 hover:from-sky-500 hover:via-blue-500 hover:to-indigo-500 text-white shadow-xl hover:shadow-2xl transition-all hover:scale-105"
+                    size="sm"
+                    className="bg-linear-to-r from-sky-400 via-blue-400 to-indigo-400 hover:from-sky-500 hover:via-blue-500 hover:to-indigo-500 text-white shadow-xl hover:shadow-2xl transition-all hover:scale-105 text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-2.5"
                     asChild
                   >
-                    <Link href="/register">Get Started</Link>
+                    <Link href="/register">
+                      <span className="hidden sm:inline">Get Started</span>
+                      <span className="sm:hidden">Start</span>
+                    </Link>
                   </Button>
                 </>
               )}

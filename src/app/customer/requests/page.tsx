@@ -32,10 +32,17 @@ export default function CustomerRequestsPage() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const requestsPerPage = 5;
 
   useEffect(() => {
     loadRequests();
   }, []);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, searchQuery]);
 
   useEffect(() => {
     let filtered = requests;
@@ -137,6 +144,12 @@ export default function CustomerRequestsPage() {
       return 'Invalid Date';
     }
   };
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredRequests.length / requestsPerPage);
+  const startIndex = (currentPage - 1) * requestsPerPage;
+  const endIndex = startIndex + requestsPerPage;
+  const paginatedRequests = filteredRequests.slice(startIndex, endIndex);
 
   if (loading) {
     return (
@@ -246,62 +259,118 @@ export default function CustomerRequestsPage() {
           )}
         </div>
       ) : (
-        <div className="space-y-4">
-          {filteredRequests.map((request) => (
-            <div
-              key={request.id}
-              className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6 hover:shadow-xl transition-shadow"
-            >
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                {/* Left: Request Info */}
-                <div className="flex-1 space-y-3">
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 bg-sky-100 rounded-lg">
-                      <Briefcase className="h-5 w-5 text-sky-600" />
+        <>
+          {/* Results Info */}
+          <div className="flex items-center justify-between text-sm text-gray-600 px-2">
+            <p>
+              Showing {startIndex + 1}-{Math.min(endIndex, filteredRequests.length)} of {filteredRequests.length} requests
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {paginatedRequests.map((request) => (
+              <div
+                key={request.id}
+                className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6 hover:shadow-xl transition-shadow"
+              >
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  {/* Left: Request Info */}
+                  <div className="flex-1 space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 bg-sky-100 rounded-lg">
+                        <Briefcase className="h-5 w-5 text-sky-600" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-1">{request.title}</h3>
+                        <p className="text-sm text-gray-600">{request.serviceType}</p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-1">{request.title}</h3>
-                      <p className="text-sm text-gray-600">{request.serviceType}</p>
+
+                    <div className="flex flex-wrap items-center gap-4 text-sm">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(
+                          request.status
+                        )}`}
+                      >
+                        {formatStatusText(request.status)}
+                      </span>
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <Calendar className="h-4 w-4" />
+                        <span>{formatDate(request.scheduledDate)}</span>
+                      </div>
+                      {(request.status === 'assigned' || request.status === 'in-progress' || request.status === 'completed') ? (
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <User className="h-4 w-4" />
+                          <span className="text-sky-600 font-medium">Provider Assigned</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 text-gray-400">
+                          <User className="h-4 w-4" />
+                          <span>Waiting for assignment</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-4 text-sm">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(
-                        request.status
-                      )}`}
-                    >
-                      {formatStatusText(request.status)}
-                    </span>
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <Calendar className="h-4 w-4" />
-                      <span>{formatDate(request.scheduledDate)}</span>
-                    </div>
-                    {(request.status === 'assigned' || request.status === 'in-progress' || request.status === 'completed') ? (
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <User className="h-4 w-4" />
-                        <span className="text-sky-600 font-medium">Provider Assigned</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 text-gray-400">
-                        <User className="h-4 w-4" />
-                        <span>Waiting for assignment</span>
-                      </div>
-                    )}
-                  </div>
+                  {/* Right: Action */}
+                  <Link
+                    href={`/customer/requests/${request.id}`}
+                    className="flex items-center justify-center px-6 py-3 bg-sky-50 text-sky-600 rounded-xl font-semibold hover:bg-sky-100 transition-colors whitespace-nowrap"
+                  >
+                    View Details
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                {/* Page Info */}
+                <div className="text-sm text-gray-600">
+                  <span className="font-semibold">Page {currentPage}</span> of {totalPages}
                 </div>
 
-                {/* Right: Action */}
-                <Link
-                  href={`/customer/requests/${request.id}`}
-                  className="flex items-center justify-center px-6 py-3 bg-sky-50 text-sky-600 rounded-xl font-semibold hover:bg-sky-100 transition-colors whitespace-nowrap"
-                >
-                  View Details
-                </Link>
+                {/* Pagination Buttons */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 rounded-lg border border-sky-200 text-sm font-medium text-gray-700 hover:bg-sky-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    Previous
+                  </button>
+
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${
+                          currentPage === page
+                            ? 'bg-linear-to-r from-sky-400 to-blue-400 text-white shadow-md'
+                            : 'border border-sky-200 text-gray-700 hover:bg-sky-50'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 rounded-lg border border-sky-200 text-sm font-medium text-gray-700 hover:bg-sky-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
     </div>
   );

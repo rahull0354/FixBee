@@ -44,56 +44,113 @@ export default function CustomerReviewsPage() {
   const loadReviews = async () => {
     try {
       setLoading(true);
-      const response = await customerApi.getMyReviews();
+      console.log('[Reviews] Starting to load reviews...');
 
-      console.log('[Reviews] API Response:', response);
+      const response = await customerApi.getMyReviews();
+      console.log('[Reviews] Raw API response:', response);
 
       // Handle different response formats
       let data: Review[] = [];
       if (Array.isArray(response)) {
         data = response;
+        console.log('[Reviews] Response is an array, length:', response.length);
       } else if ((response as any).data && Array.isArray((response as any).data)) {
         data = (response as any).data;
+        console.log('[Reviews] Response has data array, length:', data.length);
       } else if ((response as any).reviews && Array.isArray((response as any).reviews)) {
         data = (response as any).reviews;
+        console.log('[Reviews] Response has reviews array, length:', data.length);
+      } else {
+        console.warn('[Reviews] Unexpected response format:', response);
       }
 
-      console.log('[Reviews] Parsed data:', data);
-      console.log('[Reviews] First review structure:', data[0]);
+      console.log('[Reviews] Final reviews data:', data);
+
+      // Log first review object to see its structure
+      if (data.length > 0) {
+        console.log('[Reviews] First review object structure:', data[0]);
+        console.log('[Reviews] All fields in first review:', Object.keys(data[0]));
+      }
+
       setReviews(data);
 
-      // Fetch service request and provider details for each review
+      // Collect unique IDs to fetch
+      const uniqueRequestIds = [...new Set(data.map((r) => r.serviceRequestId).filter(Boolean))];
+      const uniqueProviderIds = [...new Set(data.map((r) => r.serviceProviderId).filter(Boolean))];
+
+      console.log('[Reviews] Unique request IDs to fetch:', uniqueRequestIds);
+      console.log('[Reviews] Unique provider IDs to fetch:', uniqueProviderIds);
+
+      // Fetch all details in parallel
+      console.log('[Reviews] Starting parallel fetch of details...');
+      const [requestResults, providerResults] = await Promise.allSettled([
+        Promise.all(
+          uniqueRequestIds.map(async (id) => {
+            try {
+              console.log('[Reviews] Fetching service request:', id);
+              const response = await customerApi.getServiceRequest(id);
+              const reqData = (response as any).data || response;
+              console.log('[Reviews] Successfully fetched request:', id, reqData);
+              return { id, data: reqData };
+            } catch (err) {
+              console.error('[Reviews] Failed to fetch request:', id, err);
+              return { id, data: null };
+            }
+          })
+        ),
+        Promise.all(
+          uniqueProviderIds.map(async (id) => {
+            try {
+              console.log('[Reviews] Fetching provider:', id);
+              const response = await customerApi.getProvider(id);
+              const provData = (response as any).data || response;
+              console.log('[Reviews] Successfully fetched provider:', id, provData);
+              return { id, data: provData };
+            } catch (err) {
+              console.error('[Reviews] Failed to fetch provider:', id, err);
+              return { id, data: null };
+            }
+          })
+        ),
+      ]);
+
+      console.log('[Reviews] Request results:', requestResults);
+      console.log('[Reviews] Provider results:', providerResults);
+
+      // Build maps from results
       const requestMap = new Map();
       const providerMap = new Map();
 
-      for (const review of data) {
-        // Fetch service request details
-        if (review.requestId && !requestMap.has(review.requestId)) {
-          try {
-            const reqResponse = await customerApi.getServiceRequest(review.requestId);
-            const reqData = (reqResponse as any).data || reqResponse;
-            requestMap.set(review.requestId, reqData);
-          } catch (err) {
-            console.warn('[Reviews] Failed to fetch request:', review.requestId);
+      if (requestResults.status === 'fulfilled') {
+        requestResults.value.forEach((result: any) => {
+          if (result?.data) {
+            requestMap.set(result.id, result.data);
           }
-        }
-
-        // Fetch provider details
-        if (review.providerId && !providerMap.has(review.providerId)) {
-          try {
-            const provResponse = await customerApi.getProvider(review.providerId);
-            const provData = (provResponse as any).data || provResponse;
-            providerMap.set(review.providerId, provData);
-          } catch (err) {
-            console.warn('[Reviews] Failed to fetch provider:', review.providerId);
-          }
-        }
+        });
+        console.log('[Reviews] Request map built with', requestMap.size, 'entries');
+      } else {
+        console.error('[Reviews] Request promises rejected:', requestResults.reason);
       }
+
+      if (providerResults.status === 'fulfilled') {
+        providerResults.value.forEach((result: any) => {
+          if (result?.data) {
+            providerMap.set(result.id, result.data);
+          }
+        });
+        console.log('[Reviews] Provider map built with', providerMap.size, 'entries');
+      } else {
+        console.error('[Reviews] Provider promises rejected:', providerResults.reason);
+      }
+
+      console.log('[Reviews] Final state - Reviews:', data.length, 'Requests:', requestMap.size, 'Providers:', providerMap.size);
 
       setServiceRequests(requestMap);
       setProviders(providerMap);
+
+      console.log('[Reviews] Loading complete!');
     } catch (error: any) {
-      console.error('Error loading reviews:', error);
+      console.error('[Reviews] Error loading reviews:', error);
       const message = error?.response?.data?.message || error?.message || 'Failed to load reviews';
       toast.error(message);
       setReviews([]); // Set empty array on error
@@ -183,21 +240,7 @@ export default function CustomerReviewsPage() {
 
       {/* Stats Summary */}
       {reviews.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-sky-100 rounded-xl">
-                <Star className="h-6 w-6 text-sky-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-800">
-                  {(reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)}
-                </p>
-                <p className="text-sm text-gray-600">Average Rating</p>
-              </div>
-            </div>
-          </div>
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-emerald-100 rounded-xl">
@@ -213,13 +256,18 @@ export default function CustomerReviewsPage() {
           <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-violet-100 rounded-xl">
-                <Briefcase className="h-6 w-6 text-violet-600" />
+                <Star className="h-6 w-6 text-violet-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-800">
-                  {reviews.filter((r) => r.rating >= 4).length}
+                  {reviews.filter((r) => {
+                    const reviewDate = new Date(r.createdAt);
+                    const now = new Date();
+                    const thirtyDaysAgo = new Date(now.setDate(now.getDate() - 30));
+                    return reviewDate >= thirtyDaysAgo;
+                  }).length}
                 </p>
-                <p className="text-sm text-gray-600">Positive Reviews</p>
+                <p className="text-sm text-gray-600">Reviews in Last 30 Days</p>
               </div>
             </div>
           </div>
@@ -253,9 +301,9 @@ export default function CustomerReviewsPage() {
                   {/* Header: Service & Provider Info */}
                   <div className="space-y-3">
                     {/* Service Title */}
-                    {serviceRequests.has(review.requestId || '') ? (
+                    {serviceRequests.has(review.serviceRequestId || '') ? (
                       <Link
-                        href={`/customer/requests/${review.requestId}`}
+                        href={`/customer/requests/${review.serviceRequestId}`}
                         className="block group"
                       >
                         <div className="flex items-start gap-3 p-4 bg-linear-to-r from-sky-50 to-blue-50 rounded-xl border border-sky-100 hover:border-sky-300 transition-colors">
@@ -264,7 +312,7 @@ export default function CustomerReviewsPage() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <h3 className="text-base font-bold text-gray-800 group-hover:text-sky-700 transition-colors">
-                              {serviceRequests.get(review.requestId || '')?.title || 'Service Request'}
+                              {serviceRequests.get(review.serviceRequestId || '')?.title || 'Service Request'}
                             </h3>
                             <p className="text-sm text-gray-600">Click to view service details</p>
                           </div>
@@ -277,7 +325,7 @@ export default function CustomerReviewsPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <h3 className="text-base font-bold text-gray-800">
-                            Service Request #{review.requestId?.slice(0, 8)}...
+                            Service Request #{review.serviceRequestId?.slice(0, 8)}...
                           </h3>
                           <p className="text-sm text-gray-600">Loading service details...</p>
                         </div>
@@ -285,15 +333,15 @@ export default function CustomerReviewsPage() {
                     )}
 
                     {/* Provider Info */}
-                    {providers.has(review.providerId || '') ? (
+                    {providers.has(review.serviceProviderId || '') ? (
                       <div className="flex items-center gap-3 px-4 py-3 bg-emerald-50 rounded-xl border border-emerald-100">
                         <div className="w-10 h-10 bg-linear-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
-                          {providers.get(review.providerId || '')?.name?.charAt(0).toUpperCase() || 'P'}
+                          {providers.get(review.serviceProviderId || '')?.name?.charAt(0).toUpperCase() || 'P'}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-xs text-emerald-600 font-medium">Service Provider</p>
                           <p className="text-sm font-semibold text-gray-800 truncate">
-                            {providers.get(review.providerId || '')?.name || 'Provider'}
+                            {providers.get(review.serviceProviderId || '')?.name || 'Provider'}
                           </p>
                         </div>
                       </div>

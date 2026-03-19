@@ -14,12 +14,15 @@ const navigation = [
   { name: 'Dashboard', href: '/customer/dashboard', icon: Home },
   { name: 'Browse Services', href: '/customer/services', icon: Briefcase },
   { name: 'My Requests', href: '/customer/requests', icon: FileText },
-  {name: 'Reviews', href: '/customer/reviews', icon: MessageCircle}
+  {name: 'Reviews', href: '/customer/reviews', icon: MessageCircle},
 ];
 
 export function CustomerSidebar({ isOpen, onClose }: CustomerSidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
+
+  // Check if account is deactivated
+  const isDeactivated = (user?.isActive === false) || (!!user?.deactivatedAt);
 
   // Get initials from name (first name + last name)
   const getInitials = (name?: string) => {
@@ -29,6 +32,14 @@ export function CustomerSidebar({ isOpen, onClose }: CustomerSidebarProps) {
       return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
     }
     return name[0].toUpperCase();
+  };
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (isDeactivated && href !== '/customer/dashboard') {
+      e.preventDefault();
+      // Show alert or toast
+      alert('Your account is deactivated. Please reactivate your account to access this feature.');
+    }
   };
 
   return (
@@ -62,13 +73,19 @@ export function CustomerSidebar({ isOpen, onClose }: CustomerSidebarProps) {
           <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
             {navigation.map((item) => {
               const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+              const isDisabled = isDeactivated && item.href !== '/customer/dashboard';
               return (
                 <Link
                   key={item.name}
                   href={item.href}
-                  onClick={onClose}
+                  onClick={(e) => {
+                    handleNavClick(e, item.href);
+                    onClose();
+                  }}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-                    isActive
+                    isDisabled
+                      ? 'opacity-50 cursor-not-allowed'
+                      : isActive
                       ? 'bg-linear-to-r from-sky-500 via-blue-500 to-indigo-500 text-white shadow-lg'
                       : 'text-gray-700 hover:bg-sky-50 hover:text-sky-600'
                   }`}
@@ -114,12 +131,16 @@ export function CustomerSidebar({ isOpen, onClose }: CustomerSidebarProps) {
           <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
             {navigation.map((item) => {
               const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+              const isDisabled = isDeactivated && item.href !== '/customer/dashboard';
               return (
                 <Link
                   key={item.name}
                   href={item.href}
+                  onClick={(e) => handleNavClick(e, item.href)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-                    isActive
+                    isDisabled
+                      ? 'opacity-50 cursor-not-allowed'
+                      : isActive
                       ? 'bg-linear-to-r from-sky-500 via-blue-500 to-indigo-500 text-white shadow-lg'
                       : 'text-gray-700 hover:bg-sky-50 hover:text-sky-600'
                   }`}

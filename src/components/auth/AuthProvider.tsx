@@ -220,44 +220,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
-    try {
-      const role = authState.user?.role;
-      if (role) {
-        switch (role) {
-          case 'customer':
-            await authApi.customerLogout();
-            break;
-          case 'provider':
-            await authApi.providerLogout();
-            break;
-          case 'admin':
-            await authApi.adminLogout();
-            break;
-        }
-      }
-    } catch (error) {
-      // Continue with logout even if API call fails
-      console.error('Logout API error:', error);
-    } finally {
-      // Clear all auth data
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('fixbee_user');
-        document.cookie = 'auth_token=; path=/; max-age=0';
-        document.cookie = 'user_role=; path=/; max-age=0';
-      }
+    // Clear all auth data
+    if (typeof window !== 'undefined') {
+      // Clear localStorage
+      localStorage.removeItem('fixbee_user');
 
-      setAuthState({
-        user: null,
-        token: null,
-        isAuthenticated: false,
+      // Clear cookies with proper settings
+      const cookiesToClear = ['auth_token', 'user_role'];
+      cookiesToClear.forEach(cookieName => {
+        // Clear cookie for root path
+        document.cookie = `${cookieName}=; path=/; max-age=0; SameSite=Lax`;
+        // Also try clearing with domain
+        document.cookie = `${cookieName}=; path=/; domain=${window.location.hostname}; max-age=0; SameSite=Lax`;
       });
+    }
 
-      toast.success('Logged out successfully');
+    // Update auth state
+    setAuthState({
+      user: null,
+      token: null,
+      isAuthenticated: false,
+    });
 
-      // Redirect to home after logout
-      if (typeof window !== 'undefined') {
-        window.location.href = '/';
-      }
+    toast.success('Logged out successfully');
+
+    // Redirect to landing page
+    if (typeof window !== 'undefined') {
+      window.location.replace('/');
     }
   };
 

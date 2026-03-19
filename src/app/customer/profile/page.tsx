@@ -22,6 +22,8 @@ import {
   TrendingUp,
   Settings,
   AlertCircle,
+  Info,
+  XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -45,6 +47,7 @@ export default function CustomerProfilePage() {
 
   // Deactivate dialog
   const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false);
+  const [requestingReactivation, setRequestingReactivation] = useState(false);
 
   // Profile image load error state
   const [imageError, setImageError] = useState(false);
@@ -217,6 +220,29 @@ export default function CustomerProfilePage() {
     }
   };
 
+  const handleRequestReactivation = async () => {
+    try {
+      setRequestingReactivation(true);
+      await customerApi.requestReactivation(user?.email);
+      toast.success("Reactivation link sent to your email. Please check your inbox.");
+    } catch (error: any) {
+      console.error("Error requesting reactivation:", error);
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to request reactivation";
+      toast.error(message);
+    } finally {
+      setRequestingReactivation(false);
+    }
+  };
+
+  // Check if account is deactivated and calculate grace period
+  const isDeactivated = (user?.isActive === false) || (!!user?.deactivatedAt);
+  const daysUntilDeletion = user?.deactivatedAt
+    ? 30 - Math.floor((Date.now() - new Date(user.deactivatedAt).getTime()) / (1000 * 60 * 60 * 24))
+    : 0;
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -255,6 +281,47 @@ export default function CustomerProfilePage() {
 
   return (
     <div className="space-y-6 pb-8">
+      {/* Deactivated Account Banner */}
+      {isDeactivated && (
+        <div className="bg-linear-to-r from-amber-50 via-orange-50 to-red-50 border-2 border-amber-300 rounded-2xl p-6 shadow-lg">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-amber-200 rounded-xl">
+                <AlertCircle className="h-6 w-6 text-amber-700" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-amber-900 mb-1">Account Deactivated</h3>
+                <p className="text-sm text-amber-800 mb-2">
+                  Your account is currently deactivated. You have <span className="font-bold">{Math.max(0, daysUntilDeletion)} days</span> remaining to reactivate it before permanent deletion.
+                </p>
+                <p className="text-xs text-amber-700">
+                  Reactivate your account to restore full access to your service history, requests, and reviews.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3 shrink-0">
+              <Button
+                onClick={handleRequestReactivation}
+                disabled={requestingReactivation}
+                className="bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-md"
+              >
+                {requestingReactivation ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Mail className="mr-2 h-4 w-4" />
+                    Reactivate Account
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Header Section */}
       <div className="bg-linear-to-br from-sky-500 via-blue-500 to-indigo-600 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden">
         {/* Decorative elements */}
@@ -581,6 +648,38 @@ export default function CustomerProfilePage() {
               </div>
 
               <div className="p-4 space-y-3">
+                {/* Reactivate Account - Only show if deactivated */}
+                {isDeactivated && (
+                  <div className="p-4 bg-linear-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-200 hover:shadow-md transition-all">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 bg-emerald-200 rounded-lg">
+                        <CheckCircle className="h-4 w-4 text-emerald-700" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-800 text-sm">Request Reactivation</p>
+                        <p className="text-xs text-gray-600">{Math.max(0, daysUntilDeletion)} days remaining</p>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={handleRequestReactivation}
+                      disabled={requestingReactivation}
+                      className="w-full bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-xs"
+                    >
+                      {requestingReactivation ? (
+                        <>
+                          <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                          Sending Email...
+                        </>
+                      ) : (
+                        <>
+                          <Mail className="mr-2 h-3 w-3" />
+                          Send Reactivation Link
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
+
                 {/* Change Password */}
                 <div className="p-4 bg-linear-to-r from-sky-50 to-blue-50 rounded-xl border border-sky-200 hover:shadow-md transition-all">
                   <div className="flex items-center gap-3">
@@ -597,7 +696,6 @@ export default function CustomerProfilePage() {
                   </Button>
                 </div>
 
-                
               </div>
             </div>
 
@@ -637,45 +735,101 @@ export default function CustomerProfilePage() {
 
       {/* Deactivate Confirmation Dialog */}
       <Dialog open={deactivateDialogOpen} onOpenChange={setDeactivateDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-gray-900">
-              <Shield className="h-5 w-5 text-red-600 inline mr-2" />
-              Deactivate Account
-            </DialogTitle>
-            <DialogDescription className="text-gray-600">
-              Are you sure you want to deactivate your account? This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="bg-linear-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-xl p-6 my-6">
-            <p className="text-sm font-bold text-red-800 mb-3 flex items-center gap-2">
-              <AlertCircle className="h-4 w-4" />
-              Warning: This will permanently:
-            </p>
-            <ul className="text-sm text-red-700 space-y-2 list-disc list-inside ml-6">
-              <li>Delete your account and all personal information</li>
-              <li>Remove all your service request history</li>
-              <li>Cancel any pending service requests</li>
-              <li>Delete all reviews and ratings</li>
-            </ul>
+        <DialogContent className="max-w-[85vw] sm:max-w-2xl w-[85vw] p-0 overflow-hidden bg-white">
+          {/* Header with Muted Warning Gradient */}
+          <div className="bg-linear-to-r from-gray-700 via-slate-700 to-zinc-800 px-6 py-4 text-white">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+                <Shield className="h-6 w-6" />
+                Deactivate Account
+              </DialogTitle>
+              <DialogDescription className="text-gray-300 text-base">
+                This action is permanent and cannot be undone
+              </DialogDescription>
+            </DialogHeader>
           </div>
 
-          <DialogFooter className="gap-3">
-            <Button
-              variant="outline"
-              onClick={() => setDeactivateDialogOpen(false)}
-              className="border-gray-300"
-            >
-              Keep Account
-            </Button>
-            <Button
-              onClick={handleDeactivate}
-              className="bg-red-600 hover:bg-red-700 text-white shadow-md"
-            >
-              Deactivate
-            </Button>
-          </DialogFooter>
+          <div className="px-6 py-4 space-y-4">
+            {/* Warning Alert */}
+            <div className="bg-slate-50 border-2 border-slate-300 rounded-2xl p-4">
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-slate-200 rounded-xl shrink-0">
+                  <AlertCircle className="h-6 w-6 text-slate-700" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-lg font-bold text-slate-900 mb-3">
+                    Important Notice
+                  </p>
+                  <p className="text-sm text-slate-700 mb-4">
+                    Once deactivated, your account and all data will be permanently deleted after a 30-day grace period.
+                  </p>
+
+                  <div className="bg-white rounded-xl p-4 border-4 border-red-500 w-full shadow-lg">
+                    <p className="text-base font-bold text-red-700 mb-3">This action will:</p>
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-3">
+                        <XCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
+                        <p className="text-sm text-gray-800 flex-1">Delete your account and all personal information</p>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <XCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
+                        <p className="text-sm text-gray-800 flex-1">Remove all service request history and data</p>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <XCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
+                        <p className="text-sm text-gray-800 flex-1">Cancel any pending service requests</p>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <XCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
+                        <p className="text-sm text-gray-800 flex-1">Delete all your reviews and ratings</p>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <Clock className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
+                        <p className="text-sm text-gray-800 flex-1">30-day grace period before permanent deletion</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Account Info Summary */}
+            {user && (
+              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <p className="text-xs text-gray-500 mb-2">Account to be deactivated:</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-linear-to-br from-sky-400 via-blue-400 to-indigo-400 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                    {user.name?.charAt(0).toUpperCase() || 'U'}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-gray-800">{user.name}</p>
+                    <p className="text-xs text-gray-600">{user.email}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Footer Actions */}
+          <div className="bg-gray-50 px-6 py-3 border-t border-gray-200">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button
+                variant="outline"
+                onClick={() => setDeactivateDialogOpen(false)}
+                className="w-full sm:w-auto h-11 text-base font-semibold border-2 hover:bg-gray-100"
+              >
+                <X className="mr-2 h-4 w-4" />
+                Keep Account
+              </Button>
+              <Button
+                onClick={handleDeactivate}
+                className="w-full sm:w-auto h-11 text-base font-semibold bg-linear-to-r from-slate-600 via-gray-700 to-zinc-800 hover:from-slate-700 hover:via-gray-800 hover:to-zinc-900 text-white shadow-md hover:shadow-lg transition-all"
+              >
+                <Shield className="mr-2 h-4 w-4" />
+                Deactivate Account
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

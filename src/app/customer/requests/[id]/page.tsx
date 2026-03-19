@@ -22,6 +22,8 @@ import {
   X,
   Image as ImageIcon,
   MessageSquare,
+  ArrowRight,
+  ChevronDown,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -36,6 +38,12 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { format } from 'date-fns';
+import {
+  DayPicker,
+  useNavigation,
+} from 'react-day-picker';
+import 'react-day-picker/dist/style.css';
 
 export default function RequestDetailsPage() {
   const params = useParams();
@@ -57,6 +65,7 @@ export default function RequestDetailsPage() {
   const [rescheduleDialogOpen, setRescheduleDialogOpen] = useState(false);
   const [newDate, setNewDate] = useState('');
   const [newTimeSlot, setNewTimeSlot] = useState('');
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -70,8 +79,6 @@ export default function RequestDetailsPage() {
       setReviewsLoading(true);
       const response = await customerApi.getMyReviews();
 
-      console.log('[Request Details] Reviews API Response:', response);
-
       // Handle different response formats
       let reviewsData: any[] = [];
       if (Array.isArray(response)) {
@@ -82,7 +89,6 @@ export default function RequestDetailsPage() {
         reviewsData = (response as any).reviews;
       }
 
-      console.log('[Request Details] Parsed reviews:', reviewsData);
       setReviews(reviewsData);
     } catch (error) {
       console.error('Error loading reviews:', error);
@@ -96,17 +102,11 @@ export default function RequestDetailsPage() {
     try {
       setLoading(true);
 
-      console.log('[Request Details] Fetching request with ID:', id);
-
       const response = await customerApi.getServiceRequest(id);
-
-      console.log('[Request Details] API Response:', response);
 
       // Backend returns: { request: {...}, timing: {...}, status: {...}, ... }
       const responseObj = (response as any).data || response;
       const rawRequest = responseObj.request || responseObj;
-
-      console.log('[Request Details] Raw request data:', rawRequest);
 
       // Check if we got valid data
       if (!rawRequest || typeof rawRequest !== 'object') {
@@ -130,22 +130,18 @@ export default function RequestDetailsPage() {
         finalPrice: rawRequest.finalPrice && rawRequest.finalPrice !== "0.00" ? parseFloat(rawRequest.finalPrice) : undefined,
         beforeImages: rawRequest.beforeImages || [],
         afterImages: rawRequest.afterImages || [],
+        additionalNotes: rawRequest.additionalNotes || rawRequest.notes || '',
         createdAt: rawRequest.createdAt,
         updatedAt: rawRequest.updatedAt,
       };
-
-      console.log('[Request Details] Mapped data:', data);
 
       setRequest(data);
 
       // Fetch provider details if assigned
       if (rawRequest.serviceProviderId) {
         try {
-          console.log('[Request Details] Fetching provider:', rawRequest.serviceProviderId);
           const providerResponse = await customerApi.getProvider(rawRequest.serviceProviderId);
           const providerData = (providerResponse as any).data || providerResponse;
-          console.log('[Request Details] Provider data:', providerData);
-          console.log('[Request Details] Provider fields:', Object.keys(providerData));
 
           // Check various possible field names for completed jobs
           const completedJobsCount =
@@ -157,8 +153,6 @@ export default function RequestDetailsPage() {
             providerData.jobsDone ||
             providerData.totalCompleted ||
             0;
-
-          console.log('[Request Details] Completed jobs count:', completedJobsCount);
 
           setProvider({ ...providerData, completedJobs: completedJobsCount });
         } catch (providerError) {
@@ -219,8 +213,10 @@ export default function RequestDetailsPage() {
     try {
       setActionLoading(true);
       await customerApi.rescheduleServiceRequest(id, {
-        scheduledDate: newDate,
-        scheduledTimeSlot: newTimeSlot,
+        schedule: {
+          date: newDate,
+          timeSlot: newTimeSlot,
+        },
       });
       toast.success('Request rescheduled successfully');
       setRescheduleDialogOpen(false);
@@ -405,18 +401,28 @@ export default function RequestDetailsPage() {
             <div className="space-y-6">
               <div>
                 <p className="text-sm text-gray-500 mb-1">Service Title</p>
-                <p className="text-lg font-semibold text-gray-800">{request.title}</p>
+                <p className="text-lg font-semibold text-gray-800 capitalize">{request.title}</p>
               </div>
 
               <div>
                 <p className="text-sm text-gray-500 mb-1">Category</p>
-                <p className="text-gray-800">{request.serviceType}</p>
+                <p className="text-gray-800 capitalize">{request.serviceType}</p>
               </div>
 
               <div>
                 <p className="text-sm text-gray-500 mb-1">Description</p>
-                <p className="text-gray-800">{request.description}</p>
+                <p className="text-gray-800 capitalize">{request.description}</p>
               </div>
+
+              {request.additionalNotes && request.additionalNotes.trim() !== '' && (
+                <div className="mt-6 p-4 bg-linear-to-r from-amber-50 to-yellow-50 rounded-xl border-2 border-amber-300">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-lg">📝</span>
+                    <p className="text-sm font-bold text-amber-800">Additional Notes</p>
+                  </div>
+                  <p className="text-sm text-amber-900 capitalize leading-relaxed">"{request.additionalNotes}"</p>
+                </div>
+              )}
 
               {request.finalPrice && (
                 <div>
@@ -441,7 +447,7 @@ export default function RequestDetailsPage() {
                 </div>
                 <div className="flex-1">
                   <p className="text-sm text-gray-500 mb-1">Street Address</p>
-                  <p className="text-gray-800 font-medium">{request.address?.street || 'N/A'}</p>
+                  <p className="text-gray-800 font-medium capitalize">{request.address?.street || 'N/A'}</p>
                 </div>
               </div>
 
@@ -451,7 +457,7 @@ export default function RequestDetailsPage() {
                 </div>
                 <div className="flex-1">
                   <p className="text-sm text-gray-500 mb-1">City</p>
-                  <p className="text-gray-800 font-medium">{request.address?.city || 'N/A'}</p>
+                  <p className="text-gray-800 font-medium capitalize">{request.address?.city || 'N/A'}</p>
                 </div>
               </div>
 
@@ -460,11 +466,18 @@ export default function RequestDetailsPage() {
                   <MapPin className="h-5 w-5 text-sky-600" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm text-gray-500 mb-1">State & ZIP</p>
-                  <p className="text-gray-800 font-medium">
-                    {request.address?.state || 'N/A'}
-                    {request.address?.zipCode && ` ${request.address.zipCode}`}
-                  </p>
+                  <p className="text-sm text-gray-500 mb-1">State</p>
+                  <p className="text-gray-800 font-medium capitalize">{request.address?.state || 'N/A'}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-sky-50 rounded-lg">
+                  <MapPin className="h-5 w-5 text-sky-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-gray-500 mb-1">ZIP Code</p>
+                  <p className="text-gray-800 font-medium">{request.address?.zipCode || request.address?.pincode || 'N/A'}</p>
                 </div>
               </div>
 
@@ -475,7 +488,7 @@ export default function RequestDetailsPage() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-500 mb-1">Country</p>
-                    <p className="text-gray-800 font-medium">{request.address.country}</p>
+                    <p className="text-gray-800 font-medium capitalize">{request.address.country}</p>
                   </div>
                 </div>
               )}
@@ -514,39 +527,26 @@ export default function RequestDetailsPage() {
             </div>
           )}
 
-          {/* Actions */}
-          <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-8">
-            <h3 className="text-xl font-bold text-gray-800 mb-6">Actions</h3>
+          {/* Actions Section - Only for Completed Requests */}
+          {request.status === 'completed' && (
+            <div className="bg-linear-to-r from-sky-500 via-blue-500 to-indigo-600 rounded-2xl shadow-2xl p-6 text-white">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl border-2 border-white/30">
+                  <Briefcase className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold">Request Actions</h3>
+                  <p className="text-sky-100 text-xs">Manage your completed service</p>
+                </div>
+              </div>
 
-            <div className="space-y-3">
-              {canReschedule && (
-                <Button
-                  onClick={() => setRescheduleDialogOpen(true)}
-                  variant="outline"
-                  className="w-full"
-                >
-                  <Edit className="mr-2 h-4 w-4" />
-                  Reschedule
-                </Button>
-              )}
-
-              {canCancel && (
-                <Button
-                  onClick={() => setCancelDialogOpen(true)}
-                  variant="outline"
-                  className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
-                >
-                  <X className="mr-2 h-4 w-4" />
-                  Cancel Request
-                </Button>
-              )}
-
-              {request.status === 'completed' && (
-                (() => {
+              <div className="space-y-3">
+                {(() => {
                   if (reviewsLoading) {
                     return (
-                      <div className="flex items-center justify-center p-4 bg-gray-50 rounded-xl">
-                        <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+                      <div className="flex items-center gap-3 p-4 bg-white/10 backdrop-blur-sm rounded-xl border-2 border-white/20">
+                        <Loader2 className="h-5 w-5 animate-spin text-white" />
+                        <p className="text-sm text-sky-100">Loading review information...</p>
                       </div>
                     );
                   }
@@ -555,68 +555,65 @@ export default function RequestDetailsPage() {
 
                   if (requestReview) {
                     return (
-                      <div className="p-4 bg-linear-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-200">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                            <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
-                            <span className="font-semibold text-gray-800">Your Review</span>
+                      <Link
+                        href={`/customer/reviews/${requestReview.id}/edit`}
+                        className="block"
+                      >
+                        <div className="flex items-center gap-4 p-7 bg-white/10 backdrop-blur-sm rounded-xl border-2 border-white/20 hover:bg-white/20 hover:scale-[1.02] transition-all">
+                          <div className="p-3 bg-amber-400/20 rounded-xl">
+                            <Star className="h-6 w-6 text-amber-300 fill-amber-300" />
                           </div>
-                          <Link
-                            href={`/customer/reviews`}
-                            className="text-xs text-sky-600 hover:text-sky-700 font-medium"
-                          >
-                            View Details →
-                          </Link>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-1">
+                              <p className="font-bold text-base">Your Review</p>
+                              <div className="flex items-center gap-1">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star
+                                    key={i}
+                                    className={`h-3.5 w-3.5 ${
+                                      i < requestReview.rating
+                                        ? 'fill-amber-300 text-amber-300'
+                                        : 'fill-white/30 text-white/30'
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                            <p className="text-xs text-sky-100 line-clamp-1">{requestReview.comment}</p>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs font-semibold text-white">
+                            View Full Details
+                            <ArrowRight className="h-4 w-4" />
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1 mb-2">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={star}
-                              className={`h-4 w-4 ${
-                                star <= (requestReview.rating || 0)
-                                  ? 'fill-amber-400 text-amber-400'
-                                  : 'fill-gray-200 text-gray-300'
-                              }`}
-                            />
-                          ))}
-                        </div>
-                        {requestReview.comment && (
-                          <p className="text-sm text-gray-700 line-clamp-2 italic">
-                            "{requestReview.comment}"
-                          </p>
-                        )}
-                        <div className="mt-3 pt-3 border-t border-amber-200">
-                          <p className="text-xs text-gray-500">
-                            Reviewed on {requestReview.createdAt ? new Date(requestReview.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
-                          </p>
-                        </div>
-                      </div>
+                      </Link>
                     );
                   }
 
                   return (
-                    <Link href={`/customer/reviews/create?requestId=${request.id}`}>
-                      <Button
-                        className="w-full bg-linear-to-r from-amber-400 via-yellow-400 to-orange-400 hover:from-amber-500 hover:via-yellow-500 hover:to-orange-500 text-white shadow-md hover:shadow-lg transition-all"
-                      >
-                        <Star className="mr-2 h-4 w-4 fill-yellow-200" />
-                        Write a Review
-                      </Button>
+                    <Link
+                      href={`/customer/reviews/create?requestId=${request.id}`}
+                      className="block"
+                    >
+                      <div className="flex items-center gap-4 p-4 bg-linear-to-br from-amber-400/20 to-orange-400/20 backdrop-blur-sm rounded-xl border-2 border-amber-300/30 hover:from-amber-400/30 hover:to-orange-400/30 hover:scale-[1.02] transition-all">
+                        <div className="p-3 bg-amber-400/30 rounded-xl">
+                          <Star className="h-6 w-6 text-amber-200 fill-amber-200" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-bold text-base">Write a Review</p>
+                          <p className="text-xs text-amber-100">Rate your service experience</p>
+                        </div>
+                        <ArrowRight className="h-5 w-5 text-amber-200" />
+                      </div>
                     </Link>
                   );
-                })()
-              )}
-
-              {request.status === 'cancelled' && (
-                <div className="text-center text-sm text-gray-500">
-                  <p>This request has been cancelled.</p>
-                </div>
-              )}
+                })()}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
-        {/* Right: Provider, Schedule & Actions */}
+        {/* Right: Schedule, Provider & Actions */}
         <div className="lg:w-1/2 space-y-6">
           {/* Schedule */}
           <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-8">
@@ -666,7 +663,7 @@ export default function RequestDetailsPage() {
                 </div>
                 <div className="flex-1">
                   <p className="text-sm text-gray-500">Service Type</p>
-                  <p className="text-lg font-semibold text-gray-800">
+                  <p className="text-lg font-semibold text-gray-800 capitalize">
                     {request.serviceType}
                   </p>
                 </div>
@@ -826,86 +823,321 @@ export default function RequestDetailsPage() {
               </div>
             </div>
           ) : null}
+
+          {/* Actions Section - Only for non-completed requests */}
+          {request.status !== 'completed' && (
+            <div className="bg-linear-to-r from-sky-500 via-blue-500 to-indigo-600 rounded-2xl shadow-2xl p-6 text-white">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl border-2 border-white/30">
+                  <Briefcase className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold">Quick Actions</h3>
+                  <p className="text-sky-100 text-xs">Manage your service request</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                {canReschedule && (
+                  <button
+                    onClick={() => setRescheduleDialogOpen(true)}
+                    disabled={actionLoading}
+                    className="flex flex-col items-center gap-2 p-4 bg-white/10 backdrop-blur-sm rounded-xl border-2 border-white/20 hover:bg-white/20 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <div className="p-2 bg-white/20 rounded-lg">
+                      <Calendar className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="text-center">
+                      <p className="font-semibold text-sm">Reschedule</p>
+                      <p className="text-xs text-sky-100">Change date/time</p>
+                    </div>
+                  </button>
+                )}
+
+                {canCancel && (
+                  <button
+                    onClick={() => setCancelDialogOpen(true)}
+                    disabled={actionLoading}
+                    className="flex flex-col items-center gap-2 p-4 bg-white/10 backdrop-blur-sm rounded-xl border-2 border-white/20 hover:bg-red-500/20 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <div className="p-2 bg-white/20 rounded-lg">
+                      <XCircle className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="text-center">
+                      <p className="font-semibold text-sm">Cancel</p>
+                      <p className="text-xs text-sky-100">Cancel request</p>
+                    </div>
+                  </button>
+                )}
+
+                {request.status === 'cancelled' && (
+                  <div className="flex flex-col items-center gap-2 p-4 bg-white/5 backdrop-blur-sm rounded-xl border-2 border-white/10">
+                    <div className="p-2 bg-white/10 rounded-lg">
+                      <XCircle className="h-5 w-5 text-white/50" />
+                    </div>
+                    <div className="text-center">
+                      <p className="font-semibold text-sm text-white/70">Cancelled</p>
+                      <p className="text-xs text-white/50">Request cancelled</p>
+                    </div>
+                  </div>
+                )}
+
+                {request.status === 'pending' && (
+                  <div className="flex flex-col items-center gap-2 p-4 bg-white/5 backdrop-blur-sm rounded-xl border-2 border-white/10 col-span-2">
+                    <div className="p-2 bg-white/10 rounded-lg">
+                      <Clock className="h-5 w-5 text-white/50" />
+                    </div>
+                    <div className="text-center">
+                      <p className="font-semibold text-sm text-white/70">Pending Assignment</p>
+                      <p className="text-xs text-white/50">Waiting for provider</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Cancel Dialog */}
       <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Cancel Service Request</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to cancel this service request? This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent className="sm:max-w-125 w-[95vw] max-w-[95vw] p-0 overflow-hidden bg-white">
+          {/* Header with Warning Gradient */}
+          <div className="bg-linear-to-r from-red-500 via-orange-500 to-amber-500 px-4 sm:px-6 py-4 sm:py-5 text-white">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+                <XCircle className="h-5 w-5 sm:h-6 sm:w-6" />
+                Cancel Service Request
+              </DialogTitle>
+              <DialogDescription className="text-red-100 text-sm sm:text-base">
+                This action cannot be undone. Please provide a reason for cancellation.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
 
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="cancelReason">Reason for cancellation *</Label>
+          <div className="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
+            {/* Warning Alert */}
+            <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-3 sm:p-4">
+              <div className="flex items-start gap-2 sm:gap-3">
+                <div className="p-2 bg-amber-200 rounded-lg shrink-0">
+                  <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-amber-700" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs sm:text-sm font-bold text-amber-800 mb-1">Important Notice</p>
+                  <p className="text-xs sm:text-sm text-amber-700">
+                    Once cancelled, this request cannot be recovered. You'll need to create a new request if you change your mind.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Cancellation Reason */}
+            <div className="space-y-2 sm:space-y-3">
+              <Label htmlFor="cancelReason" className="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2">
+                <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
+                Reason for cancellation *
+              </Label>
               <Textarea
                 id="cancelReason"
                 rows={4}
-                placeholder="Please let us know why you're cancelling..."
+                placeholder="Please let us know why you're cancelling. This helps us improve our service..."
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
+                className="text-sm sm:text-base border-gray-300 focus:border-red-400 focus:ring-red-400"
               />
+              <p className="text-xs text-gray-500">
+                <span className="font-semibold">Required:</span> Please provide at least a brief explanation
+              </p>
             </div>
+
+            {/* Request Info Summary */}
+            {request && (
+              <div className="bg-gray-50 rounded-xl p-3 sm:p-4 border border-gray-200">
+                <p className="text-xs text-gray-500 mb-1 sm:mb-2">Request to be cancelled:</p>
+                <p className="text-xs sm:text-sm font-semibold text-gray-800">{request.title}</p>
+                <p className="text-xs text-gray-600 mt-1">
+                  Scheduled: {new Date(request.scheduledDate).toLocaleDateString()} at {request.scheduledTimeSlot}
+                </p>
+              </div>
+            )}
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCancelDialogOpen(false)}>
-              Keep Request
-            </Button>
-            <Button
-              onClick={handleCancel}
-              disabled={actionLoading}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
-              {actionLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Cancelling...
-                </>
-              ) : (
-                'Cancel Request'
-              )}
-            </Button>
-          </DialogFooter>
+          {/* Footer Actions */}
+          <div className="bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center">
+              <Button
+                variant="outline"
+                onClick={() => setCancelDialogOpen(false)}
+                disabled={actionLoading}
+                className="w-full h-10 sm:h-11 text-sm sm:text-base font-semibold border-2 hover:bg-gray-100"
+              >
+                <X className="mr-2 h-4 w-4" />
+                Keep Request
+              </Button>
+              <Button
+                onClick={handleCancel}
+                disabled={actionLoading || !cancelReason.trim()}
+                className="w-full h-10 sm:h-11 text-sm sm:text-base font-semibold bg-linear-to-r from-red-500 via-orange-500 to-amber-500 hover:from-red-600 hover:via-orange-600 hover:to-amber-600 text-white shadow-md hover:shadow-lg transition-all"
+              >
+                {actionLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Cancelling...
+                  </>
+                ) : (
+                  <>
+                    <XCircle className="mr-2 h-4 w-4" />
+                    Cancel Request
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* Reschedule Dialog */}
       <Dialog open={rescheduleDialogOpen} onOpenChange={setRescheduleDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Reschedule Service</DialogTitle>
-            <DialogDescription>
-              Choose a new date and time slot for your service.
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent className="sm:max-w-125 w-[95vw] max-w-[95vw] p-0 overflow-hidden bg-white">
+          {/* Header with Gradient */}
+          <div className="bg-linear-to-r from-sky-500 via-blue-500 to-indigo-500 px-4 sm:px-6 py-4 sm:py-5 text-white">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+                <Calendar className="h-5 w-5 sm:h-6 sm:w-6" />
+                Reschedule Service
+              </DialogTitle>
+              <DialogDescription className="text-sky-100 text-sm sm:text-base">
+                Choose a new date and time for your service appointment
+              </DialogDescription>
+            </DialogHeader>
+          </div>
 
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="newDate">New Date *</Label>
-              <Input
-                id="newDate"
-                type="date"
-                min={new Date().toISOString().split('T')[0]}
-                value={newDate}
-                onChange={(e) => setNewDate(e.target.value)}
-              />
+          <div className="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
+            {/* Date Selection */}
+            <div className="space-y-2 sm:space-y-3">
+              <Label className="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2">
+                <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-sky-600" />
+                New Date *
+              </Label>
+
+              {/* Custom Calendar Popover */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsCalendarOpen(!isCalendarOpen)}
+                  className="w-full flex items-center justify-between px-4 py-3 text-sm sm:text-base bg-white border-2 border-sky-300 rounded-xl hover:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-400 transition-all"
+                >
+                  <span className={newDate ? 'text-gray-800 font-medium' : 'text-gray-400'}>
+                    {newDate ? format(new Date(newDate), 'MMMM d, yyyy') : 'Select a date'}
+                  </span>
+                  <ChevronDown className={`h-4 w-4 text-sky-600 transition-transform ${isCalendarOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isCalendarOpen && (
+                  <div className="absolute z-50 mt-2 p-4 bg-white rounded-2xl shadow-2xl border border-sky-200">
+                    <style>{`
+                      .rdp-custom .rdp-nav_button {
+                        transition: all 0.2s;
+                      }
+                      .rdp-custom .rdp-nav_button:hover {
+                        background-color: #e0f2fe;
+                        border-radius: 4px;
+                      }
+                      .rdp-custom .rdp-day {
+                        cursor: pointer;
+                        transition: all 0.2s;
+                      }
+                      .rdp-custom .rdp-day:hover:not(.rdp-day_disabled) {
+                        background-color: #e0f2fe;
+                        border-radius: 8px;
+                      }
+                      .rdp-custom .rdp-head_cell {
+                        font-weight: 600;
+                      }
+                    `}</style>
+                    <DayPicker
+                      mode="single"
+                      selected={newDate ? new Date(newDate) : undefined}
+                      onSelect={(date) => {
+                        if (date) {
+                          setNewDate(format(date, 'yyyy-MM-dd'));
+                          setIsCalendarOpen(false);
+                        }
+                      }}
+                      disabled={{ before: new Date() }}
+                      className="rdp-custom"
+                      styles={{
+                        root: { margin: 0 },
+                        head_cell: { color: '#0ea5e9' },
+                        head_row: { marginBottom: '8px' },
+                        cell: {
+                          borderRadius: '8px',
+                          fontSize: '0.875rem',
+                          height: '36px',
+                          width: '36px',
+                        },
+                        day: {
+                          color: '#1e293b',
+                          fontWeight: '500',
+                        },
+                        day_disabled: {
+                          color: '#cbd5e1',
+                        },
+                        day_selected: {
+                          backgroundColor: '#0ea5e9',
+                          color: '#ffffff',
+                          fontWeight: 'bold',
+                        },
+                        day_today: {
+                          borderColor: '#f59e0b',
+                          borderWidth: '2px',
+                        },
+                        nav_button: {
+                          color: '#0ea5e9',
+                          fontWeight: 'bold',
+                        },
+                        caption: {
+                          color: '#1e293b',
+                          fontWeight: 'bold',
+                        },
+                        month_caption: {
+                          color: '#1e293b',
+                          fontWeight: 'bold',
+                          fontSize: '1rem',
+                        },
+                        weekday: {
+                          color: '#64748b',
+                          fontWeight: '600',
+                          fontSize: '0.75rem',
+                        },
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <p className="text-xs text-gray-500">
+                {newDate
+                  ? `Selected: ${format(new Date(newDate), 'EEEE, MMMM d, yyyy')}`
+                  : `Select a date from ${format(new Date(), 'MMMM d, yyyy')} onwards`
+                }
+              </p>
             </div>
 
-            <div>
-              <Label>New Time Slot *</Label>
-              <div className="space-y-2 mt-2">
+            {/* Time Slot Selection */}
+            <div className="space-y-2 sm:space-y-3">
+              <Label className="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2">
+                <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                New Time Slot *
+              </Label>
+              <div className="grid grid-cols-1 gap-2 sm:gap-3">
                 {timeSlots.map((slot) => (
                   <label
                     key={slot.value}
-                    className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                    className={`relative flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl border-2 cursor-pointer transition-all ${
                       newTimeSlot === slot.value
-                        ? 'border-sky-500 bg-sky-50'
-                        : 'border-gray-200 hover:border-sky-300'
+                        ? 'border-sky-500 bg-linear-to-br from-sky-50 to-blue-50 shadow-md'
+                        : 'border-gray-200 hover:border-sky-300 bg-white hover:bg-sky-50'
                     }`}
                   >
                     <input
@@ -913,29 +1145,56 @@ export default function RequestDetailsPage() {
                       value={slot.value}
                       checked={newTimeSlot === slot.value}
                       onChange={(e) => setNewTimeSlot(e.target.value)}
+                      className="sr-only"
                     />
-                    <span className="text-sm">{slot.label}</span>
+                    <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                      newTimeSlot === slot.value ? 'border-sky-500 bg-sky-500' : 'border-gray-300'
+                    }`}>
+                      {newTimeSlot === slot.value && (
+                        <div className="w-2 sm:w-2.5 h-2 sm:h-2.5 bg-white rounded-full" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs sm:text-sm font-semibold text-gray-800">{slot.label.split(' (')[0]}</p>
+                      <p className="text-xs text-gray-500">{slot.label.match(/\(([^)]+)\)/)?.[1]}</p>
+                    </div>
                   </label>
                 ))}
               </div>
             </div>
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setRescheduleDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleReschedule} disabled={actionLoading}>
-              {actionLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Updating...
-                </>
-              ) : (
-                'Update Schedule'
-              )}
-            </Button>
-          </DialogFooter>
+          {/* Footer Actions */}
+          <div className="bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center">
+              <Button
+                variant="outline"
+                onClick={() => setRescheduleDialogOpen(false)}
+                disabled={actionLoading}
+                className="w-full h-10 sm:h-11 text-sm sm:text-base font-semibold border-2 hover:bg-gray-100"
+              >
+                <X className="mr-2 h-4 w-4" />
+                Cancel
+              </Button>
+              <Button
+                onClick={handleReschedule}
+                disabled={actionLoading}
+                className="w-full h-10 sm:h-11 text-sm sm:text-base font-semibold bg-linear-to-r from-sky-400 via-blue-400 to-indigo-400 hover:from-sky-500 hover:via-blue-500 hover:to-indigo-500 text-white shadow-md hover:shadow-lg transition-all"
+              >
+                {actionLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  <>
+                    <Calendar className="mr-2 h-4 w-4" />
+                    Update Schedule
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

@@ -74,8 +74,6 @@ export default function EditReviewPage() {
       // We need to fetch the review from the list since there's no individual endpoint
       const response = await customerApi.getMyReviews();
 
-      console.log('[Edit Review] API Response:', response);
-
       // Handle different response formats
       let reviews: Review[] = [];
       if (Array.isArray(response)) {
@@ -85,8 +83,6 @@ export default function EditReviewPage() {
       } else if ((response as any).reviews && Array.isArray((response as any).reviews)) {
         reviews = (response as any).reviews;
       }
-
-      console.log('[Edit Review] Parsed reviews:', reviews);
 
       const currentReview = reviews.find((r) => r.id === reviewId);
 

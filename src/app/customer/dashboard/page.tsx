@@ -256,6 +256,7 @@ export default function CustomerDashboardPage() {
       assigned: allRequests.filter((r) => r.status === "assigned").length,
       inProgress: allRequests.filter((r) => r.status === "in-progress").length,
       completed: allRequests.filter((r) => r.status === "completed").length,
+      cancelled: allRequests.filter((r) => r.status === "cancelled").length,
     };
 
     return [
@@ -263,6 +264,7 @@ export default function CustomerDashboardPage() {
       { name: "Assigned", value: statusCounts.assigned, color: "#3b82f6" },
       { name: "In Progress", value: statusCounts.inProgress, color: "#8b5cf6" },
       { name: "Completed", value: statusCounts.completed, color: "#10b981" },
+      { name: "Cancelled", value: statusCounts.cancelled, color: "#6b7280" },
     ].filter((item) => item.value > 0);
   }, [allRequests]);
 
@@ -421,10 +423,10 @@ export default function CustomerDashboardPage() {
           {statusData.length > 0 ? (
             <div className="space-y-4">
               <div
-                className="relative"
-                style={{ height: "220px", minWidth: 0 }}
+                className="relative w-full"
+                style={{ height: "220px" }}
               >
-                <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                <ResponsiveContainer width="100%" height="100%">
                   <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                     <Pie
                       data={statusData}
@@ -512,8 +514,8 @@ export default function CustomerDashboardPage() {
           </div>
 
           {spendingData.length > 0 ? (
-            <div className="relative" style={{ height: "280px", minWidth: 0 }}>
-              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+            <div className="relative w-full" style={{ height: "280px" }}>
+              <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={spendingData}
                   margin={{ top: 10, right: 10, left: 0, bottom: 0 }}

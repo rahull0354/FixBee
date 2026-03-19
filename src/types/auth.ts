@@ -8,6 +8,7 @@ export interface User {
   phone?: string;
   profilePicture?: string;
   isVerified?: boolean;
+  isActive?: boolean;
   address?: {
     street?: string;
     city?: string;
@@ -17,6 +18,9 @@ export interface User {
   };
   createdAt?: string | Date;
   updatedAt?: string | Date;
+  deactivatedAt?: string | Date;
+  reactivationToken?: string;
+  reactivationExpires?: string | Date;
 }
 
 export interface AuthState {

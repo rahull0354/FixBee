@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import { ServiceRequest, CreateServiceRequestData, UpdateServiceRequestData, Review, CreateReviewData, UpdateReviewData } from '@/types';
+import { ServiceRequest, CreateServiceRequestData, UpdateServiceRequestData, Review, CreateReviewData, UpdateReviewData, Notification, NotificationPreferences } from '@/types';
 
 export const customerApi = {
   // Profile
@@ -13,6 +13,14 @@ export const customerApi = {
 
   deactivateAccount: async () => {
     return apiClient.post('/customers/deactivate-account');
+  },
+
+  requestReactivation: async (email?: string) => {
+    return apiClient.post('/customers/request-reactivation', { email });
+  },
+
+  verifyReactivation: async (token: string) => {
+    return apiClient.get(`/customers/reactivate-account/${token}`);
   },
 
   // Service Requests
@@ -30,7 +38,7 @@ export const customerApi = {
   },
 
   cancelServiceRequest: async (id: string, reason: string) => {
-    return apiClient.patch(`/request/cancel/${id}`, { reason });
+    return apiClient.patch(`/request/cancel/${id}`, { cancellationReason: reason });
   },
 
   rescheduleServiceRequest: async (id: string, data: UpdateServiceRequestData) => {
@@ -60,7 +68,7 @@ export const customerApi = {
   },
 
   getCategory: async (slug: string) => {
-    return apiClient.get(`/author/category/${slug}`);
+    return apiClient.get(`/author/category/slug/${slug}`);
   },
 
   // Providers
@@ -71,5 +79,31 @@ export const customerApi = {
 
   getProvider: async (id: string) => {
     return apiClient.get(`/providers/list/profile/${id}`);
+  },
+
+  // Notifications
+  getNotifications: async (params?: { unreadOnly?: boolean; page?: number; limit?: number }) => {
+    const config = params ? { params } : undefined;
+    return apiClient.get<{ notifications: Notification[]; total: number; unreadCount: number }>('/customers/notifications', config);
+  },
+
+  markAsRead: async (id: string) => {
+    return apiClient.patch(`/customers/notifications/${id}/read`);
+  },
+
+  markAllAsRead: async () => {
+    return apiClient.patch('/customers/notifications/read-all');
+  },
+
+  deleteNotification: async (id: string) => {
+    return apiClient.delete(`/customers/notifications/${id}`);
+  },
+
+  getNotificationPreferences: async () => {
+    return apiClient.get<NotificationPreferences>('/customers/notifications/preferences');
+  },
+
+  updateNotificationPreferences: async (data: Partial<NotificationPreferences>) => {
+    return apiClient.put('/customers/notifications/preferences', data);
   },
 };

@@ -1,6 +1,9 @@
 export interface CommonService {
+  _id?: string;
   name: string;
   description?: string;
+  duration?: string;
+  typicalPrice?: string;
 }
 
 export interface PriceRange {
@@ -16,7 +19,7 @@ export interface Category {
   description?: string;
   icon?: string;
   priceRange?: PriceRange;
-  commonServices: string[];
+  commonServices: (string | CommonService)[];
   requiredSkills: string[];
   isActive: boolean;
   createdAt: string;
@@ -29,7 +32,7 @@ export interface CreateCategoryData {
   description?: string;
   icon?: string;
   priceRange?: PriceRange;
-  commonServices: string[];
+  commonServices: (string | CommonService)[];
   requiredSkills: string[];
 }
 
@@ -38,6 +41,6 @@ export interface UpdateCategoryData {
   description?: string;
   icon?: string;
   priceRange?: PriceRange;
-  commonServices?: string[];
+  commonServices?: (string | CommonService)[];
   requiredSkills?: string[];
 }

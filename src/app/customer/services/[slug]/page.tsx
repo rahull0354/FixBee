@@ -38,17 +38,54 @@ export default function ServiceDetailPage() {
       const response = await customerApi.getCategory(slug);
       const data: Category = (response as any).data || response;
       setCategory(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading category:', error);
-      toast.error('Failed to load service details');
+
+      // Check if it's a 500 error or API is unavailable
+      if (error?.response?.status === 500 || error?.code === 'ERR_NETWORK') {
+        // Use mock data as fallback for development
+        const mockCategory: Category = {
+          id: 'mock-1',
+          name: 'Electrician Services',
+          slug: slug,
+          description: 'Professional electrical services for your home and business. Our certified electricians handle everything from simple repairs to complete electrical installations.',
+          icon: '⚡',
+          priceRange: {
+            min: 50,
+            max: 500,
+            unit: '$',
+          },
+          commonServices: [
+            { name: 'Electrical Repair', description: 'Fix wiring issues and electrical problems' },
+            { name: 'Light Installation', description: 'Install or replace light fixtures' },
+            { name: 'Outlet Installation', description: 'Add or replace electrical outlets' },
+            { name: 'Circuit Breaker Service', description: 'Repair or replace circuit breakers' },
+            { name: 'Ceiling Fan Installation', description: 'Install ceiling fans properly' },
+            { name: 'Safety Inspection', description: 'Comprehensive electrical safety check' },
+          ],
+          requiredSkills: ['Electrical Wiring', 'Safety Protocols', 'Code Compliance', 'Troubleshooting'],
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        setCategory(mockCategory);
+        toast.info('Using demo data - Backend API unavailable');
+      } else {
+        toast.error('Failed to load service details');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const handleBookService = () => {
+    if (!category) {
+      toast.error('Service details not loaded. Please try again.');
+      return;
+    }
+
     // Navigate to new request page with category pre-selected
-    router.push(`/customer/requests/new?category=${category?.id}`);
+    router.push(`/customer/requests/new?category=${category.id}`);
   };
 
   if (loading) {

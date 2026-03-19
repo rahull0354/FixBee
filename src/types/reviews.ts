@@ -7,9 +7,9 @@ export interface DetailedRatings {
 
 export interface Review {
   id: string;
-  requestId: string;
+  serviceRequestId: string;
   customerId: string;
-  providerId: string;
+  serviceProviderId: string;
   rating: number;
   comment: string;
   detailedRatings?: DetailedRatings;
@@ -36,7 +36,7 @@ export interface Review {
 }
 
 export interface CreateReviewData {
-  requestId: string;
+  serviceRequestId: string;
   rating: number;
   comment: string;
   detailedRatings: DetailedRatings;

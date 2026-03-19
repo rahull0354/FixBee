@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Menu, Bell, Search, User, LogOut, ChevronDown } from "lucide-react";
+import { Menu, Bell, Search, User, LogOut, ChevronDown, Check, Loader2, Briefcase, Star, Tag, Info } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { customerApi } from "@/lib/api";
 import { toast } from "sonner";
 import type { User as UserType } from "@/types/auth";
+import type { Notification } from "@/types";
 
 interface CustomerHeaderProps {
   user: UserType | null;
@@ -14,8 +16,98 @@ interface CustomerHeaderProps {
 
 export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loadingNotifications, setLoadingNotifications] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const { logout } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    if (showNotifications) {
+      loadNotifications();
+    }
+  }, [showNotifications]);
+
+  const loadNotifications = async () => {
+    try {
+      setLoadingNotifications(true);
+      const response = await customerApi.getNotifications({ limit: 5 });
+      const data = (response as any).data || response;
+      setNotifications(data.notifications || []);
+      setUnreadCount(data.unreadCount || 0);
+    } catch (error) {
+      console.error("Error loading notifications:", error);
+    } finally {
+      setLoadingNotifications(false);
+    }
+  };
+
+  const handleMarkAsRead = async (id: string) => {
+    try {
+      await customerApi.markAsRead(id);
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+      );
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    } catch (error) {
+      toast.error("Failed to mark as read");
+    }
+  };
+
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins}m`;
+    if (diffHours < 24) return `${diffHours}h`;
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  };
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case "request_assigned":
+      case "request_started":
+      case "request_completed":
+      case "request_cancelled":
+        return "briefcase";
+      case "review_received":
+      case "provider_response":
+        return "star";
+      case "system_update":
+        return "info";
+      case "promotional":
+        return "tag";
+      default:
+        return "bell";
+    }
+  };
+
+  const getNotificationIconColor = (type: string) => {
+    switch (type) {
+      case "request_assigned":
+        return "bg-blue-100 text-blue-600";
+      case "request_started":
+        return "bg-purple-100 text-purple-600";
+      case "request_completed":
+        return "bg-green-100 text-green-600";
+      case "request_cancelled":
+        return "bg-orange-100 text-orange-600";
+      case "review_received":
+      case "provider_response":
+        return "bg-yellow-100 text-yellow-600";
+      case "system_update":
+        return "bg-slate-100 text-slate-600";
+      case "promotional":
+        return "bg-pink-100 text-pink-600";
+      default:
+        return "bg-sky-100 text-sky-600";
+    }
+  };
 
   // Get initials from name (first name + last name)
   const getInitials = (name?: string) => {
@@ -30,8 +122,7 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
   const handleLogout = async () => {
     try {
       await logout();
-      toast.success("Logged out successfully");
-      router.push("/login/customer");
+      // Note: AuthProvider handles redirect to landing page
     } catch (error) {
       console.error("Logout error:", error);
       toast.error("Failed to logout");
@@ -79,23 +170,155 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
             />
           </div>
 
-          {/* Notifications */}
-          <button className="relative p-2 rounded-xl hover:bg-sky-50 transition-colors">
-            <Bell className="h-5 w-5 text-gray-600" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-          </button>
+          {/* Notifications Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => {
+                setShowNotifications(!showNotifications);
+                setShowDropdown(false);
+              }}
+              className="relative p-2 rounded-xl hover:bg-sky-50 transition-colors"
+            >
+              <Bell className="h-5 w-5 text-gray-600" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full px-1">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
+
+            {/* Notifications Dropdown */}
+            {showNotifications && (
+              <>
+                <div
+                  className="fixed inset-0 z-50 bg-transparent"
+                  onClick={() => setShowNotifications(false)}
+                />
+                <div className="fixed left-4 right-4 sm:absolute sm:left-auto sm:right-0 sm:w-96 top-[72px] sm:mt-2 bg-white rounded-xl shadow-2xl border border-sky-100 z-50 max-h-[70vh] sm:max-h-[500px] flex flex-col">
+                  {/* Header */}
+                  <div className="px-4 py-3 border-b border-sky-100">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-base font-bold text-gray-800">Notifications</h3>
+                      {unreadCount > 0 && (
+                        <span className="text-xs font-semibold text-sky-600 bg-sky-50 px-2 py-1 rounded-full">
+                          {unreadCount} new
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Notifications List */}
+                  <div className="flex-1 overflow-y-auto">
+                    {loadingNotifications ? (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="h-6 w-6 animate-spin text-sky-500" />
+                      </div>
+                    ) : notifications.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
+                        <Bell className="h-12 w-12 text-gray-300 mb-3" />
+                        <p className="text-sm text-gray-500">No notifications yet</p>
+                      </div>
+                    ) : (
+                      <div className="py-2">
+                        {notifications.map((notification) => {
+                          const iconName = getNotificationIcon(notification.type);
+                          const iconColor = getNotificationIconColor(notification.type);
+                          const IconComponent = {
+                            briefcase: Briefcase,
+                            star: Star,
+                            tag: Tag,
+                            info: Info,
+                            bell: Bell,
+                          }[iconName] || Bell;
+
+                          return (
+                            <div
+                              key={notification.id}
+                              className={`px-4 py-3 hover:bg-sky-50 transition-colors border-b border-gray-100 last:border-b-0 ${
+                                !notification.isRead ? 'bg-sky-50/50' : ''
+                              }`}
+                            >
+                              <div className="flex items-start gap-3">
+                                {/* Icon */}
+                                <div className={`p-2 rounded-lg ${iconColor} shrink-0 mt-0.5`}>
+                                  <IconComponent className="h-4 w-4" />
+                                </div>
+
+                                {/* Content */}
+                                <div className="flex-1 min-w-0">
+                                  {/* Title */}
+                                  <p className="text-sm font-semibold text-gray-800 mb-1">
+                                    {notification.title}
+                                  </p>
+
+                                  {/* Short Description */}
+                                  <p className="text-xs text-gray-600 line-clamp-1 mb-2">
+                                    {notification.message}
+                                  </p>
+
+                                  {/* Time & Actions */}
+                                  <div className="flex items-center justify-between">
+                                    <p className="text-xs text-gray-400">
+                                      {formatTime(notification.createdAt)}
+                                    </p>
+                                    {!notification.isRead && (
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleMarkAsRead(notification.id);
+                                        }}
+                                        className="text-xs font-medium text-sky-600 hover:text-sky-700 flex items-center gap-1 whitespace-nowrap"
+                                      >
+                                        <Check className="h-3 w-3" />
+                                        Mark read
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Unread indicator */}
+                                {!notification.isRead && (
+                                  <div className="w-2 h-2 bg-sky-500 rounded-full shrink-0 mt-2" />
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer - View All */}
+                  <div className="px-4 py-3 border-t border-sky-100">
+                    <button
+                      onClick={() => {
+                        setShowNotifications(false);
+                        router.push('/customer/notifications');
+                      }}
+                      className="w-full text-center text-sm font-semibold text-sky-600 hover:text-sky-700 hover:bg-sky-50 py-2 rounded-lg transition-colors"
+                    >
+                      View all notifications
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
 
           {/* Avatar Dropdown */}
           <div className="relative">
             <button
-              onClick={() => setShowDropdown(!showDropdown)}
+              onClick={() => {
+                setShowDropdown(!showDropdown);
+                setShowNotifications(false);
+              }}
               className="flex items-center gap-2 focus:outline-none"
             >
               <div className="w-10 h-10 bg-linear-to-br from-sky-400 to-blue-500 rounded-full flex items-center justify-center text-white font-semibold shadow-md hover:shadow-lg transition-shadow">
                 {getInitials(user?.name)}
               </div>
               <ChevronDown
-                className={`h-4 w-4 text-gray-600 transition-transform ${
+                className={`h-4 w-4 text-gray-600 transition-transform hidden sm:block ${
                   showDropdown ? "rotate-180" : ""
                 }`}
               />
@@ -105,10 +328,10 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
             {showDropdown && (
               <>
                 <div
-                  className="fixed inset-0 z-10"
+                  className="fixed inset-0 z-50 bg-transparent"
                   onClick={() => setShowDropdown(false)}
                 />
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-sky-100 py-2 z-20">
+                <div className="fixed left-4 right-4 sm:absolute sm:left-auto sm:right-0 sm:w-56 top-[72px] sm:mt-2 bg-white rounded-xl shadow-lg border border-sky-100 py-2 z-50">
                   {/* User Info Section */}
                   <div className="px-4 py-3 border-b border-sky-100">
                     <div className="flex items-center gap-3 mb-2">

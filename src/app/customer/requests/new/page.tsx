@@ -103,6 +103,16 @@ export default function NewServiceRequestPage() {
     }
   }, [preSelectedCategoryId, setValue]);
 
+  // Update serviceType when category changes
+  useEffect(() => {
+    if (selectedCategoryId) {
+      const selectedCategory = categories.find(cat => cat.id === selectedCategoryId);
+      if (selectedCategory) {
+        setValue("serviceType", selectedCategory.name);
+      }
+    }
+  }, [selectedCategoryId, categories, setValue]);
+
   const loadCategories = async () => {
     try {
       setCategoriesLoading(true);
@@ -126,27 +136,35 @@ export default function NewServiceRequestPage() {
         (cat) => cat.id === data.categoryId,
       );
 
+      const serviceType = selectedCategory?.name || data.serviceType || "General";
+
+      // Transform data to match backend expectations
       const requestData = {
-        categoryId: data.categoryId,
-        serviceType: selectedCategory?.name || "General",
-        title: data.title,
-        description: data.description,
-        address: data.address,
-        scheduledDate: data.scheduledDate,
-        scheduledTimeSlot: data.scheduledTimeSlot,
+        serviceType: serviceType,
+        serviceCategoryId: data.categoryId,
+        serviceTitle: data.title,
+        serviceDescription: data.description,
+        additionalNotes: data.additionalNotes,
+        schedule: {
+          date: data.scheduledDate,
+          timeSlot: data.scheduledTimeSlot,
+        },
+        serviceAddress: {
+          ...data.address,
+          pincode: data.address.zipCode, // Backend expects 'pincode' not 'zipCode'
+        },
       };
 
       const response = await customerApi.createServiceRequest(requestData);
+
       const newRequest: any = (response as any).data || response;
 
       toast.success("Service request created successfully!");
-      router.push(
-        `/customer/requests/${newRequest.id || newRequest.requestId}`,
-      );
+      router.push('/customer/requests');
     } catch (error: any) {
-      console.error("Error creating request:", error);
       const message =
         error?.response?.data?.message ||
+        error?.response?.data?.error ||
         error?.message ||
         "Failed to create service request";
       toast.error(message);
@@ -160,6 +178,9 @@ export default function NewServiceRequestPage() {
 
   return (
     <div className="space-y-8 pb-8">
+      {/* Hidden field for serviceType */}
+      <input type="hidden" {...register("serviceType")} />
+
       {/* Hero Header */}
       <div className="bg-linear-to-br from-sky-500 via-blue-500 to-indigo-600 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden">
         {/* Decorative elements */}
@@ -212,7 +233,7 @@ export default function NewServiceRequestPage() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8" style={{ position: 'relative', zIndex: 1 }}>
         {/* Service Category */}
         <div className="bg-white rounded-2xl shadow-xl border border-sky-100 overflow-hidden">
           <div className="bg-linear-to-r from-sky-50 to-blue-50 px-6 py-4 border-b border-sky-100">

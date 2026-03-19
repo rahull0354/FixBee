@@ -4,7 +4,8 @@ export interface ServiceAddress {
   street: string;
   city: string;
   state: string;
-  zipCode: string;
+  zipCode?: string;
+  pincode?: string;
   country?: string;
 }
 
@@ -24,6 +25,7 @@ export interface ServiceRequest {
   finalPrice?: number;
   beforeImages?: string[];
   afterImages?: string[];
+  additionalNotes?: string;
   createdAt: string;
   updatedAt: string;
   customer?: {
@@ -46,19 +48,29 @@ export interface ServiceRequest {
 }
 
 export interface CreateServiceRequestData {
-  categoryId: string;
   serviceType: string;
-  title: string;
-  description: string;
-  address: ServiceAddress;
-  scheduledDate: string;
-  scheduledTimeSlot: string;
-  beforeImages?: string[];
+  serviceCategoryId: string;
+  serviceTitle: string;
+  serviceDescription: string;
+  additionalNotes?: string;
+  schedule: {
+    date: string;
+    timeSlot: string;
+  };
+  serviceAddress: {
+    street: string;
+    city: string;
+    state: string;
+    pincode: string;
+    country?: string;
+  };
 }
 
 export interface UpdateServiceRequestData {
-  scheduledDate?: string;
-  scheduledTimeSlot?: string;
+  schedule?: {
+    date: string;
+    timeSlot: string;
+  };
   address?: ServiceAddress;
   description?: string;
 }
