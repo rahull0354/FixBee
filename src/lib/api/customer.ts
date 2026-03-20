@@ -77,6 +77,12 @@ export const customerApi = {
     return apiClient.get('/providers/list', config);
   },
 
+  getProvidersByCategory: async (categoryId: string, city?: string) => {
+    const params: any = { categoryId };
+    if (city) params.city = city;
+    return apiClient.get('/providers/by-category', { params });
+  },
+
   getProvider: async (id: string) => {
     return apiClient.get(`/providers/list/profile/${id}`);
   },

@@ -2,15 +2,15 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { CustomerSidebar } from '@/components/customer/CustomerSidebar';
-import { CustomerHeader } from '@/components/customer/CustomerHeader';
+import { ProviderSidebar } from '@/components/provider/ProviderSidebar';
+import { ProviderHeader } from '@/components/provider/ProviderHeader';
 import { useRouter, usePathname } from 'next/navigation';
-import { AlertCircle, Mail, Loader2, Lock, Home } from 'lucide-react';
-import { customerApi } from '@/lib/api';
+import { AlertCircle, Mail, Loader2, Lock, Briefcase } from 'lucide-react';
+import { providerApi } from '@/lib/api';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 
-export default function CustomerLayout({
+export default function ProviderLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -28,12 +28,12 @@ export default function CustomerLayout({
     : 0;
 
   // Check if current page is dashboard
-  const isDashboardPage = pathname === '/customer/dashboard';
+  const isDashboardPage = pathname === '/provider/dashboard';
 
   const handleRequestReactivation = async () => {
     try {
       setRequestingReactivation(true);
-      await customerApi.requestReactivation(user?.email);
+      await providerApi.requestReactivation(user?.email);
       toast.success('Reactivation link sent to your email. Please check your inbox.');
     } catch (error: any) {
       console.error('Error requesting reactivation:', error);
@@ -50,7 +50,7 @@ export default function CustomerLayout({
   // Show loading state while checking authentication
   if (loading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-sky-50 via-white to-blue-50 z-[9999]">
+      <div className="fixed left-0 top-0 w-screen h-screen flex items-center justify-center bg-linear-to-br from-emerald-50 via-white to-teal-50 z-50">
         <style jsx>{`
           @keyframes shimmer {
             0% { transform: translateX(-100%); }
@@ -64,38 +64,38 @@ export default function CustomerLayout({
           {/* Animated Logo */}
           <div className="relative w-32 h-32 mx-auto">
             {/* Outer ring */}
-            <div className="absolute inset-0 rounded-full border-4 border-sky-200 animate-ping" style={{ animationDuration: '2s' }} />
+            <div className="absolute inset-0 rounded-full border-4 border-emerald-200 animate-ping" style={{ animationDuration: '2s' }} />
             {/* Middle ring */}
-            <div className="absolute inset-2 rounded-full border-4 border-blue-300 animate-ping" style={{ animationDuration: '1.5s', animationDelay: '0.2s' }} />
+            <div className="absolute inset-2 rounded-full border-4 border-teal-300 animate-ping" style={{ animationDuration: '1.5s', animationDelay: '0.2s' }} />
             {/* Inner ring */}
-            <div className="absolute inset-4 rounded-full border-4 border-indigo-300 animate-ping" style={{ animationDuration: '1s', animationDelay: '0.4s' }} />
+            <div className="absolute inset-4 rounded-full border-4 border-cyan-300 animate-ping" style={{ animationDuration: '1s', animationDelay: '0.4s' }} />
             {/* Center icon */}
             <div className="absolute inset-4 flex items-center justify-center">
-              <div className="w-24 h-24 bg-gradient-to-br from-sky-400 via-blue-400 to-indigo-400 rounded-full flex items-center justify-center shadow-2xl">
-                <Home className="h-12 w-12 text-white animate-pulse" />
+              <div className="w-24 h-24 bg-linear-to-br from-emerald-400 via-teal-400 to-cyan-400 rounded-full flex items-center justify-center shadow-2xl">
+                <Briefcase className="h-12 w-12 text-white animate-pulse" />
               </div>
             </div>
           </div>
 
           {/* Loading text with animated dots */}
           <div className="space-y-3">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <h2 className="text-2xl font-bold bg-linear-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
               Loading FixBee
             </h2>
             <div className="flex items-center justify-center gap-2">
               <span className="text-gray-500">Preparing your workspace</span>
               <div className="flex gap-1">
-                <span className="w-2 h-2 bg-sky-500 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
-                <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                <span className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
+                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
+                <span className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                <span className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
               </div>
             </div>
           </div>
 
           {/* Progress bar with shimmer effect */}
           <div className="w-64 h-2 bg-gray-200 rounded-full overflow-hidden mx-auto relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-50 shimmer" />
-            <div className="h-full bg-gradient-to-r from-sky-400 via-blue-400 to-indigo-400 rounded-full animate-pulse" style={{ width: '60%' }} />
+            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white to-transparent opacity-50 shimmer" />
+            <div className="h-full bg-linear-to-r from-emerald-400 via-teal-400 to-cyan-400 rounded-full animate-pulse" style={{ width: '60%' }} />
           </div>
         </div>
       </div>
@@ -108,7 +108,7 @@ export default function CustomerLayout({
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-sky-50 via-white to-blue-50">
+    <div className="min-h-screenbg-linear-to-br from-emerald-50 via-white to-teal-50">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
@@ -118,12 +118,12 @@ export default function CustomerLayout({
       )}
 
       {/* Sidebar */}
-      <CustomerSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <ProviderSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Main content area */}
       <div className="lg:ml-72">
         {/* Header */}
-        <CustomerHeader user={user} onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
+        <ProviderHeader user={user} onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
         {/* Deactivated Account Banner */}
         {isDeactivated && (
@@ -172,7 +172,7 @@ export default function CustomerLayout({
             // Restricted access message for deactivated users on non-dashboard pages
             <div className="flex items-center justify-center min-h-96">
               <div className="max-w-2xl w-full bg-white rounded-3xl shadow-2xl p-12 border-2 border-amber-200 text-center">
-                <div className="w-24 h-24 bg-linear-to-br from-amber-100 to-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <div className="w-24 h-24bg-linear-to-br from-amber-100 to-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
                   <Lock className="h-12 w-12 text-amber-600" />
                 </div>
                 <h1 className="text-3xl font-bold text-gray-800 mb-3">Account Deactivated</h1>
@@ -193,8 +193,8 @@ export default function CustomerLayout({
                 </div>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <Button
-                    onClick={() => router.push('/customer/dashboard')}
-                    className="px-8 py-3 bg-linear-to-r from-sky-400 via-blue-400 to-indigo-400 hover:from-sky-500 hover:via-blue-500 hover:to-indigo-500 text-white rounded-xl font-semibold shadow-lg"
+                    onClick={() => router.push('/provider/dashboard')}
+                    className="px-8 py-3 bg-linear-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:from-emerald-500 hover:via-teal-500 hover:to-cyan-500 text-white rounded-xl font-semibold shadow-lg"
                   >
                     Go to Dashboard
                   </Button>

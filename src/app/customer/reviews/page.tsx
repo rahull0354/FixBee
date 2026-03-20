@@ -32,7 +32,6 @@ export default function CustomerReviewsPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [serviceRequests, setServiceRequests] = useState<Map<string, any>>(new Map());
   const [providers, setProviders] = useState<Map<string, any>>(new Map());
-  const [loading, setLoading] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [reviewToDelete, setReviewToDelete] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -43,7 +42,6 @@ export default function CustomerReviewsPage() {
 
   const loadReviews = async () => {
     try {
-      setLoading(true);
       console.log('[Reviews] Starting to load reviews...');
 
       const response = await customerApi.getMyReviews();
@@ -154,8 +152,6 @@ export default function CustomerReviewsPage() {
       const message = error?.response?.data?.message || error?.message || 'Failed to load reviews';
       toast.error(message);
       setReviews([]); // Set empty array on error
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -212,17 +208,6 @@ export default function CustomerReviewsPage() {
       return 'Invalid Date';
     }
   };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-100">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-12 w-12 animate-spin text-sky-500 mx-auto" />
-          <p className="text-gray-600 font-medium">Loading your reviews...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-8">

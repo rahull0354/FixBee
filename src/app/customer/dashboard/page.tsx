@@ -50,7 +50,6 @@ export default function CustomerDashboardPage() {
   });
   const [allRequests, setAllRequests] = useState<ServiceRequest[]>([]);
   const [recentRequests, setRecentRequests] = useState<ServiceRequest[]>([]);
-  const [loading, setLoading] = useState(true);
   const [backendNotReady, setBackendNotReady] = useState(false);
 
   useEffect(() => {
@@ -59,7 +58,6 @@ export default function CustomerDashboardPage() {
 
   const loadDashboardData = async () => {
     try {
-      setLoading(true);
       setBackendNotReady(false);
 
       // Fetch all service requests
@@ -149,8 +147,6 @@ export default function CustomerDashboardPage() {
           "Failed to load dashboard data";
         toast.error(message);
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -320,17 +316,6 @@ export default function CustomerDashboardPage() {
       .slice(-6); // Last 6 months
   }, [allRequests]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-100">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-12 w-12 animate-spin text-sky-500 mx-auto" />
-          <p className="text-gray-600 font-medium">Loading dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-8">
       {/* Backend Not Ready Warning */}
@@ -387,16 +372,16 @@ export default function CustomerDashboardPage() {
         {statCards.map((stat) => (
           <div
             key={stat.title}
-            className={`bg-white rounded-2xl p-6 shadow-lg border border-sky-100 hover:shadow-xl transition-shadow`}
+            className="bg-white rounded-2xl p-6 shadow-lg border border-sky-100 hover:shadow-xl transition-shadow"
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className={`p-3 rounded-xl ${stat.bgColor}`}>
+            <div className="flex items-center gap-3 mb-3">
+              <div className={`p-3 rounded-xl ${stat.bgColor} shrink-0`}>
                 <stat.icon className={`h-6 w-6 ${stat.color}`} />
               </div>
+              <h3 className="text-3xl font-bold text-gray-800">
+                {stat.value}
+              </h3>
             </div>
-            <p className="text-3xl font-bold text-gray-800 mb-1">
-              {stat.value}
-            </p>
             <p className="text-sm text-gray-500">{stat.title}</p>
           </div>
         ))}

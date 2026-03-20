@@ -41,7 +41,6 @@ import {
 export default function CustomerProfilePage() {
   const { user: authUser, logout, updateUser } = useAuth();
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -99,8 +98,6 @@ export default function CustomerProfilePage() {
 
   const loadProfile = async () => {
     try {
-      setLoading(true);
-
       let userData: User = authUser || {
         id: "",
         name: "",
@@ -154,8 +151,6 @@ export default function CustomerProfilePage() {
         });
       }
       toast.error("Using offline profile data");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -242,17 +237,6 @@ export default function CustomerProfilePage() {
   const daysUntilDeletion = user?.deactivatedAt
     ? 30 - Math.floor((Date.now() - new Date(user.deactivatedAt).getTime()) / (1000 * 60 * 60 * 24))
     : 0;
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-12 w-12 animate-spin text-sky-500 mx-auto" />
-          <p className="text-gray-600 font-medium">Loading profile...</p>
-        </div>
-      </div>
-    );
-  }
 
   // Get initials for avatar
   const getInitials = (name?: string) => {

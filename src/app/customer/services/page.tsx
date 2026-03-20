@@ -29,7 +29,6 @@ export default function BrowseServicesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(true);
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [maxPrice, setMaxPrice] = useState<number>(10000);
   const [hasActiveFilters, setHasActiveFilters] = useState(false);
@@ -86,7 +85,6 @@ export default function BrowseServicesPage() {
 
   const loadCategories = async () => {
     try {
-      setLoading(true);
       const response = await customerApi.getCategories();
       const data: Category[] = (response as any).data || response || [];
       setCategories(data);
@@ -94,21 +92,8 @@ export default function BrowseServicesPage() {
     } catch (error) {
       console.error("Error loading categories:", error);
       toast.error("Failed to load service categories");
-    } finally {
-      setLoading(false);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-100">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-12 w-12 animate-spin text-sky-500 mx-auto" />
-          <p className="text-gray-600 font-medium">Loading services...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-8">

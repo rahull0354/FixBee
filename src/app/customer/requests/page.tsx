@@ -29,7 +29,6 @@ const statusFilters = [
 export default function CustomerRequestsPage() {
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [filteredRequests, setFilteredRequests] = useState<ServiceRequest[]>([]);
-  const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -66,7 +65,6 @@ export default function CustomerRequestsPage() {
 
   const loadRequests = async () => {
     try {
-      setLoading(true);
       const response = await customerApi.getMyServiceRequests();
       const rawRequests: any[] = (response as any).data || response || [];
 
@@ -96,8 +94,6 @@ export default function CustomerRequestsPage() {
       console.error('Error loading requests:', error);
       toast.error('Failed to load service requests');
       setRequests([]);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -150,17 +146,6 @@ export default function CustomerRequestsPage() {
   const startIndex = (currentPage - 1) * requestsPerPage;
   const endIndex = startIndex + requestsPerPage;
   const paginatedRequests = filteredRequests.slice(startIndex, endIndex);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-100">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-12 w-12 animate-spin text-sky-500 mx-auto" />
-          <p className="text-gray-600 font-medium">Loading your requests...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-8">

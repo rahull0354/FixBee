@@ -109,7 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Extract user data from response
       const responseObj = response as any;
-      const user = responseObj.user || responseObj.checkCustomer || responseObj.checkProvider || responseObj.author || responseObj.checkAuthor || responseObj;
+      const user = responseObj.user || responseObj.checkCustomer || responseObj.checkServiceProvider || responseObj.checkProvider || responseObj.author || responseObj.checkAuthor || responseObj;
       const token = responseObj.token;
 
       // Clear any existing auth data
@@ -170,7 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Extract user data from response
       const responseObj = response as any;
-      const user = responseObj.user || responseObj.customer || responseObj.checkCustomer || responseObj.provider || responseObj.checkProvider || responseObj;
+      const user = responseObj.user || responseObj.customer || responseObj.checkCustomer || responseObj.serviceProvider || responseObj.checkServiceProvider || responseObj.provider || responseObj.checkProvider || responseObj;
       const token = responseObj.token;
 
       // Clear any existing auth data
@@ -233,21 +233,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Also try clearing with domain
         document.cookie = `${cookieName}=; path=/; domain=${window.location.hostname}; max-age=0; SameSite=Lax`;
       });
+
+      // Clear cookies immediately and redirect BEFORE updating state
+      toast.success('Logged out successfully');
+
+      // Use href instead of replace to ensure immediate navigation
+      window.location.href = '/';
     }
 
-    // Update auth state
+    // Update auth state (will be reset after page reload anyway)
     setAuthState({
       user: null,
       token: null,
       isAuthenticated: false,
     });
-
-    toast.success('Logged out successfully');
-
-    // Redirect to landing page
-    if (typeof window !== 'undefined') {
-      window.location.replace('/');
-    }
   };
 
   const updateUser = (userData: any) => {

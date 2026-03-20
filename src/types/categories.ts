@@ -12,6 +12,14 @@ export interface PriceRange {
   unit: string;
 }
 
+export interface AdminCommission {
+  type: 'fixed' | 'percentage' | 'hybrid';
+  fixed?: number;
+  percentage?: number;
+  minCommission?: number;
+  maxCommission?: number;
+}
+
 export interface Category {
   id: string;
   name: string;
@@ -19,6 +27,7 @@ export interface Category {
   description?: string;
   icon?: string;
   priceRange?: PriceRange;
+  adminCommission?: AdminCommission;
   commonServices: (string | CommonService)[];
   requiredSkills: string[];
   isActive: boolean;
@@ -32,6 +41,7 @@ export interface CreateCategoryData {
   description?: string;
   icon?: string;
   priceRange?: PriceRange;
+  adminCommission?: AdminCommission;
   commonServices: (string | CommonService)[];
   requiredSkills: string[];
 }
@@ -41,6 +51,7 @@ export interface UpdateCategoryData {
   description?: string;
   icon?: string;
   priceRange?: PriceRange;
+  adminCommission?: AdminCommission;
   commonServices?: (string | CommonService)[];
   requiredSkills?: string[];
 }

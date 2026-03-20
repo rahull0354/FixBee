@@ -33,7 +33,6 @@ import { Switch } from "@/components/ui/switch";
 
 export default function CustomerNotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
   const [filter, setFilter] = useState<"all" | "unread">("all");
   const [preferencesDialogOpen, setPreferencesDialogOpen] = useState(false);
@@ -55,7 +54,6 @@ export default function CustomerNotificationsPage() {
 
   const loadNotifications = async () => {
     try {
-      setLoading(true);
       const response = await customerApi.getNotifications({
         unreadOnly: filter === "unread",
       });
@@ -70,8 +68,6 @@ export default function CustomerNotificationsPage() {
         "Failed to load notifications";
       toast.error(message);
       setNotifications([]);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -197,17 +193,6 @@ export default function CustomerNotificationsPage() {
       day: "numeric",
     });
   };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-100">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-12 w-12 animate-spin text-sky-500 mx-auto" />
-          <p className="text-gray-600 font-medium">Loading notifications...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">

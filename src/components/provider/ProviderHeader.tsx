@@ -1,38 +1,47 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Menu, Bell, Search, User, LogOut, ChevronDown, Check, Loader2, Briefcase, Star, Tag, Info } from "lucide-react";
-import { useAuth } from "@/components/auth/AuthProvider";
-import { customerApi } from "@/lib/api";
-import { toast } from "sonner";
-import type { User as UserType } from "@/types/auth";
-import type { Notification } from "@/types";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/components/auth/AuthProvider';
+import { providerApi } from '@/lib/api';
+import { toast } from 'sonner';
+import { Switch } from '@/components/ui/switch';
+import { Menu, Bell, LogOut, User, Settings, ChevronDown, Check, Loader2, Briefcase, Star, Tag, Info, Wrench } from 'lucide-react';
+import type { Notification } from '@/types';
 
-interface CustomerHeaderProps {
-  user: UserType | null;
+interface ProviderHeaderProps {
+  user: any;
   onMenuClick: () => void;
 }
 
-export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
+export function ProviderHeader({ user, onMenuClick }: ProviderHeaderProps) {
+  const router = useRouter();
+  const { logout } = useAuth();
+  const [isAvailable, setIsAvailable] = useState(false);
+  const [toggling, setToggling] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loadingNotifications, setLoadingNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const { logout } = useAuth();
-  const router = useRouter();
 
   useEffect(() => {
-    // Initial load of unread count
-    loadUnreadCount();
-
-    // Poll for unread count every 30 seconds
-    const interval = setInterval(() => {
-      loadUnreadCount();
-    }, 30000); // 30 seconds
-
-    return () => clearInterval(interval);
+    const loadAvailability = async () => {
+      try {
+        // Fetch profile to get actual availability status from backend
+        const response = await providerApi.getProfile();
+        const data = (response as any).data || response;
+        // Backend returns availabilityStatus as "available", "offline", or "busy"
+        const isAvailable = data.availabilityStatus === 'available' ||
+                          data.availabilityStatus === 'busy' ||
+                          data.isAvailable === true;
+        setIsAvailable(isAvailable);
+      } catch (error) {
+        console.error('Error loading availability:', error);
+        setIsAvailable(false);
+      }
+    };
+    loadAvailability();
   }, []);
 
   useEffect(() => {
@@ -44,36 +53,60 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
   const loadNotifications = async () => {
     try {
       setLoadingNotifications(true);
-      const response = await customerApi.getNotifications({ limit: 5 });
+      const response = await providerApi.getNotifications({ limit: 5 });
       const data = (response as any).data || response;
       setNotifications(data.notifications || []);
       setUnreadCount(data.unreadCount || 0);
     } catch (error) {
-      console.error("Error loading notifications:", error);
+      console.error('Error loading notifications:', error);
     } finally {
       setLoadingNotifications(false);
     }
   };
 
-  const loadUnreadCount = async () => {
+  const handleToggleAvailability = async () => {
     try {
-      const response = await customerApi.getNotifications({ limit: 1 });
-      const data = (response as any).data || response;
-      setUnreadCount(data.unreadCount || 0);
-    } catch (error) {
-      console.error("Error loading unread count:", error);
+      setToggling(true);
+      const newStatus = isAvailable ? 'offline' : 'available';
+      await providerApi.toggleAvailability(newStatus);
+      setIsAvailable(!isAvailable);
+      toast.success(
+        !isAvailable
+          ? 'You are now available to receive service requests'
+          : 'You are no longer available for new requests'
+      );
+    } catch (error: any) {
+      console.error('Error toggling availability:', error);
+      toast.error(error?.response?.data?.message || 'Failed to update availability');
+    } finally {
+      setToggling(false);
     }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      // Note: AuthProvider handles redirect to landing page
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error('Failed to logout');
+    }
+  };
+
+  const handleProfileClick = () => {
+    setShowDropdown(false);
+    router.push('/provider/profile');
   };
 
   const handleMarkAsRead = async (id: string) => {
     try {
-      await customerApi.markAsRead(id);
+      await providerApi.markNotificationAsRead(id);
       setNotifications((prev) =>
         prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch (error) {
-      toast.error("Failed to mark as read");
+      toast.error('Failed to mark as read');
     }
   };
 
@@ -84,54 +117,51 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
 
-    if (diffMins < 1) return "Just now";
+    if (diffMins < 1) return 'Just now';
     if (diffMins < 60) return `${diffMins}m`;
     if (diffHours < 24) return `${diffHours}h`;
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case "request_assigned":
-      case "request_started":
-      case "request_completed":
-      case "request_cancelled":
-        return "briefcase";
-      case "review_received":
-      case "provider_response":
-        return "star";
-      case "system_update":
-        return "info";
-      case "promotional":
-        return "tag";
+      case 'request_accepted':
+      case 'request_started':
+      case 'request_completed':
+        return 'briefcase';
+      case 'review_received':
+      case 'customer_response':
+        return 'star';
+      case 'system_update':
+        return 'info';
+      case 'promotional':
+        return 'tag';
       default:
-        return "bell";
+        return 'bell';
     }
   };
 
   const getNotificationIconColor = (type: string) => {
     switch (type) {
-      case "request_assigned":
-        return "bg-blue-100 text-blue-600";
-      case "request_started":
-        return "bg-purple-100 text-purple-600";
-      case "request_completed":
-        return "bg-green-100 text-green-600";
-      case "request_cancelled":
-        return "bg-orange-100 text-orange-600";
-      case "review_received":
-      case "provider_response":
-        return "bg-yellow-100 text-yellow-600";
-      case "system_update":
-        return "bg-slate-100 text-slate-600";
-      case "promotional":
-        return "bg-pink-100 text-pink-600";
+      case 'request_accepted':
+        return 'bg-emerald-100 text-emerald-600';
+      case 'request_started':
+        return 'bg-blue-100 text-blue-600';
+      case 'request_completed':
+        return 'bg-green-100 text-green-600';
+      case 'review_received':
+      case 'customer_response':
+        return 'bg-yellow-100 text-yellow-600';
+      case 'system_update':
+        return 'bg-slate-100 text-slate-600';
+      case 'promotional':
+        return 'bg-pink-100 text-pink-600';
       default:
-        return "bg-sky-100 text-sky-600";
+        return 'bg-sky-100 text-sky-600';
     }
   };
 
-  // Get initials from name (first name + last name)
+  // Get initials from name
   const getInitials = (name?: string) => {
     if (!name) return 'U';
     const parts = name.trim().split(' ');
@@ -141,54 +171,43 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
     return name[0].toUpperCase();
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      // Note: AuthProvider handles redirect to landing page
-    } catch (error) {
-      console.error("Logout error:", error);
-      toast.error("Failed to logout");
-    }
-  };
-
-  const handleProfileClick = () => {
-    setShowDropdown(false);
-    router.push("/customer/profile");
-  };
-
   return (
-    <header className="bg-white/80 backdrop-blur-xl shadow-sm border-b border-sky-100 sticky top-0 z-20">
+    <header className="bg-white/80 backdrop-blur-xl shadow-sm border-b border-emerald-100 sticky top-0 z-20">
       <div className="flex items-center justify-between px-4 lg:px-8 py-4">
         {/* Left: Menu button + Title */}
         <div className="flex items-center gap-4">
           {/* Mobile menu button */}
           <button
             onClick={onMenuClick}
-            className="lg:hidden p-2 rounded-lg hover:bg-sky-50 transition-colors"
+            className="lg:hidden p-2 rounded-lg hover:bg-emerald-50 transition-colors"
           >
             <Menu className="h-6 w-6 text-gray-700" />
           </button>
 
           {/* Page title */}
           <div>
-            <h1 className="text-xl lg:text-2xl font-bold bg-linear-to-r from-sky-500 via-blue-500 to-indigo-500 bg-clip-text text-transparent">
-              Welcome back, {user?.name?.split(" ")[0] || "User"}!
+            <h1 className="text-xl lg:text-2xl font-bold bg-linear-to-r from-emerald-500 via-teal-500 to-cyan-500 bg-clip-text text-transparent">
+              Welcome back, {user?.name?.split(' ')[0] || 'Provider'}!
             </h1>
             <p className="text-sm text-gray-500 hidden sm:block">
-              Here's what's happening with your service requests today.
+              Manage your services and assignments
             </p>
           </div>
         </div>
 
         {/* Right: Actions */}
         <div className="flex items-center gap-3">
-          {/* Search */}
-          <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-sky-50 rounded-xl border border-sky-200">
-            <Search className="h-4 w-4 text-gray-500" />
-            <input
-              type="text"
-              placeholder="Search..."
-              className="bg-transparent border-none outline-none text-sm text-gray-700 placeholder-gray-400 w-40"
+          {/* Availability Toggle */}
+          <div className="hidden md:flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-200">
+            <div className={`w-2 h-2 rounded-full ${isAvailable ? 'bg-emerald-500' : 'bg-gray-400'}`} />
+            <label htmlFor="availability" className="text-sm font-medium text-gray-700 cursor-pointer">
+              {isAvailable ? 'Available' : 'Unavailable'}
+            </label>
+            <Switch
+              id="availability"
+              checked={isAvailable}
+              onCheckedChange={handleToggleAvailability}
+              disabled={toggling}
             />
           </div>
 
@@ -199,18 +218,13 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
                 setShowNotifications(!showNotifications);
                 setShowDropdown(false);
               }}
-              className="relative p-2 rounded-xl hover:bg-sky-50 transition-colors"
+              className="relative p-2 rounded-xl hover:bg-emerald-50 transition-colors"
             >
               <Bell className="h-5 w-5 text-gray-600" />
               {unreadCount > 0 && (
-                <>
-                  {/* Red dot indicator */}
-                  <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse" />
-                  {/* Count badge */}
-                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full px-1 shadow-sm">
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
-                </>
+                <span className="absolute -top-1 -right-1 min-w-4.5 h-4.5 flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full px-1">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
               )}
             </button>
 
@@ -221,13 +235,13 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
                   className="fixed inset-0 z-50 bg-transparent"
                   onClick={() => setShowNotifications(false)}
                 />
-                <div className="fixed left-4 right-4 sm:absolute sm:left-auto sm:right-0 sm:w-96 top-[72px] sm:mt-2 bg-white rounded-xl shadow-2xl border border-sky-100 z-50 max-h-[70vh] sm:max-h-[500px] flex flex-col">
+                <div className="fixed left-4 right-4 sm:absolute sm:left-auto sm:right-0 sm:w-96 top-18 sm:mt-2 bg-white rounded-xl shadow-2xl border border-emerald-100 z-50 max-h-[70vh] sm:max-h-125 flex flex-col">
                   {/* Header */}
-                  <div className="px-4 py-3 border-b border-sky-100">
+                  <div className="px-4 py-3 border-b border-emerald-100">
                     <div className="flex items-center justify-between">
                       <h3 className="text-base font-bold text-gray-800">Notifications</h3>
                       {unreadCount > 0 && (
-                        <span className="text-xs font-semibold text-sky-600 bg-sky-50 px-2 py-1 rounded-full">
+                        <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
                           {unreadCount} new
                         </span>
                       )}
@@ -238,7 +252,7 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
                   <div className="flex-1 overflow-y-auto">
                     {loadingNotifications ? (
                       <div className="flex items-center justify-center py-8">
-                        <Loader2 className="h-6 w-6 animate-spin text-sky-500" />
+                        <Loader2 className="h-6 w-6 animate-spin text-emerald-500" />
                       </div>
                     ) : notifications.length === 0 ? (
                       <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
@@ -256,13 +270,14 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
                             tag: Tag,
                             info: Info,
                             bell: Bell,
+                            wrench: Wrench,
                           }[iconName] || Bell;
 
                           return (
                             <div
                               key={notification.id}
-                              className={`px-4 py-3 hover:bg-sky-50 transition-colors border-b border-gray-100 last:border-b-0 ${
-                                !notification.isRead ? 'bg-sky-50/50' : ''
+                              className={`px-4 py-3 hover:bg-emerald-50 transition-colors border-b border-gray-100 last:border-b-0 ${
+                                !notification.isRead ? 'bg-emerald-50/50' : ''
                               }`}
                             >
                               <div className="flex items-start gap-3">
@@ -294,7 +309,7 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
                                           e.stopPropagation();
                                           handleMarkAsRead(notification.id);
                                         }}
-                                        className="text-xs font-medium text-sky-600 hover:text-sky-700 flex items-center gap-1 whitespace-nowrap"
+                                        className="text-xs font-medium text-emerald-600 hover:text-emerald-700 flex items-center gap-1 whitespace-nowrap"
                                       >
                                         <Check className="h-3 w-3" />
                                         Mark read
@@ -305,7 +320,7 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
 
                                 {/* Unread indicator */}
                                 {!notification.isRead && (
-                                  <div className="w-2 h-2 bg-sky-500 rounded-full shrink-0 mt-2" />
+                                  <div className="w-2 h-2 bg-emerald-500 rounded-full shrink-0 mt-2" />
                                 )}
                               </div>
                             </div>
@@ -316,13 +331,13 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
                   </div>
 
                   {/* Footer - View All */}
-                  <div className="px-4 py-3 border-t border-sky-100">
+                  <div className="px-4 py-3 border-t border-emerald-100">
                     <button
                       onClick={() => {
                         setShowNotifications(false);
-                        router.push('/customer/notifications');
+                        router.push('/provider/notifications');
                       }}
-                      className="w-full text-center text-sm font-semibold text-sky-600 hover:text-sky-700 hover:bg-sky-50 py-2 rounded-lg transition-colors"
+                      className="w-full text-center text-sm font-semibold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 py-2 rounded-lg transition-colors"
                     >
                       View all notifications
                     </button>
@@ -341,12 +356,12 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
               }}
               className="flex items-center gap-2 focus:outline-none"
             >
-              <div className="w-10 h-10 bg-linear-to-br from-sky-400 to-blue-500 rounded-full flex items-center justify-center text-white font-semibold shadow-md hover:shadow-lg transition-shadow">
+              <div className="w-10 h-10 bg-linear-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center text-white font-semibold shadow-md hover:shadow-lg transition-shadow">
                 {getInitials(user?.name)}
               </div>
               <ChevronDown
                 className={`h-4 w-4 text-gray-600 transition-transform hidden sm:block ${
-                  showDropdown ? "rotate-180" : ""
+                  showDropdown ? 'rotate-180' : ''
                 }`}
               />
             </button>
@@ -358,11 +373,11 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
                   className="fixed inset-0 z-50 bg-transparent"
                   onClick={() => setShowDropdown(false)}
                 />
-                <div className="fixed left-4 right-4 sm:absolute sm:left-auto sm:right-0 sm:w-56 top-[72px] sm:mt-2 bg-white rounded-xl shadow-lg border border-sky-100 py-2 z-50">
+                <div className="fixed left-4 right-4 sm:absolute sm:left-auto sm:right-0 sm:w-56 top-18 sm:mt-2 bg-white rounded-xl shadow-lg border border-emerald-100 py-2 z-50">
                   {/* User Info Section */}
-                  <div className="px-4 py-3 border-b border-sky-100">
+                  <div className="px-4 py-3 border-b border-emerald-100">
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 bg-linear-to-br from-sky-400 to-blue-500 rounded-full flex items-center justify-center text-white font-semibold shadow-md">
+                      <div className="w-10 h-10 bg-linear-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center text-white font-semibold shadow-md">
                         {getInitials(user?.name)}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -370,19 +385,30 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
                         <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                       </div>
                     </div>
-                    
                   </div>
 
                   {/* Profile Button */}
                   <button
                     onClick={handleProfileClick}
-                    className="flex items-center gap-3 w-full px-4 py-3 text-gray-700 hover:bg-sky-50 transition-colors"
+                    className="flex items-center gap-3 w-full px-4 py-3 text-gray-700 hover:bg-emerald-50 transition-colors"
                   >
                     <User className="h-4 w-4" />
                     <span className="text-sm font-medium">Profile</span>
                   </button>
 
-                  <div className="border-t border-sky-100 my-1" />
+                  {/* Settings Button */}
+                  <button
+                    onClick={() => {
+                      setShowDropdown(false);
+                      router.push('/provider/settings');
+                    }}
+                    className="flex items-center gap-3 w-full px-4 py-3 text-gray-700 hover:bg-emerald-50 transition-colors"
+                  >
+                    <Settings className="h-4 w-4" />
+                    <span className="text-sm font-medium">Settings</span>
+                  </button>
+
+                  <div className="border-t border-emerald-100 my-1" />
 
                   {/* Logout Button */}
                   <button

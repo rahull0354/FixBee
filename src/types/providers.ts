@@ -1,4 +1,4 @@
-export type PricingType = 'per-visit' | 'per-hour';
+export type PricingType = 'per-visit' | 'per-hour' | 'per-day' | 'per-job';
 
 export interface Certification {
   id?: string;
@@ -40,6 +40,8 @@ export interface ProviderProfile {
   completedJobs: number;
   totalEarnings?: number;
   isSuspended?: boolean;
+  isActive?: boolean;
+  deactivatedAt?: string;
   createdAt: string;
   updatedAt: string;
 }

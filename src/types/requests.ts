@@ -26,6 +26,7 @@ export interface ServiceRequest {
   beforeImages?: string[];
   afterImages?: string[];
   additionalNotes?: string;
+  pricingDetails?: any;
   createdAt: string;
   updatedAt: string;
   customer?: {
