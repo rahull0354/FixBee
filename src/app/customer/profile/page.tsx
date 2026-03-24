@@ -37,9 +37,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function CustomerProfilePage() {
   const { user: authUser, logout, updateUser } = useAuth();
+  const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -98,6 +100,7 @@ export default function CustomerProfilePage() {
 
   const loadProfile = async () => {
     try {
+      setLoading(true);
       let userData: User = authUser || {
         id: "",
         name: "",
@@ -151,6 +154,8 @@ export default function CustomerProfilePage() {
         });
       }
       toast.error("Using offline profile data");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -263,159 +268,221 @@ export default function CustomerProfilePage() {
     ? Math.floor((Date.now() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24))
     : 0;
 
-  return (
-    <div className="space-y-6 pb-8">
-      {/* Deactivated Account Banner */}
-      {isDeactivated && (
-        <div className="bg-linear-to-r from-amber-50 via-orange-50 to-red-50 border-2 border-amber-300 rounded-2xl p-6 shadow-lg">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-start gap-4">
-              <div className="p-3 bg-amber-200 rounded-xl">
-                <AlertCircle className="h-6 w-6 text-amber-700" />
+  // Skeleton loading state
+  if (loading) {
+    return (
+      <div className="space-y-6 pb-8">
+        {/* Profile Card Skeleton */}
+        <div className="bg-linear-to-br from-sky-50 via-blue-50 to-indigo-50 rounded-3xl p-8 border border-sky-100">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+            <Skeleton className="w-24 h-24 rounded-full" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-8 w-48" />
+              <Skeleton className="h-4 w-64" />
+            </div>
+            <Skeleton className="h-10 w-32" />
+          </div>
+        </div>
+
+        {/* Stats Grid Skeleton */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-24 rounded-xl" />
+          ))}
+        </div>
+
+        {/* Personal Information Skeleton */}
+        <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
+          <Skeleton className="h-7 w-48 mb-6" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-5 w-full" />
               </div>
-              <div>
-                <h3 className="text-lg font-bold text-amber-900 mb-1">Account Deactivated</h3>
-                <p className="text-sm text-amber-800 mb-2">
+            ))}
+          </div>
+        </div>
+
+        {/* Address Section Skeleton */}
+        <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
+          <Skeleton className="h-7 w-40 mb-6" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="space-y-2">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-5 w-full" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Account Actions Skeleton */}
+        <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
+          <Skeleton className="h-7 w-48 mb-6" />
+          <div className="space-y-4">
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4 sm:space-y-6 pb-8 px-2 sm:px-0">
+        {/* Deactivated Account Banner */}
+        {isDeactivated && (
+        <div className="bg-gradient-to-r from-amber-50 via-orange-50 to-red-50 border-2 border-amber-300 rounded-2xl p-4 sm:p-6 shadow-lg">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-start gap-3 sm:gap-4">
+              <div className="p-2 sm:p-3 bg-amber-200 rounded-xl shrink-0">
+                <AlertCircle className="h-5 w-5 sm:h-6 sm:w-6 text-amber-700" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-base sm:text-lg font-bold text-amber-900 mb-1">Account Deactivated</h3>
+                <p className="text-xs sm:text-sm text-amber-800 mb-2">
                   Your account is currently deactivated. You have <span className="font-bold">{Math.max(0, daysUntilDeletion)} days</span> remaining to reactivate it before permanent deletion.
                 </p>
-                <p className="text-xs text-amber-700">
+                <p className="text-[11px] sm:text-xs text-amber-700">
                   Reactivate your account to restore full access to your service history, requests, and reviews.
                 </p>
               </div>
             </div>
-            <div className="flex gap-3 shrink-0">
-              <Button
-                onClick={handleRequestReactivation}
-                disabled={requestingReactivation}
-                className="bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-md"
-              >
-                {requestingReactivation ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Sending...
-                  </>
-                ) : (
-                  <>
-                    <Mail className="mr-2 h-4 w-4" />
-                    Reactivate Account
-                  </>
-                )}
-              </Button>
-            </div>
+            <Button
+              onClick={handleRequestReactivation}
+              disabled={requestingReactivation}
+              className="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-md text-sm sm:text-base"
+            >
+              {requestingReactivation ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Mail className="mr-2 h-4 w-4" />
+                  Reactivate Account
+                </>
+              )}
+            </Button>
           </div>
         </div>
       )}
 
       {/* Hero Header Section */}
-      <div className="bg-linear-to-br from-sky-500 via-blue-500 to-indigo-600 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden">
+      <div className="bg-gradient-to-br from-sky-500 via-blue-500 to-indigo-600 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 text-white shadow-2xl relative overflow-hidden">
         {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+        <div className="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-36 h-36 sm:w-48 sm:h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
 
         <div className="relative z-10">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-            <div className="flex items-center gap-6">
-              {/* Profile Avatar */}
-              <div className="relative group">
-                <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl border-2 border-white/30">
-                  {user?.profilePicture && !imageError ? (
-                    <img
-                      src={user.profilePicture}
-                      alt={user.name}
-                      className="w-full h-full rounded-xl object-cover"
-                      onError={() => setImageError(true)}
-                    />
-                  ) : (
-                    <span className="text-3xl font-bold">{getInitials(user?.name)}</span>
+          <div className="flex flex-col gap-4 sm:gap-6">
+            {/* Profile Info Section */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-4 sm:gap-6 w-full sm:w-auto">
+                {/* Profile Avatar */}
+                <div className="relative group shrink-0">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl border-2 border-white/30">
+                    {user?.profilePicture && !imageError ? (
+                      <img
+                        src={user.profilePicture}
+                        alt={user.name}
+                        className="w-full h-full rounded-xl object-cover"
+                        onError={() => setImageError(true)}
+                      />
+                    ) : (
+                      <span className="text-2xl sm:text-3xl font-bold">{getInitials(user?.name)}</span>
+                    )}
+                  </div>
+                  {editMode && (
+                    <>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleProfilePictureUpload}
+                        className="hidden"
+                      />
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="absolute -bottom-1 -right-1 p-2 sm:p-2.5 bg-white text-sky-600 rounded-full shadow-lg hover:bg-sky-50 transition-all hover:scale-110"
+                        type="button"
+                      >
+                        <Camera className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                      </button>
+                    </>
                   )}
                 </div>
-                {editMode && (
-                  <>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleProfilePictureUpload}
-                      className="hidden"
-                    />
-                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      className="absolute -bottom-1 -right-1 p-2.5 bg-white text-sky-600 rounded-full shadow-lg hover:bg-sky-50 transition-all hover:scale-110"
-                      type="button"
-                    >
-                      <Camera className="h-4 w-4" />
-                    </button>
-                  </>
-                )}
-              </div>
 
-              {/* User Info */}
-              <div>
-                <h1 className="text-3xl font-bold mb-1">{user?.name || "User"}</h1>
-                <p className="text-sky-100 flex items-center gap-2">
-                  <Mail className="h-4 w-4" />
-                  {user?.email}
-                </p>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-semibold">
-                    Customer
-                  </span>
-                  <span className="text-sky-200 text-sm">
-                    Member since {memberSince}
-                  </span>
+                {/* User Info */}
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-2xl sm:text-3xl font-bold mb-1 truncate">{user?.name || "User"}</h1>
+                  <p className="text-sky-100 flex items-center gap-2 text-sm sm:text-base truncate">
+                    <Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                    <span className="truncate">{user?.email}</span>
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2 mt-2">
+                    <span className="px-2 sm:px-3 py-1 bg-white/20 rounded-full text-[11px] sm:text-xs font-semibold">
+                      Customer
+                    </span>
+                    <span className="text-sky-200 text-xs sm:text-sm">
+                      Member since {memberSince}
+                    </span>
+                  </div>
                 </div>
               </div>
+
+              {/* Edit Button */}
+              {!editMode && (
+                <Button
+                  onClick={() => {
+                    setEditMode(true);
+                    setImageError(false);
+                  }}
+                  className="w-full sm:w-auto bg-white text-sky-600 hover:bg-sky-50 font-semibold shadow-lg px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base"
+                >
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Profile
+                </Button>
+              )}
             </div>
 
-            {/* Edit Button */}
-            {!editMode && (
-              <Button
-                onClick={() => {
-                  setEditMode(true);
-                  setImageError(false);
-                }}
-                className="bg-white text-sky-600 hover:bg-sky-50 font-semibold shadow-lg px-6 py-3"
-              >
-                <Edit className="mr-2 h-4 w-4" />
-                Edit Profile
-              </Button>
-            )}
-          </div>
-
-          {/* Stats Row */}
-          <div className="grid grid-cols-3 gap-4 mt-8">
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/20 rounded-lg">
-                  <Calendar className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{accountAge}</p>
-                  <p className="text-xs text-sky-100">Days Active</p>
+            {/* Stats Row */}
+            <div className="grid grid-cols-3 gap-2 sm:gap-4">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border border-white/20">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-1.5 sm:p-2 bg-white/20 rounded-lg shrink-0">
+                    <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-lg sm:text-2xl font-bold truncate">{accountAge}</p>
+                    <p className="text-[10px] sm:text-xs text-sky-100">Days Active</p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/20 rounded-lg">
-                  <Shield className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">Active</p>
-                  <p className="text-xs text-sky-100">Account Status</p>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border border-white/20">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-1.5 sm:p-2 bg-white/20 rounded-lg shrink-0">
+                    <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-base sm:text-2xl font-bold truncate">Active</p>
+                    <p className="text-[10px] sm:text-xs text-sky-100">Status</p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/20 rounded-lg">
-                  <MapPin className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold truncate">{user?.address?.city || "Not set"}</p>
-                  <p className="text-xs text-sky-100">Location</p>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border border-white/20">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-1.5 sm:p-2 bg-white/20 rounded-lg shrink-0">
+                    <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm sm:text-2xl font-bold truncate">{user?.address?.city || "Not set"}</p>
+                    <p className="text-[10px] sm:text-xs text-sky-100">Location</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -423,23 +490,23 @@ export default function CustomerProfilePage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Left Column - Main Info */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
           {/* Personal Information Card */}
           <div className="bg-white rounded-2xl shadow-lg border border-sky-100 overflow-hidden">
-            <div className="bg-linear-to-r from-sky-50 to-blue-50 px-6 py-4 border-b border-sky-100">
-              <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                <UserIcon className="h-5 w-5 text-sky-600" />
+            <div className="bg-gradient-to-r from-sky-50 to-blue-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-sky-100">
+              <h3 className="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2">
+                <UserIcon className="h-4 w-4 sm:h-5 sm:w-5 text-sky-600" />
                 Personal Information
               </h3>
             </div>
 
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-4 sm:p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 {/* Name */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-gray-700">Full Name</Label>
+                  <Label className="text-xs sm:text-sm font-semibold text-gray-700">Full Name</Label>
                   {editMode ? (
                     <Input
                       value={formData.name}
@@ -447,18 +514,18 @@ export default function CustomerProfilePage() {
                         setFormData({ ...formData, name: e.target.value })
                       }
                       placeholder="John Doe"
-                      className="border-sky-200 focus:border-sky-400 focus:ring-sky-400 rounded-xl"
+                      className="border-sky-200 focus:border-sky-400 focus:ring-sky-400 rounded-xl text-sm sm:text-base"
                     />
                   ) : (
-                    <div className="p-4 bg-linear-to-r from-sky-50 to-blue-50 rounded-xl border border-sky-100">
-                      <p className="text-gray-800 font-semibold">{user?.name || "-"}</p>
+                    <div className="p-3 sm:p-4 bg-gradient-to-r from-sky-50 to-blue-50 rounded-xl border border-sky-100">
+                      <p className="text-gray-800 font-semibold text-sm sm:text-base">{user?.name || "-"}</p>
                     </div>
                   )}
                 </div>
 
                 {/* Phone */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-gray-700">Phone Number</Label>
+                  <Label className="text-xs sm:text-sm font-semibold text-gray-700">Phone Number</Label>
                   {editMode ? (
                     <Input
                       value={formData.phone}
@@ -466,15 +533,15 @@ export default function CustomerProfilePage() {
                         setFormData({ ...formData, phone: e.target.value })
                       }
                       placeholder="+1 (555) 000-0000"
-                      className="border-sky-200 focus:border-sky-400 focus:ring-sky-400 rounded-xl"
+                      className="border-sky-200 focus:border-sky-400 focus:ring-sky-400 rounded-xl text-sm sm:text-base"
                     />
                   ) : (
-                    <div className="p-4 bg-linear-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-100">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-emerald-200 rounded-lg">
-                          <Phone className="h-4 w-4 text-emerald-700" />
+                    <div className="p-3 sm:p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-100">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="p-1.5 sm:p-2 bg-emerald-200 rounded-lg shrink-0">
+                          <Phone className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-700" />
                         </div>
-                        <span className="font-semibold text-gray-800">{user?.phone || "Not provided"}</span>
+                        <span className="font-semibold text-gray-800 text-sm sm:text-base truncate">{user?.phone || "Not provided"}</span>
                       </div>
                     </div>
                   )}
@@ -482,15 +549,15 @@ export default function CustomerProfilePage() {
 
                 {/* Email */}
                 <div className="space-y-2 md:col-span-2">
-                  <Label className="text-sm font-semibold text-gray-700">Email Address</Label>
-                  <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gray-200 rounded-lg">
-                        <Mail className="h-4 w-4 text-gray-600" />
+                  <Label className="text-xs sm:text-sm font-semibold text-gray-700">Email Address</Label>
+                  <div className="p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-200">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="p-1.5 sm:p-2 bg-gray-200 rounded-lg shrink-0">
+                        <Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-600" />
                       </div>
-                      <div className="flex-1">
-                        <p className="text-gray-800 font-medium">{user?.email || "-"}</p>
-                        <p className="text-xs text-gray-500">Email cannot be changed</p>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-gray-800 font-medium text-sm sm:text-base truncate">{user?.email || "-"}</p>
+                        <p className="text-[11px] sm:text-xs text-gray-500">Email cannot be changed</p>
                       </div>
                     </div>
                   </div>
@@ -498,14 +565,14 @@ export default function CustomerProfilePage() {
               </div>
 
               {/* Address Section */}
-              <div className="mt-6 space-y-4">
-                <h4 className="text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-sky-600" />
+              <div className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
+                <h4 className="text-xs sm:text-sm font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-2">
+                  <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-sky-600" />
                   Address
                 </h4>
 
                 {editMode ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <Input
                       value={formData.address.street}
                       onChange={(e) =>
@@ -515,9 +582,9 @@ export default function CustomerProfilePage() {
                         })
                       }
                       placeholder="123 Main St"
-                      className="border-sky-200 focus:border-sky-400 focus:ring-sky-400 rounded-xl"
+                      className="border-sky-200 focus:border-sky-400 focus:ring-sky-400 rounded-xl text-sm sm:text-base"
                     />
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
                       <Input
                         value={formData.address.city}
                         onChange={(e) =>
@@ -527,7 +594,7 @@ export default function CustomerProfilePage() {
                           })
                         }
                         placeholder="Bangalore"
-                        className="border-sky-200 focus:border-sky-400 focus:ring-sky-400 rounded-xl"
+                        className="border-sky-200 focus:border-sky-400 focus:ring-sky-400 rounded-xl text-sm sm:text-base"
                       />
                       <Input
                         value={formData.address.state}
@@ -538,10 +605,10 @@ export default function CustomerProfilePage() {
                           })
                         }
                         placeholder="Karnataka"
-                        className="border-sky-200 focus:border-sky-400 focus:ring-sky-400 rounded-xl"
+                        className="border-sky-200 focus:border-sky-400 focus:ring-sky-400 rounded-xl text-sm sm:text-base"
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
                       <Input
                         value={formData.address.zipCode}
                         onChange={(e) =>
@@ -551,7 +618,7 @@ export default function CustomerProfilePage() {
                           })
                         }
                         placeholder="560001"
-                        className="border-sky-200 focus:border-sky-400 focus:ring-sky-400 rounded-xl"
+                        className="border-sky-200 focus:border-sky-400 focus:ring-sky-400 rounded-xl text-sm sm:text-base"
                       />
                       <Input
                         value={formData.address.country}
@@ -562,19 +629,19 @@ export default function CustomerProfilePage() {
                           })
                         }
                         placeholder="India"
-                        className="border-sky-200 focus:border-sky-400 focus:ring-sky-400 rounded-xl"
+                        className="border-sky-200 focus:border-sky-400 focus:ring-sky-400 rounded-xl text-sm sm:text-base"
                       />
                     </div>
                   </div>
                 ) : (
-                  <div className="p-4 bg-linear-to-br from-violet-50 to-purple-50 rounded-xl border border-violet-100">
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-violet-200 rounded-lg mt-1">
-                        <MapPin className="h-4 w-4 text-violet-700" />
+                  <div className="p-3 sm:p-4 bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl border border-violet-100">
+                    <div className="flex items-start gap-2 sm:gap-3">
+                      <div className="p-1.5 sm:p-2 bg-violet-200 rounded-lg mt-0.5 sm:mt-1 shrink-0">
+                        <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-violet-700" />
                       </div>
-                      <div className="flex-1">
-                        <p className="text-gray-800 font-semibold">{user?.address?.street || "Not provided"}</p>
-                        <p className="text-gray-600 text-sm">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-gray-800 font-semibold text-sm sm:text-base">{user?.address?.street || "Not provided"}</p>
+                        <p className="text-gray-600 text-xs sm:text-sm">
                           {[user?.address?.city, user?.address?.state, user?.address?.zipCode, user?.address?.country]
                             .filter(Boolean)
                             .join(", ") || "No address details"}
@@ -587,12 +654,12 @@ export default function CustomerProfilePage() {
 
               {/* Action Buttons */}
               {editMode && (
-                <div className="flex items-center justify-between gap-4 mt-6 pt-6 border-t border-sky-100">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-sky-100">
                   <Button
                     variant="outline"
                     onClick={handleCancel}
                     disabled={saving}
-                    className="border-gray-200 text-gray-700 hover:bg-gray-100 px-6"
+                    className="w-full sm:w-auto border-gray-200 text-gray-700 hover:bg-gray-100 px-4 sm:px-6 text-sm sm:text-base"
                   >
                     <X className="mr-2 h-4 w-4" />
                     Cancel
@@ -600,7 +667,7 @@ export default function CustomerProfilePage() {
                   <Button
                     onClick={handleSave}
                     disabled={saving}
-                    className="bg-linear-to-r from-sky-400 via-blue-400 to-indigo-400 hover:from-sky-500 hover:via-blue-500 hover:to-indigo-500 text-white shadow-md hover:shadow-lg transition-all px-6"
+                    className="w-full sm:w-auto bg-gradient-to-r from-sky-400 via-blue-400 to-indigo-400 hover:from-sky-500 hover:via-blue-500 hover:to-indigo-500 text-white shadow-md hover:shadow-lg transition-all px-4 sm:px-6 text-sm sm:text-base"
                   >
                     {saving ? (
                       <>
@@ -621,33 +688,33 @@ export default function CustomerProfilePage() {
         </div>
 
         {/* Right Column - Settings */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
             {/* Account Settings */}
             <div className="bg-white rounded-2xl shadow-lg border border-sky-100 overflow-hidden">
-              <div className="bg-linear-to-r from-violet-50 to-purple-50 px-6 py-4 border-b border-sky-100">
-                <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                  <Settings className="h-5 w-5 text-violet-600" />
+              <div className="bg-gradient-to-r from-violet-50 to-purple-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-sky-100">
+                <h3 className="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2">
+                  <Settings className="h-4 w-4 sm:h-5 sm:w-5 text-violet-600" />
                   Quick Actions
                 </h3>
               </div>
 
-              <div className="p-4 space-y-3">
+              <div className="p-3 sm:p-4 space-y-3">
                 {/* Reactivate Account - Only show if deactivated */}
                 {isDeactivated && (
-                  <div className="p-4 bg-linear-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-200 hover:shadow-md transition-all">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 bg-emerald-200 rounded-lg">
-                        <CheckCircle className="h-4 w-4 text-emerald-700" />
+                  <div className="p-3 sm:p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-200 hover:shadow-md transition-all">
+                    <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                      <div className="p-1.5 sm:p-2 bg-emerald-200 rounded-lg shrink-0">
+                        <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-700" />
                       </div>
-                      <div className="flex-1">
-                        <p className="font-semibold text-gray-800 text-sm">Request Reactivation</p>
-                        <p className="text-xs text-gray-600">{Math.max(0, daysUntilDeletion)} days remaining</p>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-800 text-xs sm:text-sm">Request Reactivation</p>
+                        <p className="text-[11px] sm:text-xs text-gray-600">{Math.max(0, daysUntilDeletion)} days remaining</p>
                       </div>
                     </div>
                     <Button
                       onClick={handleRequestReactivation}
                       disabled={requestingReactivation}
-                      className="w-full bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-xs"
+                      className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-[11px] sm:text-xs"
                     >
                       {requestingReactivation ? (
                         <>
@@ -665,17 +732,17 @@ export default function CustomerProfilePage() {
                 )}
 
                 {/* Change Password */}
-                <div className="p-4 bg-linear-to-r from-sky-50 to-blue-50 rounded-xl border border-sky-200 hover:shadow-md transition-all">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-sky-200 rounded-lg">
-                      <Shield className="h-4 w-4 text-sky-700" />
+                <div className="p-3 sm:p-4 bg-gradient-to-r from-sky-50 to-blue-50 rounded-xl border border-sky-200 hover:shadow-md transition-all">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="p-1.5 sm:p-2 bg-sky-200 rounded-lg shrink-0">
+                      <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-sky-700" />
                     </div>
-                    <div className="flex-1">
-                      <p className="font-semibold text-gray-800 text-sm">Change Password</p>
-                      <p className="text-xs text-gray-600">Secure your account</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-gray-800 text-xs sm:text-sm">Change Password</p>
+                      <p className="text-[11px] sm:text-xs text-gray-600">Secure your account</p>
                     </div>
                   </div>
-                  <Button variant="outline" disabled className="w-full border-sky-200 text-sky-700 text-xs mt-2">
+                  <Button variant="outline" disabled className="w-full border-sky-200 text-sky-700 text-[11px] sm:text-xs mt-2">
                     Coming Soon
                   </Button>
                 </div>
@@ -685,27 +752,27 @@ export default function CustomerProfilePage() {
 
             {/* Danger Zone */}
             <div className="bg-white rounded-2xl shadow-lg border border-red-100 overflow-hidden">
-              <div className="bg-linear-to-r from-red-50 to-orange-50 px-6 py-4 border-b border-red-200">
-                <h3 className="text-lg font-bold text-red-800 flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-red-600" />
+              <div className="bg-gradient-to-r from-red-50 to-orange-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-red-200">
+                <h3 className="text-base sm:text-lg font-bold text-red-800 flex items-center gap-2">
+                  <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
                   Danger Zone
                 </h3>
               </div>
 
-              <div className="p-4">
-                <div className="p-4 bg-linear-to-r from-red-50 to-orange-50 rounded-xl border border-red-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 bg-red-200 rounded-lg">
-                      <Shield className="h-4 w-4 text-red-700" />
+              <div className="p-3 sm:p-4">
+                <div className="p-3 sm:p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-xl border border-red-200">
+                  <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                    <div className="p-1.5 sm:p-2 bg-red-200 rounded-lg shrink-0">
+                      <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-red-700" />
                     </div>
-                    <div className="flex-1">
-                      <p className="font-bold text-gray-800">Deactivate Account</p>
-                      <p className="text-xs text-gray-600">Permanently delete all data</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-gray-800 text-xs sm:text-sm">Deactivate Account</p>
+                      <p className="text-[11px] sm:text-xs text-gray-600">Permanently delete all data</p>
                     </div>
                   </div>
                   <Button
                     onClick={() => setDeactivateDialogOpen(true)}
-                    className="w-full bg-white text-red-600 hover:bg-red-50 hover:border-red-300 border-red-200 font-semibold text-sm"
+                    className="w-full bg-white text-red-600 hover:bg-red-50 hover:border-red-300 border-red-200 font-semibold text-xs sm:text-sm"
                   >
                     Deactivate Account
                   </Button>
@@ -713,7 +780,7 @@ export default function CustomerProfilePage() {
               </div>
             </div>
 
-            
+
         </div>
       </div>
 

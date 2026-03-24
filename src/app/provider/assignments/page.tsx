@@ -176,7 +176,7 @@ export default function MyAssignmentsPage() {
   const paginatedRequests = filteredRequests.slice(startIndex, endIndex);
   const showPagination = totalPages > 1;
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) return 'N/A';
     try {
       const date = new Date(dateString);
@@ -561,7 +561,7 @@ export default function MyAssignmentsPage() {
                     </Button>
                   )}
 
-                  {request.status === 'in-progress' && (
+                  {request.status === 'in_progress' && (
                     <Button
                       className="flex-1 bg-linear-to-r from-green-400 via-emerald-400 to-teal-400 hover:from-green-500 hover:via-emerald-500 hover:to-teal-500 text-white"
                       onClick={() => {

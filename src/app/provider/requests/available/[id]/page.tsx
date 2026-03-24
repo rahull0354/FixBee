@@ -109,7 +109,7 @@ export default function RequestDetailsPage() {
     }
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) return 'N/A';
     try {
       const date = new Date(dateString);
@@ -125,8 +125,9 @@ export default function RequestDetailsPage() {
     }
   };
 
-  const formatPrice = (price: number) => {
-    return `₹${price.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  const formatPrice = (price: number | string) => {
+    const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+    return `₹${numPrice.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   };
 
   if (loading) {

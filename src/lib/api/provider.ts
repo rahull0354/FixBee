@@ -76,13 +76,22 @@ export const providerApi = {
     return apiClient.patch<ServiceRequest>(`/request/start/${id}`);
   },
 
-  completeService: async (id: string, data: { afterImages?: string[]; finalPrice?: number }): Promise<ServiceRequest> => {
+  completeService: async (id: string, data: {
+    afterImages?: string[];
+    finalPrice?: number;
+    materialCost?: number;
+    materialDescription?: string;
+  }): Promise<ServiceRequest> => {
     return apiClient.patch<ServiceRequest>(`/request/complete/${id}`, data);
   },
 
   // Reviews
   getMyReviews: async (): Promise<Review[]> => {
     return apiClient.get<Review[]>('/review/provider/my-reviews');
+  },
+
+  getReviewById: async (reviewId: string): Promise<Review> => {
+    return apiClient.get<Review>(`/review/general/${reviewId}`);
   },
 
   respondToReview: async (reviewId: string, data: RespondToReviewData): Promise<Review> => {

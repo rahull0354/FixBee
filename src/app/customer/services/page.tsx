@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -26,6 +27,7 @@ import {
 import { Label } from "@/components/ui/label";
 
 export default function BrowseServicesPage() {
+  const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<Category[]>([]);
   const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -85,6 +87,7 @@ export default function BrowseServicesPage() {
 
   const loadCategories = async () => {
     try {
+      setLoading(true);
       const response = await customerApi.getCategories();
       const data: Category[] = (response as any).data || response || [];
       setCategories(data);
@@ -92,13 +95,53 @@ export default function BrowseServicesPage() {
     } catch (error) {
       console.error("Error loading categories:", error);
       toast.error("Failed to load service categories");
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Skeleton loading state
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        {/* Header Skeleton */}
+        <div>
+          <Skeleton className="h-10 w-48 mb-2" />
+          <Skeleton className="h-5 w-64" />
+        </div>
+
+        {/* Search Bar Skeleton */}
+        <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Skeleton className="flex-1 h-12" />
+            <Skeleton className="h-12 w-32" />
+          </div>
+        </div>
+
+        {/* Categories Grid Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
+              <Skeleton className="w-16 h-16 rounded-2xl mb-4" />
+              <Skeleton className="h-6 w-32 mb-2" />
+              <Skeleton className="h-4 w-full mb-4" />
+              <Skeleton className="h-4 w-24 mb-4" />
+              <div className="flex flex-wrap gap-2">
+                <Skeleton className="h-6 w-16 rounded-full" />
+                <Skeleton className="h-6 w-20 rounded-full" />
+                <Skeleton className="h-6 w-14 rounded-full" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div>
+        {/* Header */}
+        <div>
         <h1 className="text-3xl font-bold text-gray-800 mb-2">
           Browse Services
         </h1>

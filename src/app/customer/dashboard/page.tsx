@@ -32,6 +32,7 @@ import {
   YAxis,
   CartesianGrid,
 } from "recharts";
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface DashboardStats {
   totalRequests: number;
@@ -42,6 +43,7 @@ interface DashboardStats {
 
 export default function CustomerDashboardPage() {
   const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<DashboardStats>({
     totalRequests: 0,
     activeRequests: 0,
@@ -58,6 +60,7 @@ export default function CustomerDashboardPage() {
 
   const loadDashboardData = async () => {
     try {
+      setLoading(true);
       setBackendNotReady(false);
 
       // Fetch all service requests
@@ -99,14 +102,14 @@ export default function CustomerDashboardPage() {
         (r) =>
           r.status === "pending" ||
           r.status === "assigned" ||
-          r.status === "in-progress",
+          r.status === "in_progress",
       ).length;
       const completed = requests.filter((r) => r.status === "completed").length;
       const spent = requests
         .filter(
-          (r) => r.status === "completed" && r.finalPrice && r.finalPrice > 0,
+          (r) => r.status === "completed" && r.finalPrice && Number(r.finalPrice) > 0,
         )
-        .reduce((sum, r) => sum + (r.finalPrice || 0), 0);
+        .reduce((sum, r) => sum + (Number(r.finalPrice) || 0), 0);
 
       setStats({
         totalRequests: total,
@@ -147,6 +150,8 @@ export default function CustomerDashboardPage() {
           "Failed to load dashboard data";
         toast.error(message);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -250,7 +255,7 @@ export default function CustomerDashboardPage() {
     const statusCounts = {
       pending: allRequests.filter((r) => r.status === "pending").length,
       assigned: allRequests.filter((r) => r.status === "assigned").length,
-      inProgress: allRequests.filter((r) => r.status === "in-progress").length,
+      inProgress: allRequests.filter((r) => r.status === "in_progress").length,
       completed: allRequests.filter((r) => r.status === "completed").length,
       cancelled: allRequests.filter((r) => r.status === "cancelled").length,
     };
@@ -316,10 +321,78 @@ export default function CustomerDashboardPage() {
       .slice(-6); // Last 6 months
   }, [allRequests]);
 
+  // Skeleton loading state
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        {/* Header Skeleton */}
+        <div className="bg-linear-to-r from-sky-500 via-blue-500 to-indigo-500 rounded-3xl p-8">
+          <Skeleton className="h-9 w-80 mb-2 bg-white/20" />
+          <Skeleton className="h-5 w-64 bg-white/20" />
+        </div>
+
+        {/* Stats Grid Skeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
+              <div className="flex items-center gap-3 mb-3">
+                <Skeleton className="h-12 w-12 rounded-xl" />
+                <Skeleton className="h-8 w-20" />
+              </div>
+              <Skeleton className="h-4 w-32" />
+            </div>
+          ))}
+        </div>
+
+        {/* Charts Grid Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <Skeleton className="h-7 w-36" />
+              <Skeleton className="h-8 w-8 rounded-lg" />
+            </div>
+            <Skeleton className="w-full h-64 rounded-lg" />
+          </div>
+          <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <Skeleton className="h-7 w-40" />
+              <Skeleton className="h-8 w-8 rounded-lg" />
+            </div>
+            <Skeleton className="w-full h-64 rounded-lg" />
+          </div>
+        </div>
+
+        {/* Quick Actions Skeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-32 rounded-2xl" />
+          ))}
+        </div>
+
+        {/* Recent Activity Table Skeleton */}
+        <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
+          <Skeleton className="h-7 w-40 mb-6" />
+          <div className="space-y-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="flex items-center gap-4">
+                <Skeleton className="h-12 w-12 rounded-lg" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-48" />
+                  <Skeleton className="h-3 w-32" />
+                </div>
+                <Skeleton className="h-6 w-20 rounded-full" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
-      {/* Backend Not Ready Warning */}
-      {backendNotReady && (
+        {/* Backend Not Ready Warning */}
+        {backendNotReady && (
         <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-6">
           <div className="flex items-start gap-4">
             <div className="p-3 bg-amber-100 rounded-xl">

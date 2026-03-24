@@ -51,17 +51,15 @@ export default function AssignmentDetailsPage() {
   const [afterImages, setAfterImages] = useState<string[]>([]);
   const [finalPrice, setFinalPrice] = useState<string>('');
   const [notes, setNotes] = useState<string>('');
+  const [materialCost, setMaterialCost] = useState<string>('');
+  const [materialDescription, setMaterialDescription] = useState<string>('');
 
   const fetchCustomerData = useCallback(async (customerId: string, requestData: any) => {
     try {
       setFetchingCustomer(true);
-      console.log('📞 Fetching customer data for ID:', customerId);
-      console.log('📞 API Endpoint: /customers/' + customerId);
 
       const customerResponse = await providerApi.getCustomerById(customerId);
       const customerInfo = (customerResponse as any).data || customerResponse;
-
-      console.log('✅ Customer data fetched:', customerInfo);
 
       if (!customerInfo || !customerInfo.id) {
         throw new Error('Invalid customer data received from API');
@@ -85,10 +83,8 @@ export default function AssignmentDetailsPage() {
         ...updatedRequest,
         timestamp: Date.now(),
       }));
-
-      console.log('✅ Request updated with customer data');
     } catch (error: any) {
-      console.error('❌ Error fetching customer:', error);
+      console.error('Error fetching customer:', error);
       toast.error('Failed to load customer information');
     } finally {
       setFetchingCustomer(false);
@@ -96,30 +92,21 @@ export default function AssignmentDetailsPage() {
   }, [requestId]);
 
   useEffect(() => {
-    console.log('🔍 AssignmentDetailsPage mounted with requestId:', requestId);
-
     // First, check if we have the request data from sessionStorage
     const storageKey = `assignment_${requestId}`;
     const storedRequest = sessionStorage.getItem(storageKey);
 
-    console.log('📦 Checking sessionStorage for key:', storageKey);
-    console.log('📦 Found data:', !!storedRequest);
-
     if (storedRequest) {
-      console.log('✅ Using request data from sessionStorage');
       try {
         const storedData = JSON.parse(storedRequest);
         // Extract request data, removing the timestamp field
         const { timestamp, ...requestData } = storedData;
-        console.log('📦 Parsed request data:', requestData);
-        console.log('📦 Customer data in stored data:', requestData.customer);
 
         setRequest(requestData);
         setLoading(false);
 
         // If customer data is missing, fetch it
         if (!requestData.customer && requestData.customerId) {
-          console.log('📞 Customer data missing, fetching...');
           fetchCustomerData(requestData.customerId, requestData);
         }
 
@@ -133,8 +120,6 @@ export default function AssignmentDetailsPage() {
         setRequest(null);
       }
     } else {
-      console.log('⚠️ No data in sessionStorage');
-      console.log('💡 Please navigate from the My Assignments page');
       setLoading(false);
       setRequest(null);
     }
@@ -151,7 +136,6 @@ export default function AssignmentDetailsPage() {
             const data = JSON.parse(sessionStorage.getItem(key)!);
             // Only clear if it has a timestamp and is older than 5 minutes
             if (data.timestamp && (now - data.timestamp > fiveMinutes)) {
-              console.log('🧹 Clearing old entry:', key);
               sessionStorage.removeItem(key);
             }
           } catch {
@@ -172,7 +156,7 @@ export default function AssignmentDetailsPage() {
       toast.success('Service started successfully!');
 
       // Update local state
-      setRequest({ ...request, status: 'in-progress' as any });
+      setRequest({ ...request, status: 'in_progress' as any });
 
       // Redirect back to assignments after a short delay
       setTimeout(() => {
@@ -192,11 +176,19 @@ export default function AssignmentDetailsPage() {
       return;
     }
 
+    // If material cost is provided, description is required
+    if (materialCost && Number(materialCost) > 0 && !materialDescription.trim()) {
+      toast.error('Please describe the materials purchased');
+      return;
+    }
+
     try {
       setActionLoading(true);
       await providerApi.completeService(requestId, {
         afterImages: afterImages.length > 0 ? afterImages : undefined,
         finalPrice: Number(finalPrice),
+        materialCost: materialCost && Number(materialCost) > 0 ? Number(materialCost) : undefined,
+        materialDescription: materialCost && Number(materialCost) > 0 ? materialDescription : undefined,
       });
       toast.success('Service completed successfully!');
       setShowCompleteDialog(false);
@@ -224,7 +216,7 @@ export default function AssignmentDetailsPage() {
     setAfterImages(afterImages.filter((_, i) => i !== index));
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
     try {
       const date = new Date(dateString);
@@ -243,7 +235,7 @@ export default function AssignmentDetailsPage() {
     switch (status) {
       case 'completed':
         return 'bg-green-100 text-green-800 border-green-200';
-      case 'in-progress':
+      case 'in_progress':
         return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'assigned':
         return 'bg-blue-100 text-blue-800 border-blue-200';
@@ -258,7 +250,7 @@ export default function AssignmentDetailsPage() {
     switch (status) {
       case 'completed':
         return 'Completed';
-      case 'in-progress':
+      case 'in_progress':
         return 'In Progress';
       case 'assigned':
         return 'Assigned';
@@ -336,7 +328,7 @@ export default function AssignmentDetailsPage() {
         className={`rounded-2xl p-6 text-white shadow-lg ${
           request.status === 'completed'
             ? 'bg-linear-to-r from-emerald-400 via-teal-400 to-cyan-400'
-            : request.status === 'in-progress'
+            : request.status === 'in_progress'
             ? 'bg-linear-to-r from-teal-400 via-cyan-400 to-sky-400'
             : request.status === 'cancelled'
             ? 'bg-linear-to-r from-gray-400 via-slate-400 to-zinc-400'
@@ -347,20 +339,20 @@ export default function AssignmentDetailsPage() {
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-xl bg-white/20">
               {request.status === 'completed' && <CheckCircle className="h-6 w-6" />}
-              {request.status === 'in-progress' && <PlayCircle className="h-6 w-6" />}
+              {request.status === 'in_progress' && <PlayCircle className="h-6 w-6" />}
               {request.status === 'cancelled' && <CheckCircle className="h-6 w-6" />}
               {request.status === 'assigned' && <User className="h-6 w-6" />}
             </div>
             <div>
               <h2 className="text-xl font-bold">
                 {request.status === 'completed' && 'Service Completed'}
-                {request.status === 'in-progress' && 'Service In Progress'}
+                {request.status === 'in_progress' && 'Service In Progress'}
                 {request.status === 'cancelled' && 'Service Cancelled'}
                 {request.status === 'assigned' && 'Service Assigned'}
               </h2>
               <p className="text-sm opacity-90">
                 {request.status === 'completed' && 'Great job! You have successfully completed this service.'}
-                {request.status === 'in-progress' && 'You are currently working on this service request.'}
+                {request.status === 'in_progress' && 'You are currently working on this service request.'}
                 {request.status === 'cancelled' && 'This service request has been cancelled.'}
                 {request.status === 'assigned' && 'Service request has been assigned to you.'}
               </p>
@@ -381,7 +373,7 @@ export default function AssignmentDetailsPage() {
               <Sparkles className="h-6 w-6 text-white" />
             </div>
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">{request.title}</h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">{request.serviceTitle || request.title}</h1>
               <Badge className={getStatusColor(request.status)}>
                 {getStatusLabel(request.status)}
               </Badge>
@@ -403,7 +395,7 @@ export default function AssignmentDetailsPage() {
             <div className="space-y-4">
               <div>
                 <h3 className="font-semibold text-gray-800 mb-2">Description</h3>
-                <p className="text-gray-600">{request.description}</p>
+                <p className="text-gray-600">{request.serviceDescription || request.description}</p>
               </div>
 
               {request.additionalNotes && (
@@ -518,7 +510,7 @@ export default function AssignmentDetailsPage() {
                   <Calendar className="h-4 w-4 text-emerald-600 shrink-0 mt-1" />
                   <div>
                     <p className="text-sm text-gray-500">Date</p>
-                    <p className="font-medium text-gray-800">{formatDate(request.scheduledDate)}</p>
+                    <p className="font-medium text-gray-800">{formatDate(request.schedule?.date || request.scheduledDate || null)}</p>
                   </div>
                 </div>
 
@@ -527,7 +519,7 @@ export default function AssignmentDetailsPage() {
                   <div>
                     <p className="text-sm text-gray-500">Time Slot</p>
                     <p className="font-medium text-gray-800 capitalize">
-                      {request.scheduledTimeSlot || 'Not specified'}
+                      {request.schedule?.timeSlot || request.scheduledTimeSlot || 'Not specified'}
                     </p>
                   </div>
                 </div>
@@ -537,10 +529,10 @@ export default function AssignmentDetailsPage() {
                   <div>
                     <p className="text-sm text-gray-500">Service Address</p>
                     <p className="font-medium text-gray-800">
-                      {request.address?.street && `${request.address.street}, `}
-                      {request.address?.city}
-                      {request.address?.state && `, ${request.address.state}`}
-                      {request.address?.zipCode && ` ${request.address.zipCode}`}
+                      {(request.serviceAddress?.street || request.address?.street) && `${request.serviceAddress?.street || request.address?.street}, `}
+                      {request.serviceAddress?.city || request.address?.city}
+                      {(request.serviceAddress?.state || request.address?.state) && `, ${request.serviceAddress?.state || request.address?.state}`}
+                      {(request.serviceAddress?.pincode || request.address?.zipCode) && ` ${request.serviceAddress?.pincode || request.address?.zipCode}`}
                     </p>
                   </div>
                 </div>
@@ -601,7 +593,7 @@ export default function AssignmentDetailsPage() {
               </Button>
             )}
 
-            {request.status === 'in-progress' && (
+            {request.status === 'in_progress' && (
               <Button
                 onClick={() => setShowCompleteDialog(true)}
                 className="flex-1 bg-linear-to-r from-green-400 via-emerald-400 to-teal-400 hover:from-green-500 hover:via-emerald-500 hover:to-teal-500 text-white font-medium"
@@ -622,15 +614,21 @@ export default function AssignmentDetailsPage() {
 
       {/* Complete Service Dialog */}
       <Dialog open={showCompleteDialog} onOpenChange={setShowCompleteDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Complete Service</DialogTitle>
-            <DialogDescription>
-              Add after photos and set the final price for this service.
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent className="sm:max-w-2xl max-w-[95vw] max-h-[75vh] p-0 overflow-hidden bg-white flex flex-col">
+          {/* Header with Green Gradient */}
+          <div className="bg-linear-to-r from-green-400 via-emerald-400 to-teal-400 px-4 sm:px-6 py-4 sm:py-5 text-white">
+            <DialogHeader className="space-y-1">
+              <DialogTitle className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+                <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6" />
+                Complete Service
+              </DialogTitle>
+              <DialogDescription className="text-green-100 text-sm sm:text-base">
+                Add after photos, set the final price, and include any material costs.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
 
-          <div className="space-y-4 py-4">
+          <div className="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 overflow-y-auto flex-1">
             {/* After Images */}
             <div>
               <Label>After Photos (Optional)</Label>
@@ -648,7 +646,7 @@ export default function AssignmentDetailsPage() {
               </div>
 
               {afterImages.length > 0 && (
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {afterImages.map((url, index) => (
                     <div key={index} className="relative">
                       <img
@@ -673,13 +671,13 @@ export default function AssignmentDetailsPage() {
 
             {/* Final Price */}
             <div>
-              <Label htmlFor="finalPrice">Final Price *</Label>
+              <Label htmlFor="finalPrice">Final Service Price *</Label>
               <Input
                 id="finalPrice"
                 type="number"
                 value={finalPrice}
                 onChange={(e) => setFinalPrice(e.target.value)}
-                placeholder="Enter final price"
+                placeholder="Enter final service price"
                 min="0"
                 step="0.01"
               />
@@ -689,6 +687,70 @@ export default function AssignmentDetailsPage() {
                 </p>
               )}
             </div>
+
+            {/* Material Cost */}
+            <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="p-1 bg-teal-100 rounded">
+                  <DollarSign className="h-4 w-4 text-teal-600" />
+                </div>
+                <div>
+                  <Label className="text-sm font-semibold text-teal-900">Additional Material Cost (Optional)</Label>
+                  <p className="text-xs text-teal-600">If you purchased materials for this service</p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="materialCost" className="text-sm">Material Cost</Label>
+                  <Input
+                    id="materialCost"
+                    type="number"
+                    value={materialCost}
+                    onChange={(e) => setMaterialCost(e.target.value)}
+                    placeholder="Enter material cost"
+                    min="0"
+                    step="0.01"
+                    className="bg-white"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="materialDescription" className="text-sm">Material Description</Label>
+                  <Textarea
+                    id="materialDescription"
+                    value={materialDescription}
+                    onChange={(e) => setMaterialDescription(e.target.value)}
+                    placeholder="Describe the materials purchased (e.g., 2 liters of paint, 5 steel pipes...)"
+                    rows={2}
+                    className="bg-white text-sm"
+                  />
+                  <p className="text-xs text-teal-600 mt-1">
+                    This will be added to the final bill and shown to the customer
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Total Price Preview */}
+            {(materialCost && Number(materialCost) > 0) && (
+              <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-emerald-800">Service Price:</span>
+                  <span className="font-semibold text-emerald-900">${finalPrice || '0'}</span>
+                </div>
+                <div className="flex justify-between items-center mt-1">
+                  <span className="text-sm text-emerald-800">Material Cost:</span>
+                  <span className="font-semibold text-emerald-900">${materialCost}</span>
+                </div>
+                <div className="flex justify-between items-center mt-2 pt-2 border-t border-emerald-300">
+                  <span className="font-semibold text-emerald-900">Total Bill:</span>
+                  <span className="font-bold text-lg text-emerald-600">
+                    ${((Number(finalPrice) || 0) + (Number(materialCost) || 0)).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            )}
 
             {/* Notes */}
             <div>
@@ -703,7 +765,7 @@ export default function AssignmentDetailsPage() {
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="px-4 sm:px-6 pb-6 gap-3 sm:gap-4">
             <Button variant="outline" onClick={() => setShowCompleteDialog(false)}>
               Cancel
             </Button>

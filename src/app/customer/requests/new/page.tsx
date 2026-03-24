@@ -32,6 +32,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from '@/components/ui/skeleton';
 
 // Time slots
 const timeSlots = [
@@ -357,6 +358,38 @@ export default function NewServiceRequestPage() {
 
   // Get minimum date (today)
   const today = new Date().toISOString().split("T")[0];
+
+  // Skeleton loading state for categories
+  if (categoriesLoading) {
+    return (
+      <div className="space-y-8 pb-8">
+        {/* Hero Header Skeleton */}
+        <div className="bg-linear-to-br from-sky-500 via-blue-500 to-indigo-600 rounded-3xl p-4 sm:p-6 lg:p-8 text-white shadow-2xl">
+          <Skeleton className="h-10 w-64 bg-white/20 mb-2" />
+          <Skeleton className="h-5 w-96 bg-white/20" />
+        </div>
+
+        {/* Categories Grid Skeleton */}
+        <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
+          <Skeleton className="h-7 w-48 mb-6" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+              <div key={i} className="border border-sky-200 rounded-2xl p-6 hover:border-sky-400 hover:shadow-lg transition-all">
+                <Skeleton className="w-16 h-16 rounded-2xl mb-4" />
+                <Skeleton className="h-6 w-32 mb-2" />
+                <Skeleton className="h-4 w-full mb-4" />
+                <Skeleton className="h-4 w-24 mb-4" />
+                <div className="flex flex-wrap gap-2">
+                  <Skeleton className="h-6 w-16 rounded-full" />
+                  <Skeleton className="h-6 w-20 rounded-full" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 pb-8">

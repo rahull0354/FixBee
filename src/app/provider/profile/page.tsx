@@ -852,8 +852,8 @@ export default function ProviderProfilePage() {
             <div className="bg-linear-to-r from-emerald-400 via-teal-400 to-cyan-400 h-32" />
             <div className="px-6 pb-6">
               {/* Profile picture and basic info */}
-              <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 -mt-16">
-                <div className="w-32 h-32 rounded-2xl bg-white shadow-xl flex items-center justify-center border-4 border-white overflow-hidden">
+              <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 -mt-20">
+                <div className="w-32 h-32 rounded-2xl bg-white shadow-xl flex items-center justify-center border-4 border-white overflow-hidden shrink-0">
                   {profile.profilePicture ? (
                     <img
                       src={profile.profilePicture}
@@ -874,9 +874,9 @@ export default function ProviderProfilePage() {
                     {profile?.name?.charAt(0).toUpperCase() || 'P'}
                   </div>
                 </div>
-                <div className="flex-1 text-center sm:text-left">
-                  <h2 className="text-2xl font-bold text-gray-800">{profile?.name || 'Provider'}</h2>
-                  <p className="text-gray-600">{profile?.bio || 'No bio added yet'}</p>
+                <div className="flex-1 text-center sm:text-left -mt-8">
+                  <h2 className="text-2xl font-bold text-white">{profile?.name || 'Provider'}</h2>
+                  <p className="text-gray-600 mt-1">{profile?.bio || 'No bio added yet'}</p>
                 </div>
                 <div className="text-center sm:text-right">
                   <div className="flex items-center justify-center sm:justify-end gap-1 text-emerald-600 font-semibold">

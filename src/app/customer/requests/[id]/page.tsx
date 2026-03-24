@@ -44,6 +44,7 @@ import {
   useNavigation,
 } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function RequestDetailsPage() {
   const params = useParams();
@@ -74,10 +75,29 @@ export default function RequestDetailsPage() {
     }
   }, [id]);
 
+  // Reload reviews when page becomes visible (e.g., navigating back from reviews list)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && id) {
+        console.log('[Request Details] Page visible, reloading reviews...');
+        loadReviews();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [id]);
+
   const loadReviews = async () => {
     try {
       setReviewsLoading(true);
+      console.log('[Request Details] Loading reviews for request:', id);
+
       const response = await customerApi.getMyReviews();
+      console.log('[Request Details] Reviews API response:', response);
 
       // Handle different response formats
       let reviewsData: any[] = [];
@@ -89,9 +109,15 @@ export default function RequestDetailsPage() {
         reviewsData = (response as any).reviews;
       }
 
-      setReviews(reviewsData);
+      // Filter out any invalid reviews
+      const validReviews = reviewsData.filter(review => review && review.id);
+
+      console.log('[Request Details] Valid reviews loaded:', validReviews.length);
+      console.log('[Request Details] Review IDs:', validReviews.map(r => r.id));
+
+      setReviews(validReviews);
     } catch (error) {
-      console.error('Error loading reviews:', error);
+      console.error('[Request Details] Error loading reviews:', error);
       setReviews([]);
     } finally {
       setReviewsLoading(false);
@@ -165,7 +191,7 @@ export default function RequestDetailsPage() {
       if (data.scheduledDate) {
         setNewDate(new Date(data.scheduledDate).toISOString().split('T')[0]);
       }
-      setNewTimeSlot(data.scheduledTimeSlot);
+      setNewTimeSlot(data.scheduledTimeSlot || 'morning');
     } catch (error: any) {
       console.error('[Request Details] Error loading request:', error);
 
@@ -301,12 +327,68 @@ export default function RequestDetailsPage() {
   const canCancel = request?.status === 'pending' || request?.status === 'assigned';
   const canReschedule = request?.status === 'pending' || request?.status === 'assigned';
 
+  // Skeleton loading state
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-100">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-12 w-12 animate-spin text-sky-500 mx-auto" />
-          <p className="text-gray-600 font-medium">Loading request details...</p>
+      <div className="space-y-8">
+        {/* Back Button Skeleton */}
+        <Skeleton className="h-10 w-24" />
+
+        {/* Header Skeleton */}
+        <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div className="flex-1">
+              <Skeleton className="h-8 w-64 mb-2" />
+              <Skeleton className="h-4 w-48" />
+            </div>
+            <Skeleton className="h-6 w-20 rounded-full" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-5 w-32" />
+          </div>
+        </div>
+
+        {/* Status Timeline Skeleton */}
+        <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
+          <Skeleton className="h-7 w-40 mb-6" />
+          <div className="space-y-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="flex items-start gap-4">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-3 w-48" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Provider Info Skeleton */}
+        <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
+          <Skeleton className="h-7 w-40 mb-6" />
+          <div className="flex items-start gap-4">
+            <Skeleton className="w-16 h-16 rounded-full" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-5 w-48" />
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-4 w-40" />
+            </div>
+          </div>
+        </div>
+
+        {/* Details Cards Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Skeleton className="h-48 rounded-2xl" />
+          <Skeleton className="h-48 rounded-2xl" />
+        </div>
+
+        {/* Actions Skeleton */}
+        <div className="flex gap-3">
+          <Skeleton className="h-11 w-32" />
+          <Skeleton className="h-11 w-32" />
         </div>
       </div>
     );
@@ -551,7 +633,12 @@ export default function RequestDetailsPage() {
                     );
                   }
 
-                  const requestReview = reviews.find(review => review.requestId === request.id || review.serviceRequestId === request.id);
+                  // Find the review for this specific request
+                  const requestReview = reviews.find(review =>
+                    review.requestId === request.id || review.serviceRequestId === request.id
+                  );
+
+                  console.log('[Request Details] Found review for request:', requestReview ? requestReview.id : 'none');
 
                   if (requestReview) {
                     return (
@@ -793,7 +880,7 @@ export default function RequestDetailsPage() {
                 )}
               </div>
             </div>
-          ) : (request.status === 'assigned' || request.status === 'in-progress' || request.status === 'completed') ? (
+          ) : (request.status === 'assigned' || request.status === 'in_progress' || request.status === 'completed') ? (
             <div className="bg-white rounded-2xl shadow-xl border border-sky-100 overflow-hidden">
               {/* Gradient Header */}
               <div className="bg-linear-to-br from-sky-500 via-blue-500 to-indigo-600 p-6 text-white relative overflow-hidden">
@@ -824,8 +911,8 @@ export default function RequestDetailsPage() {
             </div>
           ) : null}
 
-          {/* Actions Section - Only for non-completed requests */}
-          {request.status !== 'completed' && (
+          {/* Actions Section - Only for pending and assigned requests */}
+          {request.status !== 'completed' && request.status !== 'in_progress' && (
             <div className="bg-linear-to-r from-sky-500 via-blue-500 to-indigo-600 rounded-2xl shadow-2xl p-6 text-white">
               <div className="flex items-center gap-3 mb-5">
                 <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl border-2 border-white/30">
@@ -956,7 +1043,7 @@ export default function RequestDetailsPage() {
                 <p className="text-xs text-gray-500 mb-1 sm:mb-2">Request to be cancelled:</p>
                 <p className="text-xs sm:text-sm font-semibold text-gray-800">{request.title}</p>
                 <p className="text-xs text-gray-600 mt-1">
-                  Scheduled: {new Date(request.scheduledDate).toLocaleDateString()} at {request.scheduledTimeSlot}
+                  Scheduled: {new Date(request.scheduledDate || new Date()).toLocaleDateString()} at {request.scheduledTimeSlot || 'Not specified'}
                 </p>
               </div>
             )}

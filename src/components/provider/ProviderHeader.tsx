@@ -6,7 +6,7 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { providerApi } from '@/lib/api';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
-import { Menu, Bell, LogOut, User, Settings, ChevronDown, Check, Loader2, Briefcase, Star, Tag, Info, Wrench } from 'lucide-react';
+import { Menu, Bell, LogOut, User, ChevronDown, Check, Loader2, Briefcase, Star, Tag, Info, Wrench } from 'lucide-react';
 import type { Notification } from '@/types';
 
 interface ProviderHeaderProps {
@@ -25,6 +25,8 @@ export function ProviderHeader({ user, onMenuClick }: ProviderHeaderProps) {
   const [loadingNotifications, setLoadingNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
+  const [availabilityStatus, setAvailabilityStatus] = useState<'available' | 'busy' | 'offline'>('offline');
+
   useEffect(() => {
     const loadAvailability = async () => {
       try {
@@ -32,13 +34,27 @@ export function ProviderHeader({ user, onMenuClick }: ProviderHeaderProps) {
         const response = await providerApi.getProfile();
         const data = (response as any).data || response;
         // Backend returns availabilityStatus as "available", "offline", or "busy"
-        const isAvailable = data.availabilityStatus === 'available' ||
-                          data.availabilityStatus === 'busy' ||
-                          data.isAvailable === true;
+        let status = data.availabilityStatus || 'offline';
+
+        // Check if provider has any active services
+        const assignedResponse = await providerApi.getMyAssignedRequests({ status: 'in_progress', limit: 1 });
+        const assignedData = (assignedResponse as any).data || assignedResponse;
+        const hasActiveServices = assignedData.length > 0;
+
+        // If provider has active services but status is not 'busy', update it
+        if (hasActiveServices && status !== 'busy') {
+          status = 'busy';
+          // Update the backend to reflect the correct status
+          await providerApi.toggleAvailability('busy');
+        }
+
+        setAvailabilityStatus(status);
+        const isAvailable = status === 'available' || status === 'busy' || data.isAvailable === true;
         setIsAvailable(isAvailable);
       } catch (error) {
         console.error('Error loading availability:', error);
         setIsAvailable(false);
+        setAvailabilityStatus('offline');
       }
     };
     loadAvailability();
@@ -77,7 +93,14 @@ export function ProviderHeader({ user, onMenuClick }: ProviderHeaderProps) {
       );
     } catch (error: any) {
       console.error('Error toggling availability:', error);
-      toast.error(error?.response?.data?.message || 'Failed to update availability');
+      if (error?.response?.data?.isBusy) {
+        toast.error('Cannot change availability while service is in progress');
+      } else if (error?.response?.data?.hasActiveServices) {
+        const count = error.response.data.activeServiceCount;
+        toast.error(`Cannot change availability. You have ${count} service${count > 1 ? 's' : ''} in progress. Complete the service${count > 1 ? 's' : ''} first.`);
+      } else {
+        toast.error(error?.response?.data?.message || 'Failed to update availability');
+      }
     } finally {
       setToggling(false);
     }
@@ -199,15 +222,19 @@ export function ProviderHeader({ user, onMenuClick }: ProviderHeaderProps) {
         <div className="flex items-center gap-3">
           {/* Availability Toggle */}
           <div className="hidden md:flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-200">
-            <div className={`w-2 h-2 rounded-full ${isAvailable ? 'bg-emerald-500' : 'bg-gray-400'}`} />
+            <div className={`w-2 h-2 rounded-full ${
+              availabilityStatus === 'busy' ? 'bg-orange-500' :
+              isAvailable ? 'bg-emerald-500' : 'bg-gray-400'
+            }`} />
             <label htmlFor="availability" className="text-sm font-medium text-gray-700 cursor-pointer">
-              {isAvailable ? 'Available' : 'Unavailable'}
+              {availabilityStatus === 'busy' ? 'Busy' :
+               isAvailable ? 'Available' : 'Unavailable'}
             </label>
             <Switch
               id="availability"
               checked={isAvailable}
               onCheckedChange={handleToggleAvailability}
-              disabled={toggling}
+              disabled={toggling || availabilityStatus === 'busy'}
             />
           </div>
 
@@ -394,18 +421,6 @@ export function ProviderHeader({ user, onMenuClick }: ProviderHeaderProps) {
                   >
                     <User className="h-4 w-4" />
                     <span className="text-sm font-medium">Profile</span>
-                  </button>
-
-                  {/* Settings Button */}
-                  <button
-                    onClick={() => {
-                      setShowDropdown(false);
-                      router.push('/provider/settings');
-                    }}
-                    className="flex items-center gap-3 w-full px-4 py-3 text-gray-700 hover:bg-emerald-50 transition-colors"
-                  >
-                    <Settings className="h-4 w-4" />
-                    <span className="text-sm font-medium">Settings</span>
                   </button>
 
                   <div className="border-t border-emerald-100 my-1" />

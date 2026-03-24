@@ -2,7 +2,8 @@ export interface DetailedRatings {
   punctuality: number;
   quality: number;
   behaviour: number;
-  value: number;
+  value?: number;
+  valueForMoney?: number;
 }
 
 export interface Review {
@@ -13,7 +14,10 @@ export interface Review {
   rating: number;
   comment: string;
   detailedRatings?: DetailedRatings;
-  providerResponse?: string;
+  providerResponse?: string | {
+    comment: string;
+    respondedAt: string;
+  };
   isFlagged: boolean;
   flagReason?: string;
   isVisible: boolean;
@@ -22,6 +26,8 @@ export interface Review {
   customer?: {
     id: string;
     name: string;
+    email: string;
+    phone?: string;
     profilePicture?: string;
   };
   provider?: {
@@ -32,11 +38,12 @@ export interface Review {
     id: string;
     title: string;
     serviceType?: string;
+    description?: string;
   };
 }
 
 export interface CreateReviewData {
-  serviceRequestId: string;
+  serviceRequestId?: string; // Optional since it's passed in URL
   rating: number;
   comment: string;
   detailedRatings: DetailedRatings;

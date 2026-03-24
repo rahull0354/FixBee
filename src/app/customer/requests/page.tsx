@@ -16,9 +16,17 @@ import {
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const statusFilters = [
-  { value: '', label: 'All Requests' },
+  { value: 'all', label: 'All Requests' },
   { value: 'pending', label: 'Pending' },
   { value: 'assigned', label: 'Assigned' },
   { value: 'in-progress', label: 'In Progress' },
@@ -27,9 +35,10 @@ const statusFilters = [
 ];
 
 export default function CustomerRequestsPage() {
+  const [loading, setLoading] = useState(true);
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [filteredRequests, setFilteredRequests] = useState<ServiceRequest[]>([]);
-  const [statusFilter, setStatusFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const requestsPerPage = 5;
@@ -47,7 +56,7 @@ export default function CustomerRequestsPage() {
     let filtered = requests;
 
     // Apply status filter
-    if (statusFilter) {
+    if (statusFilter && statusFilter !== 'all') {
       filtered = filtered.filter((req) => req.status === statusFilter);
     }
 
@@ -55,8 +64,8 @@ export default function CustomerRequestsPage() {
     if (searchQuery) {
       filtered = filtered.filter(
         (req) =>
-          req.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          req.serviceType.toLowerCase().includes(searchQuery.toLowerCase())
+          (req.title?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+          (req.serviceType?.toLowerCase() || '').includes(searchQuery.toLowerCase())
       );
     }
 
@@ -65,6 +74,7 @@ export default function CustomerRequestsPage() {
 
   const loadRequests = async () => {
     try {
+      setLoading(true);
       const response = await customerApi.getMyServiceRequests();
       const rawRequests: any[] = (response as any).data || response || [];
 
@@ -94,6 +104,8 @@ export default function CustomerRequestsPage() {
       console.error('Error loading requests:', error);
       toast.error('Failed to load service requests');
       setRequests([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -147,10 +159,62 @@ export default function CustomerRequestsPage() {
   const endIndex = startIndex + requestsPerPage;
   const paginatedRequests = filteredRequests.slice(startIndex, endIndex);
 
+  // Skeleton loading state
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        {/* Header Skeleton */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <Skeleton className="h-10 w-56 mb-2" />
+            <Skeleton className="h-5 w-48" />
+          </div>
+          <Skeleton className="h-11 w-36" />
+        </div>
+
+        {/* Filters Skeleton */}
+        <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            <Skeleton className="flex-1 h-12" />
+            <Skeleton className="flex-1 h-12" />
+          </div>
+        </div>
+
+        {/* Stats Summary Skeleton */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Skeleton key={i} className="h-24 rounded-xl" />
+          ))}
+        </div>
+
+        {/* Requests List Skeleton */}
+        <div className="space-y-4">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Skeleton key={i} className="h-40 rounded-2xl" />
+          ))}
+        </div>
+
+        {/* Pagination Skeleton */}
+        <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <Skeleton className="h-5 w-48" />
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-10 w-24" />
+              <Skeleton className="h-10 w-10" />
+              <Skeleton className="h-10 w-10" />
+              <Skeleton className="h-10 w-10" />
+              <Skeleton className="h-10 w-24" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">My Service Requests</h1>
           <p className="text-gray-600">Track and manage all your service requests</p>
@@ -168,20 +232,21 @@ export default function CustomerRequestsPage() {
         <div className="flex flex-col md:flex-row gap-4">
           {/* Status Filter */}
           <div className="flex-1">
-            <div className="relative">
-              <Filter className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-sky-50 rounded-xl border border-sky-200 focus:outline-none focus:border-sky-500 appearance-none cursor-pointer"
-              >
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full h-12 border-sky-200 bg-white shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-2">
+                  <Filter className="h-4 w-4 text-sky-500" />
+                  <SelectValue placeholder="Filter by status" />
+                </div>
+              </SelectTrigger>
+              <SelectContent className="bg-white border border-sky-200 shadow-lg">
                 {statusFilters.map((filter) => (
-                  <option key={filter.value} value={filter.value}>
+                  <SelectItem key={filter.value} value={filter.value} className="hover:bg-sky-50 focus:bg-sky-100 cursor-pointer">
                     {filter.label}
-                  </option>
+                  </SelectItem>
                 ))}
-              </select>
-            </div>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Search */}
@@ -283,7 +348,7 @@ export default function CustomerRequestsPage() {
                         <Calendar className="h-4 w-4" />
                         <span>{formatDate(request.scheduledDate)}</span>
                       </div>
-                      {(request.status === 'assigned' || request.status === 'in-progress' || request.status === 'completed') ? (
+                      {(request.status === 'assigned' || request.status === 'in_progress' || request.status === 'completed') ? (
                         <div className="flex items-center gap-2 text-gray-600">
                           <User className="h-4 w-4" />
                           <span className="text-sky-600 font-medium">Provider Assigned</span>

@@ -9,7 +9,6 @@ import {
   Wrench as FixBeeIcon,
   X,
   MessageCircle,
-  Settings,
   User,
 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -24,8 +23,6 @@ const navigation = [
   { name: 'Available Requests', href: '/provider/requests/available', icon: Briefcase },
   { name: 'My Assignments', href: '/provider/assignments', icon: FileText },
   { name: 'Reviews', href: '/provider/reviews', icon: MessageCircle },
-  { name: 'Profile', href: '/provider/profile', icon: User },
-  { name: 'Settings', href: '/provider/settings', icon: Settings },
 ];
 
 export function ProviderSidebar({ isOpen, onClose }: ProviderSidebarProps) {

@@ -44,14 +44,22 @@ export default function RegisterPage() {
 
         {/* Floating 3D elements */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-32 left-16 w-20 h-20 bg-linear-to-br from-sky-400 to-sky-500 rounded-3xl shadow-2xl transform rotate-12 animate-float" />
+          <div className="absolute top-16 left-16 w-20 h-20 bg-linear-to-br from-sky-400 to-sky-500 rounded-3xl shadow-2xl transform rotate-12 animate-float" />
           <div className="absolute top-48 right-24 w-16 h-16 bg-linear-to-br from-blue-400 to-blue-500 rounded-2xl shadow-2xl transform -rotate-12 animate-float-delay-1" />
           <div className="absolute bottom-32 right-32 w-18 h-18 bg-linear-to-br from-emerald-400 to-emerald-500 rounded-3xl shadow-2xl transform rotate-6 animate-float-delay-2" />
           <div className="absolute bottom-48 left-24 w-14 h-14 bg-linear-to-br from-teal-400 to-teal-500 rounded-2xl shadow-2xl transform -rotate-6 animate-float-delay-3" />
         </div>
 
         {/* Content */}
-        <div className="relative z-10 flex flex-col justify-center px-16 py-12 h-full">
+        <div className="relative z-10 flex flex-col justify-center px-16 py-16 h-full">
+          {/* Back Button */}
+          <Link href="/login" className="absolute top-6 left-6 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 text-white hover:bg-white/20 transition-colors group">
+            <svg className="w-5 h-5 transform group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            <span className="text-sm font-medium">Back</span>
+          </Link>
+
           <Link href="/" className="flex items-center gap-3 mb-12 group">
             <div className="w-14 h-14 bg-linear-to-br from-sky-500 via-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
               <FixBeeIcon className="h-7 w-7 text-white" />
@@ -98,31 +106,32 @@ export default function RegisterPage() {
                 </div>
               </div>
             </div>
+          </div>
 
-            <div className="pt-8">
-              <div className="inline-flex items-center gap-3 px-6 py-4 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
-                <div className="flex -space-x-3">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div
+          {/* Banner positioned at bottom */}
+          <div className="absolute bottom-0 left-0 right-0 px-16 pb-4">
+            <div className="inline-flex items-center gap-3 px-6 py-4 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
+              <div className="flex -space-x-3">
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="w-12 h-12 rounded-full bg-linear-to-br from-sky-400 to-blue-500 border-2 border-gray-800 shadow-lg"
+                  />
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="flex">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <svg
                       key={i}
-                      className="w-12 h-12 rounded-full bg-linear-to-br from-sky-400 to-blue-500 border-2 border-gray-800 shadow-lg"
-                    />
+                      className="w-5 h-5 fill-yellow-400 text-yellow-400"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
                   ))}
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <svg
-                        key={i}
-                        className="w-5 h-5 fill-yellow-400 text-yellow-400"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
-                  </div>
-                  <span className="text-sm text-gray-300">Trusted by thousands</span>
-                </div>
+                <span className="text-sm text-gray-300">Trusted by thousands</span>
               </div>
             </div>
           </div>

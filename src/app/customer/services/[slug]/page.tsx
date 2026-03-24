@@ -17,6 +17,7 @@ import {
   Star,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function ServiceDetailPage() {
   const params = useParams();
@@ -112,6 +113,59 @@ export default function ServiceDetailPage() {
           <ArrowLeft className="h-5 w-5" />
           Back to Services
         </Link>
+      </div>
+    );
+  }
+
+  // Skeleton loading state
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        {/* Back Button Skeleton */}
+        <Skeleton className="h-6 w-32" />
+
+        {/* Header Skeleton */}
+        <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-8">
+          <div className="flex items-start gap-6">
+            <Skeleton className="w-20 h-20 rounded-2xl" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-8 w-64" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+            </div>
+          </div>
+        </div>
+
+        {/* Price Range Skeleton */}
+        <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-6 w-6" />
+            <Skeleton className="h-5 w-48" />
+          </div>
+        </div>
+
+        {/* Common Services Skeleton */}
+        <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
+          <Skeleton className="h-7 w-48 mb-6" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Skeleton key={i} className="h-16 rounded-xl" />
+            ))}
+          </div>
+        </div>
+
+        {/* Required Skills Skeleton */}
+        <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
+          <Skeleton className="h-7 w-40 mb-4" />
+          <div className="flex flex-wrap gap-2">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <Skeleton key={i} className="h-8 w-24 rounded-full" />
+            ))}
+          </div>
+        </div>
+
+        {/* Book Service Button Skeleton */}
+        <Skeleton className="h-12 w-full" />
       </div>
     );
   }

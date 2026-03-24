@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Briefcase,
   CheckCircle,
@@ -43,6 +44,7 @@ interface DashboardStats {
 
 export default function ProviderDashboardPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [stats, setStats] = useState<DashboardStats>({
     totalAssignments: 0,
     completedServices: 0,
@@ -91,6 +93,16 @@ export default function ProviderDashboardPage() {
       console.error("Date formatting error:", error, dateString);
       return "Invalid Date";
     }
+  };
+
+  const handleViewAssignment = (service: any) => {
+    // Store assignment data in sessionStorage before navigation
+    const storageKey = `assignment_${service.id}`;
+    sessionStorage.setItem(storageKey, JSON.stringify({
+      ...service,
+      timestamp: Date.now(),
+    }));
+    router.push(`/provider/assignments/${service.id}`);
   };
 
   const loadDashboardData = async () => {
@@ -619,24 +631,27 @@ export default function ProviderDashboardPage() {
                   {recentServices.map((service) => (
                     <tr key={service.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                       <td className="py-3 px-2">
-                        <Link href={`/provider/assignments/${service.id}`} className="block">
-                          <p className="font-medium text-gray-800 text-sm hover:text-emerald-600 transition-colors">
+                        <button
+                          onClick={() => handleViewAssignment(service)}
+                          className="block text-left w-full hover:text-emerald-600 transition-colors"
+                        >
+                          <p className="font-medium text-gray-800 text-sm">
                             {service.serviceTitle || service.title || 'Service Request'}
                           </p>
                           <p className="text-xs text-gray-500">
                             {service.serviceAddress?.city || 'Location'}
                           </p>
-                        </Link>
+                        </button>
                       </td>
                       <td className="py-3 px-2">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           service.status === 'completed' ? 'bg-green-100 text-green-800' :
-                          service.status === 'in-progress' ? 'bg-purple-100 text-purple-800' :
+                          service.status === 'in_progress' ? 'bg-purple-100 text-purple-800' :
                           service.status === 'assigned' ? 'bg-blue-100 text-blue-800' :
                           'bg-yellow-100 text-yellow-800'
                         }`}>
                           {service.status === 'completed' ? 'Completed' :
-                           service.status === 'in-progress' ? 'In Progress' :
+                           service.status === 'in_progress' ? 'In Progress' :
                            service.status === 'assigned' ? 'Assigned' :
                            service.status || 'Pending'}
                         </span>

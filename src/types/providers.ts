@@ -35,6 +35,7 @@ export interface ProviderProfile {
   availability: Availability[];
   serviceAreas: ServiceArea[];
   isAvailable: boolean;
+  availabilityStatus?: 'available' | 'busy' | 'offline';
   rating: number;
   reviewCount: number;
   completedJobs: number;

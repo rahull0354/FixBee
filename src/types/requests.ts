@@ -1,4 +1,4 @@
-export type ServiceRequestStatus = 'pending' | 'assigned' | 'in-progress' | 'completed' | 'cancelled';
+export type ServiceRequestStatus = 'pending' | 'assigned' | 'in_progress' | 'completed' | 'cancelled';
 
 export interface ServiceAddress {
   street: string;
@@ -13,16 +13,26 @@ export interface ServiceRequest {
   id: string;
   customerId: string;
   providerId?: string;
-  categoryId: string;
+  serviceProviderId?: string;
+  categoryId?: string;
+  serviceCategoryId?: string;
   serviceType: string;
-  title: string;
-  description: string;
-  address: ServiceAddress;
-  scheduledDate: string;
-  scheduledTimeSlot: string;
+  title?: string;
+  serviceTitle?: string;
+  description?: string;
+  serviceDescription?: string;
+  address?: ServiceAddress;
+  serviceAddress?: ServiceAddress;
+  scheduledDate?: string;
+  scheduledTimeSlot?: string;
+  schedule?: {
+    date: string;
+    timeSlot: string;
+    preferredTime?: string;
+  };
   status: ServiceRequestStatus;
-  estimatedPrice?: number;
-  finalPrice?: number;
+  estimatedPrice?: number | string;
+  finalPrice?: number | string;
   beforeImages?: string[];
   afterImages?: string[];
   additionalNotes?: string;

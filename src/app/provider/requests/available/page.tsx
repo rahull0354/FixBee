@@ -181,7 +181,7 @@ export default function AvailableRequestsPage() {
     }
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) return 'N/A';
     try {
       const date = new Date(dateString);
@@ -196,9 +196,10 @@ export default function AvailableRequestsPage() {
     }
   };
 
-  const formatPrice = (price?: number) => {
+  const formatPrice = (price?: number | string) => {
     if (!price) return 'Est. Price: TBD';
-    return `Est. Price: $${price.toLocaleString()}`;
+    const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+    return `Est. Price: $${numPrice.toLocaleString()}`;
   };
 
   // Skeleton loading state
