@@ -52,12 +52,14 @@ export function middleware(request: NextRequest) {
   }
 
   if (
+    authToken &&
     userRole &&
     (pathname.startsWith("/login") ||
       pathname.startsWith("/register") ||
       pathname === "/forgot-password")
   ) {
-    // Redirect to appropriate dashboard
+    // Only redirect to dashboard if user has BOTH auth_token AND user_role
+    // user_role alone means they registered but haven't logged in yet
     const dashboardPath = dashboardRoutes[userRole];
     if (dashboardPath) {
       return NextResponse.redirect(new URL(dashboardPath, request.url));

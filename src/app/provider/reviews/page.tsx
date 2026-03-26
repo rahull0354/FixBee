@@ -35,13 +35,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { useRouter } from 'next/navigation';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function ProviderReviewsPage() {
   const router = useRouter();
@@ -160,7 +161,7 @@ export default function ProviderReviewsPage() {
 
     try {
       setSubmittingResponse(true);
-      await providerApi.respondToReview(selectedReview.id, { response: responseText });
+      await providerApi.respondToReview(selectedReview.id, { comment: responseText });
       toast.success('Response submitted successfully!');
       setRespondDialogOpen(false);
       loadReviews();
@@ -383,46 +384,34 @@ export default function ProviderReviewsPage() {
               />
             </div>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button className="gap-1.5 sm:gap-2 h-auto py-2.5 sm:py-3 px-3 sm:px-5 lg:px-6 bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg text-sm sm:text-base">
-                  <Filter className="h-4 w-4 sm:h-5 sm:w-5" />
-                  <span className="font-medium hidden sm:inline">
-                    {ratingFilter === 'all' ? 'All Ratings' : `${ratingFilter} Stars`}
-                  </span>
-                  <span className="font-medium sm:hidden">
-                    {ratingFilter === 'all' ? 'All' : `${ratingFilter}★`}
-                  </span>
-                  <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-44 sm:w-48">
-                <DropdownMenuItem onClick={() => setRatingFilter('all')} className="py-2.5 sm:py-3">
-                  <Star className="h-4 w-4 mr-2 text-yellow-500" />
+            <Select
+              value={ratingFilter === 'all' ? 'all' : String(ratingFilter)}
+              onValueChange={(value) => setRatingFilter(value === 'all' ? 'all' : Number(value))}
+            >
+              <SelectTrigger className="w-full sm:w-48 py-2.5 sm:py-3 px-3 sm:px-4 text-sm sm:text-base rounded-xl bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg border-0 data-placeholder:text-white h-13">
+                <SelectValue placeholder="Filter by rating" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border border-emerald-200 shadow-lg">
+                <SelectItem value="all" className="hover:bg-emerald-50 focus:bg-emerald-100">
                   All Ratings
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setRatingFilter(5)} className="py-2.5 sm:py-3">
-                  <Star className="h-4 w-4 mr-2 fill-yellow-400 text-yellow-400" />
+                </SelectItem>
+                <SelectItem value="5" className="hover:bg-emerald-50 focus:bg-emerald-100">
                   5 Stars Only
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setRatingFilter(4)} className="py-2.5 sm:py-3">
-                  <Star className="h-4 w-4 mr-2" />
+                </SelectItem>
+                <SelectItem value="4" className="hover:bg-emerald-50 focus:bg-emerald-100">
                   4 Stars Only
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setRatingFilter(3)} className="py-2.5 sm:py-3">
-                  <Star className="h-4 w-4 mr-2" />
+                </SelectItem>
+                <SelectItem value="3" className="hover:bg-emerald-50 focus:bg-emerald-100">
                   3 Stars Only
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setRatingFilter(2)} className="py-2.5 sm:py-3">
-                  <Star className="h-4 w-4 mr-2" />
+                </SelectItem>
+                <SelectItem value="2" className="hover:bg-emerald-50 focus:bg-emerald-100">
                   2 Stars Only
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setRatingFilter(1)} className="py-2.5 sm:py-3">
-                  <Star className="h-4 w-4 mr-2" />
+                </SelectItem>
+                <SelectItem value="1" className="hover:bg-emerald-50 focus:bg-emerald-100">
                   1 Star Only
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
@@ -626,7 +615,7 @@ export default function ProviderReviewsPage() {
 
       {/* Response Dialog */}
       <Dialog open={respondDialogOpen} onOpenChange={setRespondDialogOpen}>
-        <DialogContent className="max-w-[95vw] sm:max-w-[600px] lg:max-w-[650px] p-0 overflow-hidden rounded-2xl">
+        <DialogContent className="max-w-[95vw] sm:max-w-150 lg:max-w-12.5 p-0 overflow-hidden rounded-2xl">
           <div className="bg-linear-to-r from-emerald-500 to-teal-500 p-4 sm:p-5 lg:p-6 text-white">
             <DialogHeader>
               <DialogTitle className="text-lg sm:text-xl lg:text-2xl flex items-center gap-2 sm:gap-3">

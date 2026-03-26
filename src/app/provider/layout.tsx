@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { ProviderSidebar } from '@/components/provider/ProviderSidebar';
 import { ProviderHeader } from '@/components/provider/ProviderHeader';
@@ -9,6 +9,7 @@ import { AlertCircle, Mail, Loader2, Lock, Briefcase } from 'lucide-react';
 import { providerApi } from '@/lib/api';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { checkProviderProfileComplete } from '@/lib/utils/provider';
 
 export default function ProviderLayout({
   children,
@@ -20,6 +21,7 @@ export default function ProviderLayout({
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [requestingReactivation, setRequestingReactivation] = useState(false);
+  const [checkingProfile, setCheckingProfile] = useState(true);
 
   // Check if account is deactivated and calculate grace period
   const isDeactivated = (user?.isActive === false) || (!!user?.deactivatedAt);
@@ -27,8 +29,35 @@ export default function ProviderLayout({
     ? 30 - Math.floor((Date.now() - new Date(user.deactivatedAt).getTime()) / (1000 * 60 * 60 * 24))
     : 0;
 
-  // Check if current page is dashboard
+  // Check if current page is dashboard or setup page
   const isDashboardPage = pathname === '/provider/dashboard';
+  const isSetupPage = pathname === '/provider/profile/setup';
+
+  useEffect(() => {
+    checkProfileCompletion();
+  }, [pathname]);
+
+  const checkProfileCompletion = async () => {
+    // Skip check if on setup page or still loading auth
+    if (isSetupPage || loading || !isAuthenticated) {
+      setCheckingProfile(false);
+      return;
+    }
+
+    try {
+      setCheckingProfile(true);
+      const isComplete = await checkProviderProfileComplete();
+
+      if (!isComplete) {
+        toast.info('Please complete your profile setup first');
+        router.push('/provider/profile/setup');
+      }
+    } catch (error) {
+      console.error('Error checking profile completion:', error);
+    } finally {
+      setCheckingProfile(false);
+    }
+  };
 
   const handleRequestReactivation = async () => {
     try {
@@ -47,8 +76,8 @@ export default function ProviderLayout({
     }
   };
 
-  // Show loading state while checking authentication
-  if (loading) {
+  // Show loading state while checking authentication or profile
+  if (loading || checkingProfile) {
     return (
       <div className="fixed left-0 top-0 w-screen h-screen flex items-center justify-center bg-linear-to-br from-emerald-50 via-white to-teal-50 z-50">
         <style jsx>{`

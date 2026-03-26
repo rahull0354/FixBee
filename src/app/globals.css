@@ -114,3 +114,45 @@ body {
 .delay-2000 {
   animation-delay: 2s;
 }
+
+/* Print and PDF Styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  /* Only show the invoice content when printing */
+  body > *:not(.max-w-4xl) {
+    display: none !important;
+  }
+
+  /* Ensure the invoice container is visible */
+  .max-w-4xl {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 20px !important;
+  }
+
+  #invoice-content {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+
+  body {
+    background: white !important;
+  }
+
+  /* Hide back button and header */
+  .mb-6.sm\:mb-8 {
+    display: none !important;
+  }
+}
+
+/* PDF generation specific styles */
+body.generating-pdf .no-print {
+  display: none !important;
+}
+
+body.generating-pdf #invoice-content {
+  box-shadow: none !important;
+}

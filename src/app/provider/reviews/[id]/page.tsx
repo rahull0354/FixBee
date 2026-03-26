@@ -100,7 +100,7 @@ export default function ReviewDetailPage() {
 
     try {
       setSubmittingResponse(true);
-      await providerApi.respondToReview(review.id, { response: responseText });
+      await providerApi.respondToReview(review.id, { comment: responseText });
       toast.success("Response submitted successfully!");
       setRespondDialogOpen(false);
       loadReview(); // Reload to show the response
@@ -475,32 +475,34 @@ export default function ReviewDetailPage() {
 
       {/* Response Dialog */}
       <Dialog open={respondDialogOpen} onOpenChange={setRespondDialogOpen}>
-        <DialogContent className="max-w-[95vw] sm:max-w-150 max-h-[85vh] sm:max-h-[80vh] p-0 overflow-hidden flex flex-col bg-white">
-          <div className="bg-linear-to-r from-emerald-500 to-teal-500 p-4 sm:p-6 text-white shrink-0">
-            <DialogHeader>
-              <DialogTitle className="text-lg sm:text-xl lg:text-2xl flex items-center gap-2 sm:gap-3">
-                <div className="p-1.5 sm:p-2 bg-white/20 rounded-lg sm:rounded-xl">
+        <DialogContent className="max-w-[95vw] sm:max-w-150 md:max-w-162.5 w-full max-h-[90vh] sm:max-h-[85vh] overflow-y-auto p-0 bg-white border-2 border-emerald-100 rounded-2xl sm:rounded-xl shadow-2xl">
+          {/* Header with Gradient */}
+          <div className="bg-linear-to-r from-emerald-500 to-teal-500 px-4 sm:px-6 py-4 sm:py-5 text-white sticky top-0 z-10">
+            <DialogHeader className="space-y-1 sm:space-y-2">
+              <DialogTitle className="text-lg sm:text-xl md:text-2xl font-bold flex items-center gap-2 sm:gap-3 flex-wrap">
+                <div className="p-1.5 sm:p-2 bg-white/20 rounded-lg sm:rounded-xl shrink-0">
                   <Reply className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
-                Respond to Review
+                <span>Respond to Review</span>
               </DialogTitle>
-              <DialogDescription className="text-emerald-100 mt-1.5 sm:mt-2 text-xs sm:text-sm">
-                Write a thoughtful response to {review.customer?.name}'s review.
+              <DialogDescription className="text-emerald-100 text-xs sm:text-base pt-1 sm:pt-2">
+                Write a thoughtful response to {review.customer?.name}&apos;s review.
               </DialogDescription>
             </DialogHeader>
           </div>
 
-          <div className="p-4 sm:p-6 space-y-3 sm:space-y-4 overflow-y-auto flex-1">
+          {/* Content */}
+          <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
             {review && (
               <div className="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 border-l-4 border-yellow-400">
-                <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3 flex-wrap">
                   <StarRating rating={review.rating} size="sm" />
                   <span className="text-xs text-gray-600">
                     {new Date(review.createdAt).toLocaleDateString()}
                   </span>
                 </div>
-                <p className="text-gray-800 italic text-sm">
-                  "{review.comment}"
+                <p className="text-gray-800 italic text-sm sm:text-base">
+                  &ldquo;{review.comment}&rdquo;
                 </p>
               </div>
             )}
@@ -518,14 +520,14 @@ export default function ReviewDetailPage() {
                 placeholder="Thank the customer for their feedback and address any specific points they mentioned..."
                 value={responseText}
                 onChange={(e) => setResponseText(e.target.value)}
-                className="text-sm resize-none"
+                className="text-sm sm:text-base resize-none min-h-30"
               />
               <div className="flex items-center justify-between gap-2 flex-wrap">
-                <span className="text-xs text-gray-500">
+                <span className="text-xs sm:text-sm text-gray-500">
                   {responseText.length} characters
                 </span>
                 <span
-                  className={`text-xs font-medium ${
+                  className={`text-xs sm:text-sm font-medium ${
                     responseText.length >= 20
                       ? "text-emerald-600"
                       : "text-amber-600"
@@ -538,14 +540,14 @@ export default function ReviewDetailPage() {
               </div>
             </div>
 
-            <div className="bg-teal-50 border border-teal-200 rounded-lg p-3">
+            <div className="bg-teal-50 border border-teal-200 rounded-lg sm:rounded-xl p-3 sm:p-4">
               <div className="flex items-start gap-2">
                 <CheckCircle className="h-4 w-4 text-teal-600 mt-0.5 shrink-0" />
-                <div className="text-xs text-teal-900">
-                  <strong className="text-xs">
+                <div className="text-xs sm:text-sm text-teal-900">
+                  <strong className="text-xs sm:text-sm">
                     Tips for a great response:
                   </strong>
-                  <ul className="mt-1.5 space-y-0.5 list-disc list-inside">
+                  <ul className="mt-1.5 space-y-0.5 list-disc list-inside text-xs sm:text-sm">
                     <li>Thank the customer for their review</li>
                     <li>Address specific points they mentioned</li>
                     <li>Keep it professional and courteous</li>
@@ -555,33 +557,36 @@ export default function ReviewDetailPage() {
             </div>
           </div>
 
-          <DialogFooter className="p-3 sm:p-4 pt-0 bg-white gap-2 sm:gap-3 shrink-0">
-            <Button
-              variant="outline"
-              onClick={() => setRespondDialogOpen(false)}
-              disabled={submittingResponse}
-              className="flex-1 sm:flex-none text-sm"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={submitResponse}
-              disabled={submittingResponse || responseText.length < 20}
-              className="flex-1 sm:flex-none bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-sm"
-            >
-              {submittingResponse ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                <>
-                  <Reply className="mr-2 h-4 w-4" />
-                  Submit Response
-                </>
-              )}
-            </Button>
-          </DialogFooter>
+          {/* Footer with Buttons */}
+          <div className="px-4 sm:px-6 py-4 sm:py-5 border-t border-gray-200 bg-gray-50">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setRespondDialogOpen(false)}
+                disabled={submittingResponse}
+                className="w-full sm:flex-1 border-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 text-sm sm:text-base py-2.5 sm:py-3 h-auto"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={submitResponse}
+                disabled={submittingResponse || responseText.length < 20}
+                className="w-full sm:flex-1 bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg hover:shadow-xl transition-all text-sm sm:text-base py-2.5 sm:py-3 h-auto"
+              >
+                {submittingResponse ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <Reply className="mr-2 h-4 w-4" />
+                    Submit Response
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

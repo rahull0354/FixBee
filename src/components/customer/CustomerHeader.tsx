@@ -203,14 +203,9 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
             >
               <Bell className="h-5 w-5 text-gray-600" />
               {unreadCount > 0 && (
-                <>
-                  {/* Red dot indicator */}
-                  <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white animate-pulse" />
-                  {/* Count badge */}
-                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full px-1 shadow-sm">
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
-                </>
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full px-1 shadow-sm">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
               )}
             </button>
 

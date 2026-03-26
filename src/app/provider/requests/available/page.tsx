@@ -6,7 +6,7 @@ import {
   MapPin,
   Calendar,
   Clock,
-  DollarSign,
+  IndianRupee,
   Search,
   Filter,
   Briefcase,
@@ -18,13 +18,6 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { providerApi } from '@/lib/api';
 import { ServiceRequest } from '@/types';
 import { CalendarFilter } from '@/components/provider/CalendarFilter';
@@ -37,9 +30,7 @@ export default function AvailableRequestsPage() {
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCity, setSelectedCity] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState<string>('');
-  const [cities, setCities] = useState<string[]>([]);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -53,7 +44,7 @@ export default function AvailableRequestsPage() {
     filterRequests();
     // Reset to page 1 when filters change
     setCurrentPage(1);
-  }, [requests, searchQuery, selectedCity, selectedDate]);
+  }, [requests, searchQuery, selectedDate]);
 
   const loadAvailableRequests = async () => {
     try {
@@ -108,12 +99,6 @@ export default function AvailableRequestsPage() {
       console.log('📝 Transformed data:', transformedRequests);
 
       setRequests(transformedRequests);
-
-      // Extract unique cities for filter
-      const uniqueCities = Array.from(
-        new Set(transformedRequests.map((req: ServiceRequest) => req.address?.city).filter(Boolean))
-      ) as string[];
-      setCities(uniqueCities);
     } catch (error: any) {
       console.error('❌ Error loading available requests:', error);
 
@@ -143,11 +128,6 @@ export default function AvailableRequestsPage() {
           req.description?.toLowerCase().includes(query) ||
           req.serviceType?.toLowerCase().includes(query)
       );
-    }
-
-    // City filter
-    if (selectedCity) {
-      filtered = filtered.filter((req) => req.address?.city === selectedCity);
     }
 
     // Date filter
@@ -199,7 +179,7 @@ export default function AvailableRequestsPage() {
   const formatPrice = (price?: number | string) => {
     if (!price) return 'Est. Price: TBD';
     const numPrice = typeof price === 'string' ? parseFloat(price) : price;
-    return `Est. Price: $${numPrice.toLocaleString()}`;
+    return `Est. Price: ₹${numPrice.toLocaleString()}`;
   };
 
   // Skeleton loading state
@@ -216,8 +196,7 @@ export default function AvailableRequestsPage() {
 
         {/* Filters Skeleton */}
         <div className="bg-white rounded-2xl shadow-lg border border-emerald-100 p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Skeleton className="h-12 w-full" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Skeleton className="h-12 w-full" />
             <Skeleton className="h-12 w-full" />
           </div>
@@ -264,7 +243,7 @@ export default function AvailableRequestsPage() {
             <Filter className="h-5 w-5 text-emerald-600" />
             <h3 className="font-semibold text-gray-800">Filters</h3>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Search */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -276,21 +255,6 @@ export default function AvailableRequestsPage() {
               />
             </div>
 
-            {/* City Filter */}
-            <Select value={selectedCity || 'all'} onValueChange={(value) => setSelectedCity(value === 'all' ? '' : value)}>
-              <SelectTrigger className="border-emerald-200" style={{ backgroundColor: 'white' }}>
-                <SelectValue placeholder="Filter by city" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border border-emerald-200 shadow-lg">
-                <SelectItem value="all" className="hover:bg-emerald-50 focus:bg-emerald-100">All Cities</SelectItem>
-                {cities.map((city) => (
-                  <SelectItem key={city} value={city} className="hover:bg-emerald-50 focus:bg-emerald-100">
-                    {city}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
             {/* Date Filter */}
             <CalendarFilter
               value={selectedDate}
@@ -300,24 +264,13 @@ export default function AvailableRequestsPage() {
           </div>
 
           {/* Active Filters */}
-          {(searchQuery || selectedCity || selectedDate) && (
+          {(searchQuery || selectedDate) && (
             <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-200">
               {searchQuery && (
                 <Badge variant="secondary" className="gap-1">
                   Search: "{searchQuery}"
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="ml-1 hover:text-red-500"
-                  >
-                    ×
-                  </button>
-                </Badge>
-              )}
-              {selectedCity && (
-                <Badge variant="secondary" className="gap-1">
-                  City: {selectedCity}
-                  <button
-                    onClick={() => setSelectedCity('')}
                     className="ml-1 hover:text-red-500"
                   >
                     ×
@@ -340,7 +293,6 @@ export default function AvailableRequestsPage() {
                 size="sm"
                 onClick={() => {
                   setSearchQuery('');
-                  setSelectedCity('');
                   setSelectedDate('');
                 }}
                 className="text-emerald-600 hover:text-emerald-700"
@@ -380,11 +332,10 @@ export default function AvailableRequestsPage() {
                 ? 'There are currently no service requests available. Check back later!'
                 : 'Try adjusting your filters to see more results.'}
             </p>
-            {(searchQuery || selectedCity || selectedDate) && (
+            {(searchQuery || selectedDate) && (
               <Button
                 onClick={() => {
                   setSearchQuery('');
-                  setSelectedCity('');
                   setSelectedDate('');
                 }}
                 variant="outline"
@@ -444,7 +395,7 @@ export default function AvailableRequestsPage() {
                   </div>
 
                   <div className="flex items-center gap-2 text-sm text-gray-700">
-                    <DollarSign className="h-4 w-4 text-emerald-600 shrink-0" />
+                    <IndianRupee className="h-4 w-4 text-emerald-600 shrink-0" />
                     <span className="font-medium">
                       {formatPrice(request.estimatedPrice)}
                     </span>

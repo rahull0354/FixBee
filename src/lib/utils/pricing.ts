@@ -117,7 +117,7 @@ export function calculateServicePrice(
 
   // Add additional breakdown if provided
   if (validAdditionalCharge > 0) {
-    pricingDetails.additionalBreakdown = `Additional charges: ${validAdditionalCharge > 0 ? '$' + validAdditionalCharge.toFixed(2) : '$0.00'}`;
+    pricingDetails.additionalBreakdown = `Additional charges: ${validAdditionalCharge > 0 ? '₹' + validAdditionalCharge.toFixed(2) : '₹0.00'}`;
   }
 
   return {
@@ -135,10 +135,10 @@ export function calculateServicePrice(
 /**
  * Format price for display
  * @param amount - Price amount
- * @param currency - Currency symbol (default: $)
+ * @param currency - Currency symbol (default: ₹)
  * @returns Formatted price string
  */
-export function formatPrice(amount: number | string, currency: string = '$'): string {
+export function formatPrice(amount: number | string, currency: string = '₹'): string {
   const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
   if (isNaN(numAmount)) return `${currency}0.00`;
   return `${currency}${numAmount.toFixed(2)}`;

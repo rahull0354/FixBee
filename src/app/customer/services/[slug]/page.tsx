@@ -7,7 +7,7 @@ import { customerApi } from '@/lib/api';
 import { Category } from '@/types';
 import {
   ArrowLeft,
-  DollarSign,
+  IndianRupee,
   Clock,
   CheckCircle,
   Briefcase,
@@ -54,7 +54,7 @@ export default function ServiceDetailPage() {
           priceRange: {
             min: 50,
             max: 500,
-            unit: '$',
+            unit: '₹',
           },
           commonServices: [
             { name: 'Electrical Repair', description: 'Fix wiring issues and electrical problems' },
@@ -204,7 +204,7 @@ export default function ServiceDetailPage() {
             {category.priceRange && (
               <div className="flex items-center gap-2 mb-4">
                 <div className="p-2 bg-emerald-50 rounded-lg">
-                  <DollarSign className="h-5 w-5 text-emerald-600" />
+                  <IndianRupee className="h-5 w-5 text-emerald-600" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Price Range</p>

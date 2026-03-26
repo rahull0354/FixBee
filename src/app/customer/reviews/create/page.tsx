@@ -296,7 +296,7 @@ export default function CreateReviewPage() {
               </span>
               {serviceRequest.finalPrice && (
                 <span className="font-semibold text-sm sm:text-base">
-                  ${serviceRequest.finalPrice}
+                  ₹{serviceRequest.finalPrice}
                 </span>
               )}
             </div>

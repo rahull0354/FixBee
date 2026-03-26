@@ -27,6 +27,7 @@ import {
   XCircle,
   Settings,
   AlertTriangle,
+  Star,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -303,24 +304,32 @@ export default function ProviderProfilePage() {
         </div>
 
         {/* Profile Header Skeleton */}
-        <div className="bg-white rounded-2xl shadow-lg border border-emerald-100 overflow-hidden">
-          <div className="bg-linear-to-r from-emerald-400 via-teal-400 to-cyan-400 h-32" />
-          <div className="px-6 pb-6">
-            <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 -mt-16">
-              <Skeleton className="w-32 h-32 rounded-2xl" />
-              <div className="flex-1">
-                <Skeleton className="h-7 w-48 mb-2" />
-                <Skeleton className="h-5 w-full max-w-md" />
+        <div className="bg-white rounded-3xl shadow-xl border border-emerald-100 overflow-hidden">
+          <div className="bg-linear-to-r from-emerald-400 via-teal-400 to-cyan-400 h-48" />
+          <div className="px-6 sm:px-8 pb-8">
+            <div className="flex flex-col items-center -mt-20 mb-6">
+              {/* Profile picture skeleton */}
+              <Skeleton className="w-36 h-36 rounded-3xl" />
+
+              {/* Name and rating skeleton - centered */}
+              <div className="text-center mt-4 space-y-2 w-full">
+                <Skeleton className="h-9 w-48 mx-auto" />
+                <Skeleton className="h-8 w-32 mx-auto" />
               </div>
-              <Skeleton className="h-6 w-16" />
+
+              {/* Bio skeleton */}
+              <div className="mt-4 w-full max-w-2xl">
+                <Skeleton className="h-5 w-full" />
+                <Skeleton className="h-5 w-3/4 mt-2" />
+              </div>
             </div>
 
-            {/* Stats Skeleton */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
+            {/* Stats Skeleton - grid layout */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="text-center p-4 bg-gray-50 rounded-xl">
-                  <Skeleton className="h-6 w-6 mx-auto mb-2" />
-                  <Skeleton className="h-7 w-12 mx-auto mb-1" />
+                <div key={i} className="text-center p-5 bg-gray-50 rounded-2xl">
+                  <Skeleton className="w-12 h-12 mx-auto mb-3 rounded-xl" />
+                  <Skeleton className="h-8 w-16 mx-auto mb-1" />
                   <Skeleton className="h-4 w-24 mx-auto" />
                 </div>
               ))}
@@ -412,24 +421,32 @@ export default function ProviderProfilePage() {
         </div>
 
         {/* Profile Header Skeleton */}
-        <div className="bg-white rounded-2xl shadow-lg border border-emerald-100 overflow-hidden">
-          <div className="bg-linear-to-r from-emerald-400 via-teal-400 to-cyan-400 h-32" />
-          <div className="px-6 pb-6">
-            <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 -mt-16">
-              <Skeleton className="w-32 h-32 rounded-2xl" />
-              <div className="flex-1">
-                <Skeleton className="h-7 w-48 mb-2" />
-                <Skeleton className="h-5 w-full max-w-md" />
+        <div className="bg-white rounded-3xl shadow-xl border border-emerald-100 overflow-hidden">
+          <div className="bg-linear-to-r from-emerald-400 via-teal-400 to-cyan-400 h-48" />
+          <div className="px-6 sm:px-8 pb-8">
+            <div className="flex flex-col items-center -mt-20 mb-6">
+              {/* Profile picture skeleton */}
+              <Skeleton className="w-36 h-36 rounded-3xl" />
+
+              {/* Name and rating skeleton - centered */}
+              <div className="text-center mt-4 space-y-2 w-full">
+                <Skeleton className="h-9 w-48 mx-auto" />
+                <Skeleton className="h-8 w-32 mx-auto" />
               </div>
-              <Skeleton className="h-6 w-16" />
+
+              {/* Bio skeleton */}
+              <div className="mt-4 w-full max-w-2xl">
+                <Skeleton className="h-5 w-full" />
+                <Skeleton className="h-5 w-3/4 mt-2" />
+              </div>
             </div>
 
-            {/* Stats Skeleton */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
+            {/* Stats Skeleton - grid layout */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="text-center p-4 bg-gray-50 rounded-xl">
-                  <Skeleton className="h-6 w-6 mx-auto mb-2" />
-                  <Skeleton className="h-7 w-12 mx-auto mb-1" />
+                <div key={i} className="text-center p-5 bg-gray-50 rounded-2xl">
+                  <Skeleton className="w-12 h-12 mx-auto mb-3 rounded-xl" />
+                  <Skeleton className="h-8 w-16 mx-auto mb-1" />
                   <Skeleton className="h-4 w-24 mx-auto" />
                 </div>
               ))}
@@ -846,68 +863,118 @@ export default function ProviderProfilePage() {
             </div>
           )}
 
-          {/* Profile Display */}
-          <div className="bg-white rounded-2xl shadow-lg border border-emerald-100 overflow-hidden">
-            {/* Header with background */}
-            <div className="bg-linear-to-r from-emerald-400 via-teal-400 to-cyan-400 h-32" />
-            <div className="px-6 pb-6">
-              {/* Profile picture and basic info */}
-              <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 -mt-20">
-                <div className="w-32 h-32 rounded-2xl bg-white shadow-xl flex items-center justify-center border-4 border-white overflow-hidden shrink-0">
-                  {profile.profilePicture ? (
-                    <img
-                      src={profile.profilePicture}
-                      alt={profile?.name || 'Profile'}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        // If image fails to load, replace with initial
-                        e.currentTarget.style.display = 'none';
-                        e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                      }}
-                    />
-                  ) : null}
-                  <div
-                    className={`w-full h-full bg-linear-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-4xl font-bold ${
-                      profile.profilePicture ? 'hidden' : ''
-                    }`}
-                  >
-                    {profile?.name?.charAt(0).toUpperCase() || 'P'}
+          {/* Profile Display - Refined Design */}
+          <div className="bg-white rounded-3xl shadow-xl border border-emerald-100 overflow-hidden">
+            {/* Enhanced Header with gradient and subtle pattern */}
+            <div className="relative bg-linear-to-r from-emerald-400 via-teal-400 to-cyan-400 h-48 overflow-hidden">
+              {/* Subtle decorative pattern overlay */}
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute inset-0" style={{
+                  backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+                  backgroundSize: '24px 24px'
+                }}></div>
+              </div>
+              {/* Gradient overlay for depth */}
+              <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/5"></div>
+            </div>
+
+            <div className="px-6 sm:px-8 pb-8">
+              {/* Profile picture and basic info - Centered layout */}
+              <div className="flex flex-col items-center -mt-20 mb-6">
+                {/* Profile picture with enhanced shadow and border */}
+                <div className="relative">
+                  <div className="w-36 h-36 rounded-3xl bg-white shadow-2xl flex items-center justify-center border-5 border-white overflow-hidden shrink-0 ring-4 ring-emerald-400/20">
+                    {profile.profilePicture ? (
+                      <img
+                        src={profile.profilePicture}
+                        alt={profile?.name || 'Profile'}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                        }}
+                      />
+                    ) : null}
+                    <div
+                      className={`w-full h-full bg-linear-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-5xl font-bold ${
+                        profile.profilePicture ? 'hidden' : ''
+                      }`}
+                    >
+                      {profile?.name?.charAt(0).toUpperCase() || 'P'}
+                    </div>
+                  </div>
+                  {/* Status indicator */}
+                  {profile.isAvailable && (
+                    <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full border-4 border-white shadow-lg flex items-center justify-center">
+                      <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Name and rating - Centered */}
+                <div className="text-center mt-4 space-y-2">
+                  <h2 className="text-3xl font-bold text-gray-900 tracking-tight">{profile?.name || 'Provider'}</h2>
+
+                  {/* Rating badge */}
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 rounded-full border border-amber-200 shadow-sm">
+                    <div className="flex items-center gap-1">
+                      {[...Array(5)].map((_, i) => (
+                        <svg
+                          key={i}
+                          className={`w-4 h-4 ${i < Math.floor(profile.rating || 0) ? 'text-amber-400 fill-current' : 'text-gray-300'}`}
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                        </svg>
+                      ))}
+                    </div>
+                    <span className="text-lg font-bold text-amber-700">{(profile.rating || 0).toFixed(1)}</span>
+                    <span className="text-sm text-amber-600">({profile.reviewCount || 0} reviews)</span>
                   </div>
                 </div>
-                <div className="flex-1 text-center sm:text-left -mt-8">
-                  <h2 className="text-2xl font-bold text-white">{profile?.name || 'Provider'}</h2>
-                  <p className="text-gray-600 mt-1">{profile?.bio || 'No bio added yet'}</p>
-                </div>
-                <div className="text-center sm:text-right">
-                  <div className="flex items-center justify-center sm:justify-end gap-1 text-emerald-600 font-semibold">
-                    <Award className="h-5 w-5" />
-                    <span>{(profile.rating || 0).toFixed(1)}</span>
+
+                {/* Bio - Full width, prominent */}
+                {profile?.bio && (
+                  <div className="mt-4 max-w-2xl text-center">
+                    <p className="text-gray-700 leading-relaxed">{profile.bio}</p>
                   </div>
-                  <p className="text-sm text-gray-600">{profile.reviewCount || 0} reviews</p>
-                </div>
+                )}
               </div>
 
-              {/* Stats */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
-                <div className="text-center p-4 bg-emerald-50 rounded-xl">
-                  <Briefcase className="h-6 w-6 text-emerald-600 mx-auto mb-2" />
-                  <p className="text-2xl font-bold text-gray-800">{profile.completedJobs || 0}</p>
-                  <p className="text-sm text-gray-600">Completed Jobs</p>
+              {/* Stats - Enhanced cards with better hover effects */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="group text-center p-5 bg-linear-to-br from-emerald-50 to-teal-50 rounded-2xl border border-emerald-100 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-default">
+                  <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md group-hover:shadow-xl transition-shadow">
+                    <Briefcase className="h-6 w-6 text-white" />
+                  </div>
+                  <p className="text-3xl font-bold text-gray-900 mb-1">{profile.completedJobs || 0}</p>
+                  <p className="text-sm font-medium text-gray-600">Completed Jobs</p>
                 </div>
-                <div className="text-center p-4 bg-blue-50 rounded-xl">
-                  <DollarSign className="h-6 w-6 text-blue-600 mx-auto mb-2" />
-                  <p className="text-2xl font-bold text-gray-800">${profile.baseRate || 0}</p>
-                  <p className="text-sm text-gray-600">{profile.pricingType === 'per-hour' ? 'Per Hour' : 'Per Visit'}</p>
+
+                <div className="group text-center p-5 bg-linear-to-br from-blue-50 to-sky-50 rounded-2xl border border-blue-100 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-default">
+                  <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md group-hover:shadow-xl transition-shadow">
+                    <DollarSign className="h-6 w-6 text-white" />
+                  </div>
+                  <p className="text-3xl font-bold text-gray-900 mb-1">${profile.baseRate || 0}</p>
+                  <p className="text-sm font-medium text-gray-600">{profile.pricingType === 'per-hour' ? 'Per Hour' : 'Per Visit'}</p>
                 </div>
-                <div className="text-center p-4 bg-purple-50 rounded-xl">
-                  <Clock className="h-6 w-6 text-purple-600 mx-auto mb-2" />
-                  <p className="text-2xl font-bold text-gray-800">{profile.experience || 0}</p>
-                  <p className="text-sm text-gray-600">Years Experience</p>
+
+                <div className="group text-center p-5 bg-linear-to-br from-purple-50 to-violet-50 rounded-2xl border border-purple-100 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-default">
+                  <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md group-hover:shadow-xl transition-shadow">
+                    <Clock className="h-6 w-6 text-white" />
+                  </div>
+                  <p className="text-3xl font-bold text-gray-900 mb-1">{profile.experience || 0}</p>
+                  <p className="text-sm font-medium text-gray-600">Years Experience</p>
                 </div>
-                <div className="text-center p-4 bg-amber-50 rounded-xl">
-                  <User className="h-6 w-6 text-amber-600 mx-auto mb-2" />
-                  <p className="text-2xl font-bold text-gray-800">{profile.isAvailable ? 'Active' : 'Inactive'}</p>
-                  <p className="text-sm text-gray-600">Status</p>
+
+                <div className="group text-center p-5 bg-linear-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-100 hover:shadow-lg hover:scale-105 transition-all duration-300 cursor-default">
+                  <div className={`w-12 h-12 ${profile.isAvailable ? 'bg-green-500' : 'bg-gray-400'} rounded-xl flex items-center justify-center mx-auto mb-3 shadow-md group-hover:shadow-xl transition-shadow`}>
+                    <User className="h-6 w-6 text-white" />
+                  </div>
+                  <p className={`text-3xl font-bold mb-1 ${profile.isAvailable ? 'text-green-600' : 'text-gray-600'}`}>
+                    {profile.isAvailable ? 'Active' : 'Inactive'}
+                  </p>
+                  <p className="text-sm font-medium text-gray-600">Status</p>
                 </div>
               </div>
             </div>

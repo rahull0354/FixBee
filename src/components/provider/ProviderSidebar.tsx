@@ -10,6 +10,8 @@ import {
   X,
   MessageCircle,
   User,
+  Wallet,
+  Settings,
 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 
@@ -22,7 +24,9 @@ const navigation = [
   { name: 'Dashboard', href: '/provider/dashboard', icon: Home },
   { name: 'Available Requests', href: '/provider/requests/available', icon: Briefcase },
   { name: 'My Assignments', href: '/provider/assignments', icon: FileText },
+  { name: 'Earnings', href: '/provider/payments', icon: Wallet },
   { name: 'Reviews', href: '/provider/reviews', icon: MessageCircle },
+  { name: 'Settings', href: '/provider/settings', icon: Settings },
 ];
 
 export function ProviderSidebar({ isOpen, onClose }: ProviderSidebarProps) {

@@ -26,7 +26,7 @@ import {
   Search,
   Calendar,
   MessageCircle,
-  DollarSign,
+  IndianRupee,
   Home as HomeIcon,
   Hammer,
   Sparkles,
@@ -260,7 +260,7 @@ export default function Home() {
                           <span className="text-sm font-semibold">5.0</span>
                         </div>
                         <span className="text-lg font-bold text-green-600">
-                          $150
+                          ₹150
                         </span>
                       </div>
                     </div>
@@ -428,7 +428,7 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto">
+              <div className="grid md:grid-cols-2 gap-10 max-w-6xl mx-auto">
                 {[
                   {
                     title: "Customer",
@@ -462,22 +462,7 @@ export default function Home() {
                     bgGradient: "from-teal-50 to-teal-100",
                     borderColor: "border-teal-200",
                   },
-                  {
-                    title: "Admin",
-                    icon: Shield,
-                    href: "/login/admin",
-                    desc: "Manage and monitor the entire platform",
-                    features: [
-                      "User management",
-                      "Analytics dashboard",
-                      "Review moderation",
-                      "Full control",
-                    ],
-                    color: "blue",
-                    gradient: "from-blue-400 to-blue-500",
-                    bgGradient: "from-blue-50 to-blue-100",
-                    borderColor: "border-blue-200",
-                  },
+                  
                 ].map((role, i) => (
                   <Card
                     key={i}
@@ -512,7 +497,7 @@ export default function Home() {
                         className={`w-full bg-linear-to-r ${role.gradient} hover:shadow-xl transition-all hover:scale-105`}
                         asChild
                       >
-                        <Link href={role.href}>Get Started</Link>
+                        <Link href={role.href} className="text-white">Get Started</Link>
                       </Button>
                     </CardContent>
                   </Card>
@@ -874,7 +859,7 @@ export default function Home() {
               <div className="space-y-6">
                 {[
                   {
-                    icon: DollarSign,
+                    icon: IndianRupee,
                     title: "Transparent Pricing",
                     desc: "Know exactly what you&apos;ll pay before booking. No hidden fees or surprises.",
                   },

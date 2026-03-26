@@ -1,5 +1,7 @@
 export type ServiceRequestStatus = 'pending' | 'assigned' | 'in_progress' | 'completed' | 'cancelled';
 
+export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
+
 export interface ServiceAddress {
   street: string;
   city: string;
@@ -33,10 +35,14 @@ export interface ServiceRequest {
   status: ServiceRequestStatus;
   estimatedPrice?: number | string;
   finalPrice?: number | string;
+  materialCost?: number;
+  materialDescription?: string;
   beforeImages?: string[];
   afterImages?: string[];
   additionalNotes?: string;
   pricingDetails?: any;
+  paymentStatus?: PaymentStatus;
+  completedAt?: string;
   createdAt: string;
   updatedAt: string;
   customer?: {

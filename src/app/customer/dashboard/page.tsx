@@ -9,7 +9,7 @@ import {
   Briefcase,
   CheckCircle,
   Clock,
-  DollarSign,
+  IndianRupee,
   ArrowRight,
   Calendar,
   FileText,
@@ -179,8 +179,8 @@ export default function CustomerDashboardPage() {
     },
     {
       title: "Total Spent",
-      value: `$${typeof stats.totalSpent === "number" ? stats.totalSpent.toFixed(2) : "0.00"}`,
-      icon: DollarSign,
+      value: `₹${typeof stats.totalSpent === "number" ? stats.totalSpent.toFixed(2) : "0.00"}`,
+      icon: IndianRupee,
       color: "text-violet-500",
       bgColor: "bg-violet-50",
     },
@@ -593,7 +593,7 @@ export default function CustomerDashboardPage() {
                   <YAxis
                     stroke="#64748b"
                     style={{ fontSize: "11px" }}
-                    tickFormatter={(value) => `$${value}`}
+                    tickFormatter={(value) => `₹${value}`}
                     tickLine={false}
                     axisLine={false}
                   />
@@ -605,7 +605,7 @@ export default function CustomerDashboardPage() {
                       boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
                       fontSize: "12px",
                     }}
-                    formatter={(value: any) => `$${Number(value).toFixed(2)}`}
+                    formatter={(value: any) => `₹${Number(value).toFixed(2)}`}
                     isAnimationActive={true}
                     animationDuration={300}
                   />
@@ -635,7 +635,7 @@ export default function CustomerDashboardPage() {
             </div>
           ) : (
             <div className="h-70 flex flex-col items-center justify-center text-gray-400">
-              <DollarSign className="h-12 w-12 mb-2 text-gray-300" />
+              <IndianRupee className="h-12 w-12 mb-2 text-gray-300" />
               <p className="text-center text-sm">No spending data yet</p>
               <p className="text-xs text-gray-500 text-center mt-1">
                 Complete some requests with final prices to see your spending

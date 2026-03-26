@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Briefcase, FileText, Wrench as FixBeeIcon, X, MessageCircle } from 'lucide-react';
+import { Home, Briefcase, FileText, Wrench as FixBeeIcon, X, MessageCircle, CreditCard } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 
 interface CustomerSidebarProps {
@@ -14,7 +14,8 @@ const navigation = [
   { name: 'Dashboard', href: '/customer/dashboard', icon: Home },
   { name: 'Browse Services', href: '/customer/services', icon: Briefcase },
   { name: 'My Requests', href: '/customer/requests', icon: FileText },
-  {name: 'Reviews', href: '/customer/reviews', icon: MessageCircle},
+  { name: 'Reviews', href: '/customer/reviews', icon: MessageCircle },
+  { name: 'Payments', href: '/customer/payments', icon: CreditCard },
 ];
 
 export function CustomerSidebar({ isOpen, onClose }: CustomerSidebarProps) {

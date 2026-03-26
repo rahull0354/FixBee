@@ -11,7 +11,7 @@ import {
   Mail,
   ArrowLeft,
   CheckCircle,
-  DollarSign,
+  IndianRupee,
   FileText,
   Sparkles,
   Info,
@@ -371,7 +371,7 @@ export default function RequestDetailsPage() {
             <div className="bg-linear-to-br from-emerald-50 via-teal-50 to-cyan-50 rounded-2xl border border-emerald-200 p-5 shadow-lg">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-linear-to-br from-emerald-400 to-teal-400 rounded-lg">
-                  <DollarSign className="h-4 w-4 text-white" />
+                  <IndianRupee className="h-4 w-4 text-white" />
                 </div>
                 <h3 className="text-base font-bold text-gray-900">Pricing</h3>
               </div>

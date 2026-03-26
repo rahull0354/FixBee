@@ -23,7 +23,7 @@ import {
   ArrowLeft,
   CheckCircle2,
   Wrench as FixBeeIcon,
-  DollarSign,
+  IndianRupee,
   Info,
   TrendingUp,
 } from "lucide-react";
@@ -760,7 +760,7 @@ export default function NewServiceRequestPage() {
                 <div className="bg-linear-to-r from-amber-50 to-orange-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-sky-100">
                   <div className="flex items-center gap-2 sm:gap-3">
                     <div className="p-2 bg-amber-200 rounded-lg">
-                      <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-amber-700" />
+                      <IndianRupee className="h-4 w-4 sm:h-5 sm:w-5 text-amber-700" />
                     </div>
                     <div>
                       <h2 className="text-base sm:text-lg font-bold text-gray-800">
@@ -878,7 +878,7 @@ export default function NewServiceRequestPage() {
                           {/* Total */}
                           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3 bg-linear-to-r from-sky-100 to-blue-100 rounded-lg border-2 border-sky-300">
                             <div className="flex items-center gap-2">
-                              <DollarSign className="h-4 w-4 text-sky-600 shrink-0" />
+                              <IndianRupee className="h-4 w-4 text-sky-600 shrink-0" />
                               <span className="text-sm font-semibold text-gray-800">
                                 You Pay
                               </span>
@@ -912,7 +912,7 @@ export default function NewServiceRequestPage() {
                     </div>
                   ) : (
                     <div className="text-center py-6 sm:py-8">
-                      <DollarSign className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-3" />
+                      <IndianRupee className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-3" />
                       <p className="text-sm sm:text-base text-gray-600">
                         Unable to load price estimate
                       </p>
@@ -1157,7 +1157,7 @@ export default function NewServiceRequestPage() {
                 <div className="bg-linear-to-r from-rose-50 to-pink-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-sky-100">
                   <div className="flex items-center gap-2 sm:gap-3">
                     <div className="p-2 bg-rose-200 rounded-lg">
-                      <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-rose-700" />
+                      <IndianRupee className="h-4 w-4 sm:h-5 sm:w-5 text-rose-700" />
                     </div>
                     <div>
                       <h2 className="text-base sm:text-lg font-bold text-gray-800">

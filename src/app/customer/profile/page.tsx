@@ -271,58 +271,65 @@ export default function CustomerProfilePage() {
   // Skeleton loading state
   if (loading) {
     return (
-      <div className="space-y-6 pb-8">
+      <div className="space-y-4 sm:space-y-6 pb-8 px-2 sm:px-0">
         {/* Profile Card Skeleton */}
-        <div className="bg-linear-to-br from-sky-50 via-blue-50 to-indigo-50 rounded-3xl p-8 border border-sky-100">
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-            <Skeleton className="w-24 h-24 rounded-full" />
-            <div className="flex-1 space-y-2">
-              <Skeleton className="h-8 w-48" />
-              <Skeleton className="h-4 w-64" />
+        <div className="bg-linear-to-br from-sky-50 via-blue-50 to-indigo-50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border border-sky-100">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-4 sm:gap-6">
+            <Skeleton className="w-16 h-16 sm:w-24 sm:h-24 rounded-full shrink-0" />
+            <div className="flex-1 space-y-2 w-full">
+              <Skeleton className="h-6 sm:h-8 w-32 sm:w-48" />
+              <Skeleton className="h-3 sm:h-4 w-40 sm:w-64" />
             </div>
-            <Skeleton className="h-10 w-32" />
+            <Skeleton className="h-9 w-24 sm:h-10 sm:w-32 shrink-0" />
+          </div>
+
+          {/* Stats Row Skeleton */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-4 sm:mt-8">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-16 sm:h-24 rounded-xl" />
+            ))}
           </div>
         </div>
 
-        {/* Stats Grid Skeleton */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Stats Grid Skeleton - Hide on mobile as it's redundant with header stats */}
+        <div className="hidden lg:grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
             <Skeleton key={i} className="h-24 rounded-xl" />
           ))}
         </div>
 
         {/* Personal Information Skeleton */}
-        <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
-          <Skeleton className="h-7 w-48 mb-6" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-4 sm:p-6">
+          <Skeleton className="h-6 sm:h-7 w-36 sm:w-48 mb-4 sm:mb-6" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="space-y-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-5 w-full" />
+              <div key={i} className="space-y-1.5 sm:space-y-2">
+                <Skeleton className="h-3 sm:h-4 w-20 sm:w-24" />
+                <Skeleton className="h-8 sm:h-10 w-full" />
               </div>
             ))}
           </div>
         </div>
 
         {/* Address Section Skeleton */}
-        <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
-          <Skeleton className="h-7 w-40 mb-6" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-4 sm:p-6">
+          <Skeleton className="h-6 sm:h-7 w-32 sm:w-40 mb-4 sm:mb-6" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="space-y-2">
-                <Skeleton className="h-4 w-20" />
-                <Skeleton className="h-5 w-full" />
+              <div key={i} className="space-y-1.5 sm:space-y-2">
+                <Skeleton className="h-3 sm:h-4 w-16 sm:w-20" />
+                <Skeleton className="h-8 sm:h-10 w-full" />
               </div>
             ))}
           </div>
         </div>
 
         {/* Account Actions Skeleton */}
-        <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
-          <Skeleton className="h-7 w-48 mb-6" />
-          <div className="space-y-4">
-            <Skeleton className="h-12 w-full" />
-            <Skeleton className="h-12 w-full" />
+        <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-4 sm:p-6">
+          <Skeleton className="h-6 sm:h-7 w-36 sm:w-48 mb-4 sm:mb-6" />
+          <div className="space-y-3 sm:space-y-4">
+            <Skeleton className="h-10 sm:h-12 w-full" />
+            <Skeleton className="h-10 sm:h-12 w-full" />
           </div>
         </div>
       </div>
@@ -333,7 +340,7 @@ export default function CustomerProfilePage() {
     <div className="space-y-4 sm:space-y-6 pb-8 px-2 sm:px-0">
         {/* Deactivated Account Banner */}
         {isDeactivated && (
-        <div className="bg-gradient-to-r from-amber-50 via-orange-50 to-red-50 border-2 border-amber-300 rounded-2xl p-4 sm:p-6 shadow-lg">
+        <div className="bg-linear-to-r from-amber-50 via-orange-50 to-red-50 border-2 border-amber-300 rounded-2xl p-4 sm:p-6 shadow-lg">
           <div className="flex flex-col gap-4">
             <div className="flex items-start gap-3 sm:gap-4">
               <div className="p-2 sm:p-3 bg-amber-200 rounded-xl shrink-0">
@@ -352,7 +359,7 @@ export default function CustomerProfilePage() {
             <Button
               onClick={handleRequestReactivation}
               disabled={requestingReactivation}
-              className="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-md text-sm sm:text-base"
+              className="w-full sm:w-auto bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-md text-sm sm:text-base"
             >
               {requestingReactivation ? (
                 <>
@@ -371,7 +378,7 @@ export default function CustomerProfilePage() {
       )}
 
       {/* Hero Header Section */}
-      <div className="bg-gradient-to-br from-sky-500 via-blue-500 to-indigo-600 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 text-white shadow-2xl relative overflow-hidden">
+      <div className="bg-linear-to-br from-sky-500 via-blue-500 to-indigo-600 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 text-white shadow-2xl relative overflow-hidden">
         {/* Decorative elements */}
         <div className="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-36 h-36 sm:w-48 sm:h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
@@ -495,7 +502,7 @@ export default function CustomerProfilePage() {
         <div className="lg:col-span-2 space-y-4 sm:space-y-6">
           {/* Personal Information Card */}
           <div className="bg-white rounded-2xl shadow-lg border border-sky-100 overflow-hidden">
-            <div className="bg-gradient-to-r from-sky-50 to-blue-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-sky-100">
+            <div className="bg-linear-to-r from-sky-50 to-blue-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-sky-100">
               <h3 className="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2">
                 <UserIcon className="h-4 w-4 sm:h-5 sm:w-5 text-sky-600" />
                 Personal Information
@@ -517,7 +524,7 @@ export default function CustomerProfilePage() {
                       className="border-sky-200 focus:border-sky-400 focus:ring-sky-400 rounded-xl text-sm sm:text-base"
                     />
                   ) : (
-                    <div className="p-3 sm:p-4 bg-gradient-to-r from-sky-50 to-blue-50 rounded-xl border border-sky-100">
+                    <div className="p-3 sm:p-4 bg-linear-to-r from-sky-50 to-blue-50 rounded-xl border border-sky-100">
                       <p className="text-gray-800 font-semibold text-sm sm:text-base">{user?.name || "-"}</p>
                     </div>
                   )}
@@ -536,7 +543,7 @@ export default function CustomerProfilePage() {
                       className="border-sky-200 focus:border-sky-400 focus:ring-sky-400 rounded-xl text-sm sm:text-base"
                     />
                   ) : (
-                    <div className="p-3 sm:p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-100">
+                    <div className="p-3 sm:p-4 bg-linear-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-100">
                       <div className="flex items-center gap-2 sm:gap-3">
                         <div className="p-1.5 sm:p-2 bg-emerald-200 rounded-lg shrink-0">
                           <Phone className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-700" />
@@ -634,7 +641,7 @@ export default function CustomerProfilePage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="p-3 sm:p-4 bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl border border-violet-100">
+                  <div className="p-3 sm:p-4 bg-linear-to-br from-violet-50 to-purple-50 rounded-xl border border-violet-100">
                     <div className="flex items-start gap-2 sm:gap-3">
                       <div className="p-1.5 sm:p-2 bg-violet-200 rounded-lg mt-0.5 sm:mt-1 shrink-0">
                         <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-violet-700" />
@@ -667,7 +674,7 @@ export default function CustomerProfilePage() {
                   <Button
                     onClick={handleSave}
                     disabled={saving}
-                    className="w-full sm:w-auto bg-gradient-to-r from-sky-400 via-blue-400 to-indigo-400 hover:from-sky-500 hover:via-blue-500 hover:to-indigo-500 text-white shadow-md hover:shadow-lg transition-all px-4 sm:px-6 text-sm sm:text-base"
+                    className="w-full sm:w-auto bg-linear-to-r from-sky-400 via-blue-400 to-indigo-400 hover:from-sky-500 hover:via-blue-500 hover:to-indigo-500 text-white shadow-md hover:shadow-lg transition-all px-4 sm:px-6 text-sm sm:text-base"
                   >
                     {saving ? (
                       <>
@@ -691,7 +698,7 @@ export default function CustomerProfilePage() {
         <div className="space-y-4 sm:space-y-6">
             {/* Account Settings */}
             <div className="bg-white rounded-2xl shadow-lg border border-sky-100 overflow-hidden">
-              <div className="bg-gradient-to-r from-violet-50 to-purple-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-sky-100">
+              <div className="bg-linear-to-r from-violet-50 to-purple-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-sky-100">
                 <h3 className="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2">
                   <Settings className="h-4 w-4 sm:h-5 sm:w-5 text-violet-600" />
                   Quick Actions
@@ -701,7 +708,7 @@ export default function CustomerProfilePage() {
               <div className="p-3 sm:p-4 space-y-3">
                 {/* Reactivate Account - Only show if deactivated */}
                 {isDeactivated && (
-                  <div className="p-3 sm:p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-200 hover:shadow-md transition-all">
+                  <div className="p-3 sm:p-4 bg-linear-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-200 hover:shadow-md transition-all">
                     <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
                       <div className="p-1.5 sm:p-2 bg-emerald-200 rounded-lg shrink-0">
                         <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-700" />
@@ -714,7 +721,7 @@ export default function CustomerProfilePage() {
                     <Button
                       onClick={handleRequestReactivation}
                       disabled={requestingReactivation}
-                      className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-[11px] sm:text-xs"
+                      className="w-full bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-[11px] sm:text-xs"
                     >
                       {requestingReactivation ? (
                         <>
@@ -732,7 +739,7 @@ export default function CustomerProfilePage() {
                 )}
 
                 {/* Change Password */}
-                <div className="p-3 sm:p-4 bg-gradient-to-r from-sky-50 to-blue-50 rounded-xl border border-sky-200 hover:shadow-md transition-all">
+                <div className="p-3 sm:p-4 bg-linear-to-r from-sky-50 to-blue-50 rounded-xl border border-sky-200 hover:shadow-md transition-all">
                   <div className="flex items-center gap-2 sm:gap-3">
                     <div className="p-1.5 sm:p-2 bg-sky-200 rounded-lg shrink-0">
                       <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-sky-700" />
@@ -752,7 +759,7 @@ export default function CustomerProfilePage() {
 
             {/* Danger Zone */}
             <div className="bg-white rounded-2xl shadow-lg border border-red-100 overflow-hidden">
-              <div className="bg-gradient-to-r from-red-50 to-orange-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-red-200">
+              <div className="bg-linear-to-r from-red-50 to-orange-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-red-200">
                 <h3 className="text-base sm:text-lg font-bold text-red-800 flex items-center gap-2">
                   <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
                   Danger Zone
@@ -760,7 +767,7 @@ export default function CustomerProfilePage() {
               </div>
 
               <div className="p-3 sm:p-4">
-                <div className="p-3 sm:p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-xl border border-red-200">
+                <div className="p-3 sm:p-4 bg-linear-to-r from-red-50 to-orange-50 rounded-xl border border-red-200">
                   <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
                     <div className="p-1.5 sm:p-2 bg-red-200 rounded-lg shrink-0">
                       <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-red-700" />
@@ -786,57 +793,57 @@ export default function CustomerProfilePage() {
 
       {/* Deactivate Confirmation Dialog */}
       <Dialog open={deactivateDialogOpen} onOpenChange={setDeactivateDialogOpen}>
-        <DialogContent className="max-w-[85vw] sm:max-w-2xl w-[85vw] p-0 overflow-hidden bg-white">
+        <DialogContent className="max-w-[95vw] sm:max-w-2xl w-full max-h-[90vh] overflow-y-auto p-0 bg-white mx-4">
           {/* Header with Muted Warning Gradient */}
-          <div className="bg-linear-to-r from-gray-700 via-slate-700 to-zinc-800 px-6 py-4 text-white">
+          <div className="bg-linear-to-r from-gray-700 via-slate-700 to-zinc-800 px-4 sm:px-6 py-3 sm:py-4 text-white sticky top-0 z-10">
             <DialogHeader className="space-y-1">
-              <DialogTitle className="text-2xl font-bold flex items-center gap-2">
-                <Shield className="h-6 w-6" />
+              <DialogTitle className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+                <Shield className="h-5 w-5 sm:h-6 sm:w-6" />
                 Deactivate Account
               </DialogTitle>
-              <DialogDescription className="text-gray-300 text-base">
+              <DialogDescription className="text-gray-300 text-sm sm:text-base">
                 This action is permanent and cannot be undone
               </DialogDescription>
             </DialogHeader>
           </div>
 
-          <div className="px-6 py-4 space-y-4">
+          <div className="px-4 sm:px-6 py-4 space-y-4">
             {/* Warning Alert */}
-            <div className="bg-slate-50 border-2 border-slate-300 rounded-2xl p-4">
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-slate-200 rounded-xl shrink-0">
-                  <AlertCircle className="h-6 w-6 text-slate-700" />
+            <div className="bg-slate-50 border-2 border-slate-300 rounded-xl sm:rounded-2xl p-3 sm:p-4">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="p-2 sm:p-3 bg-slate-200 rounded-xl shrink-0">
+                  <AlertCircle className="h-5 w-5 sm:h-6 sm:w-6 text-slate-700" />
                 </div>
-                <div className="flex-1">
-                  <p className="text-lg font-bold text-slate-900 mb-3">
+                <div className="flex-1 space-y-3 sm:space-y-4">
+                  <p className="text-base sm:text-lg font-bold text-slate-900">
                     Important Notice
                   </p>
-                  <p className="text-sm text-slate-700 mb-4">
+                  <p className="text-xs sm:text-sm text-slate-700">
                     Once deactivated, your account and all data will be permanently deleted after a 30-day grace period.
                   </p>
 
-                  <div className="bg-white rounded-xl p-4 border-4 border-red-500 w-full shadow-lg">
-                    <p className="text-base font-bold text-red-700 mb-3">This action will:</p>
-                    <div className="space-y-3">
-                      <div className="flex items-start gap-3">
-                        <XCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
-                        <p className="text-sm text-gray-800 flex-1">Delete your account and all personal information</p>
+                  <div className="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 border-2 sm:border-4 border-red-500 w-full shadow-lg">
+                    <p className="text-sm sm:text-base font-bold text-red-700 mb-2 sm:mb-3">This action will:</p>
+                    <div className="space-y-2 sm:space-y-3">
+                      <div className="flex items-start gap-2 sm:gap-3">
+                        <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 shrink-0 mt-0.5" />
+                        <p className="text-xs sm:text-sm text-gray-800 flex-1">Delete your account and all personal information</p>
                       </div>
-                      <div className="flex items-start gap-3">
-                        <XCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
-                        <p className="text-sm text-gray-800 flex-1">Remove all service request history and data</p>
+                      <div className="flex items-start gap-2 sm:gap-3">
+                        <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 shrink-0 mt-0.5" />
+                        <p className="text-xs sm:text-sm text-gray-800 flex-1">Remove all service request history and data</p>
                       </div>
-                      <div className="flex items-start gap-3">
-                        <XCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
-                        <p className="text-sm text-gray-800 flex-1">Cancel any pending service requests</p>
+                      <div className="flex items-start gap-2 sm:gap-3">
+                        <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 shrink-0 mt-0.5" />
+                        <p className="text-xs sm:text-sm text-gray-800 flex-1">Cancel any pending service requests</p>
                       </div>
-                      <div className="flex items-start gap-3">
-                        <XCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
-                        <p className="text-sm text-gray-800 flex-1">Delete all your reviews and ratings</p>
+                      <div className="flex items-start gap-2 sm:gap-3">
+                        <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 shrink-0 mt-0.5" />
+                        <p className="text-xs sm:text-sm text-gray-800 flex-1">Delete all your reviews and ratings</p>
                       </div>
-                      <div className="flex items-start gap-3">
-                        <Clock className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
-                        <p className="text-sm text-gray-800 flex-1">30-day grace period before permanent deletion</p>
+                      <div className="flex items-start gap-2 sm:gap-3">
+                        <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 shrink-0 mt-0.5" />
+                        <p className="text-xs sm:text-sm text-gray-800 flex-1">30-day grace period before permanent deletion</p>
                       </div>
                     </div>
                   </div>
@@ -846,15 +853,15 @@ export default function CustomerProfilePage() {
 
             {/* Account Info Summary */}
             {user && (
-              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                <p className="text-xs text-gray-500 mb-2">Account to be deactivated:</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-linear-to-br from-sky-400 via-blue-400 to-indigo-400 rounded-full flex items-center justify-center text-white font-bold text-lg">
+              <div className="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-200">
+                <p className="text-[11px] sm:text-xs text-gray-500 mb-2">Account to be deactivated:</p>
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-linear-to-br from-sky-400 via-blue-400 to-indigo-400 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-lg shrink-0">
                     {user.name?.charAt(0).toUpperCase() || 'U'}
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-bold text-gray-800">{user.name}</p>
-                    <p className="text-xs text-gray-600">{user.email}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs sm:text-sm font-bold text-gray-800 truncate">{user.name}</p>
+                    <p className="text-[11px] sm:text-xs text-gray-600 truncate">{user.email}</p>
                   </div>
                 </div>
               </div>
@@ -862,19 +869,19 @@ export default function CustomerProfilePage() {
           </div>
 
           {/* Footer Actions */}
-          <div className="bg-gray-50 px-6 py-3 border-t border-gray-200">
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 sticky bottom-0 z-10">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <Button
                 variant="outline"
                 onClick={() => setDeactivateDialogOpen(false)}
-                className="w-full sm:w-auto h-11 text-base font-semibold border-2 hover:bg-gray-100"
+                className="w-full sm:flex-1 h-10 sm:h-11 text-sm sm:text-base font-semibold border-2 hover:bg-gray-100"
               >
                 <X className="mr-2 h-4 w-4" />
                 Keep Account
               </Button>
               <Button
                 onClick={handleDeactivate}
-                className="w-full sm:w-auto h-11 text-base font-semibold bg-linear-to-r from-slate-600 via-gray-700 to-zinc-800 hover:from-slate-700 hover:via-gray-800 hover:to-zinc-900 text-white shadow-md hover:shadow-lg transition-all"
+                className="w-full sm:flex-1 h-10 sm:h-11 text-sm sm:text-base font-semibold bg-linear-to-r from-slate-600 via-gray-700 to-zinc-800 hover:from-slate-700 hover:via-gray-800 hover:to-zinc-900 text-white shadow-md hover:shadow-lg transition-all"
               >
                 <Shield className="mr-2 h-4 w-4" />
                 Deactivate Account

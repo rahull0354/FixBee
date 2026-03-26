@@ -19,7 +19,7 @@ export const registerCustomerSchema = z.object({
     street: z.string().min(5, 'Street address is required'),
     city: z.string().min(2, 'City is required'),
     state: z.string().min(2, 'State is required'),
-    zipCode: z.string().regex(/^\d{6}$/, 'Please enter a valid 6-digit PIN code'),
+    pincode: z.string().regex(/^\d{6}$/, 'Please enter a valid 6-digit PIN code'),
     country: z.string().optional(),
   }),
   profilePicture: z.string().url().optional().or(z.literal('')),

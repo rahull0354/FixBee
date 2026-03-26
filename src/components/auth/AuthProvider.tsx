@@ -42,11 +42,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (storedUser) {
         try {
           const user = JSON.parse(storedUser);
-          setAuthState({
-            user: user,
-            token: null,
-            isAuthenticated: true,
-          });
+          // Only set authenticated if we have actual user data (not temp user)
+          if (user.id !== 'temp') {
+            setAuthState({
+              user: user,
+              token: null,
+              isAuthenticated: true,
+            });
+          } else {
+            // Clear temp user from localStorage
+            localStorage.removeItem('fixbee_user');
+            setAuthState({
+              user: null,
+              token: null,
+              isAuthenticated: false,
+            });
+          }
         } catch (error) {
           // Invalid data in localStorage, clear it
           localStorage.removeItem('fixbee_user');
@@ -56,24 +67,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             isAuthenticated: false,
           });
         }
-      } else {
-        // No stored user, check if we have user_role cookie for minimal auth
-        const userRole = getCookie('user_role');
-        if (userRole) {
-          // Create minimal user from role cookie - cast role to satisfy type checker
-          const minimalUser = {
-            id: 'temp',
-            name: 'User',
-            email: 'user@example.com',
-            role: userRole as 'customer' | 'provider' | 'admin'
-          };
-          setAuthState({
-            user: minimalUser,
-            token: null,
-            isAuthenticated: true,
-          });
-        }
       }
+      // Note: user_role cookie is only used to remember which role to pre-fill on login page
+      // It does NOT authenticate the user
     } catch (error) {
       console.error('Error checking authentication:', error);
     } finally {
@@ -121,7 +117,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Store authentication data
       if (typeof window !== 'undefined') {
         // Set auth_token cookie for backend authentication (7 days)
-        // Note: Backend should set this as httpOnly, but we set it here as fallback
         if (token) {
           document.cookie = `auth_token=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
         }
@@ -173,35 +168,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const user = responseObj.user || responseObj.customer || responseObj.checkCustomer || responseObj.serviceProvider || responseObj.checkServiceProvider || responseObj.provider || responseObj.checkProvider || responseObj;
       const token = responseObj.token;
 
-      // Clear any existing auth data
       if (typeof window !== 'undefined') {
+        // Clear any existing auth data
         localStorage.removeItem('fixbee_user');
+        document.cookie = 'auth_token=; path=/; max-age=0';
         document.cookie = 'user_role=; path=/; max-age=0';
-      }
 
-      // Store authentication data
-      if (typeof window !== 'undefined') {
-        // Set auth_token cookie for backend authentication (7 days)
-        // Note: Backend should set this as httpOnly, but we set it here as fallback
-        if (token) {
-          document.cookie = `auth_token=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
-        }
-
-        // Set user_role cookie for middleware (7 days)
+        // Set user_role cookie to remember registration role
         document.cookie = `user_role=${role}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
-
-        // Store user info in localStorage
-        localStorage.setItem('fixbee_user', JSON.stringify({ ...user, role }));
       }
 
-      // Update auth state
       setAuthState({
-        user: { ...user, role },
-        token: token || null,
-        isAuthenticated: true,
+        user: null,
+        token: null,
+        isAuthenticated: false,
       });
 
-      toast.success('Registration successful!');
+      toast.success('Registration successful! Please login to continue.');
     } catch (error: any) {
       // Extract error message
       let message = 'Registration failed';
@@ -241,7 +224,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       window.location.href = '/';
     }
 
-    // Update auth state (will be reset after page reload anyway)
     setAuthState({
       user: null,
       token: null,
@@ -254,7 +236,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const updatedUser = {
       ...authState.user,
       ...userData,
-      role: authState.user?.role || userData.role, // Preserve role
+      role: authState.user?.role || userData.role,
     };
 
     setAuthState({

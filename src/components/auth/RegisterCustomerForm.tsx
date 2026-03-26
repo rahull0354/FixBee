@@ -29,8 +29,8 @@ export function RegisterCustomerForm() {
     setIsLoading(true);
     try {
       await registerAuth(data, 'customer');
-      router.push('/customer/dashboard');
-      router.refresh();
+      // Redirect to login page after successful registration
+      router.push('/login/customer');
     } catch (error) {
       // Error is handled by the register function
     } finally {
@@ -369,22 +369,22 @@ export function RegisterCustomerForm() {
 
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="address.zipCode" className="text-gray-800 font-medium">
+                        <Label htmlFor="address.pincode" className="text-gray-800 font-medium">
                           PIN Code <span className="text-red-500">*</span>
                         </Label>
                         <div className="relative">
                           <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-sky-600" />
                           <Input
-                            id="address.zipCode"
+                            id="address.pincode"
                             placeholder="100001"
                             className="h-11 pl-10 border-gray-200 focus:border-sky-500 focus:ring-sky-500/20 bg-white"
-                            {...register('address.zipCode')}
+                            {...register('address.pincode')}
                             disabled={isLoading}
                           />
                         </div>
-                        {errors.address?.zipCode && (
+                        {errors.address?.pincode && (
                           <p className="text-sm text-red-500 flex items-center gap-1">
-                            <span>•</span> {errors.address.zipCode.message}
+                            <span>•</span> {errors.address.pincode.message}
                           </p>
                         )}
                       </div>
