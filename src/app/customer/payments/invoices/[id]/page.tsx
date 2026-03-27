@@ -75,11 +75,6 @@ export default function InvoiceDetailPage() {
   const [provider, setProvider] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // Log user data
-  console.log('👤 Authenticated User:', user);
-  console.log('👤 User Name:', user?.name);
-  console.log('👤 User Email:', user?.email);
-
   useEffect(() => {
     if (!isAuthenticated) {
       router.push('/login/customer');
@@ -94,47 +89,15 @@ export default function InvoiceDetailPage() {
     try {
       setLoading(true);
 
-      console.log('=================================');
-      console.log('🔄 Loading Invoice/Receipt Page');
-      console.log('Invoice ID:', invoiceId);
-      console.log('=================================');
-
       const response = await customerApi.getInvoice(invoiceId);
-      console.log('📦 Raw Invoice API Response:', response);
-
       const apiData = (response as any).data || response;
-      console.log('📄 Extracted Invoice Data:', JSON.stringify(apiData, null, 2));
-      console.log('📄 Invoice Request ID:', apiData?.requestId);
-      console.log('💰 Invoice Financial Summary:');
-      console.log('  - Subtotal:', apiData?.subtotal);
-      console.log('  - Material Cost:', apiData?.materialCost);
-      console.log('  - Tax Amount:', apiData?.taxAmount);
-      console.log('  - Tax Rate:', apiData?.taxRate);
-      console.log('  - Platform Fee:', apiData?.platformFee);
-      console.log('  - Total Amount:', apiData?.totalAmount);
-      console.log('  - Line Items:', apiData?.lineItems);
-
-      // Calculate expected totals
-      const lineItemsTotal = apiData?.lineItems?.reduce((sum: number, item: any) => sum + (parseFloat(item.total) || 0), 0) || 0;
-      const expectedSubtotal = lineItemsTotal + (parseFloat(apiData?.materialCost) || 0);
-      const expectedTotal = expectedSubtotal + (parseFloat(apiData?.taxAmount) || 0) + (parseFloat(apiData?.platformFee) || 0);
-
-      console.log('📊 Calculated Values:');
-      console.log('  - Line Items Total:', lineItemsTotal);
-      console.log('  - Expected Subtotal (with material cost):', expectedSubtotal);
-      console.log('  - Expected Total:', expectedTotal);
 
       setInvoice(apiData);
 
       // Load service request details if available
       if (apiData.requestId) {
         try {
-          console.log('----------------------------------');
-          console.log('🔍 Fetching Service Request...');
-          console.log('Request ID:', apiData.requestId);
-
           const requestResponse = await customerApi.getServiceRequest(apiData.requestId);
-          console.log('📦 Raw Service Request Response:', requestResponse);
 
           // The data is nested inside a "request" object
           let requestData = null;
@@ -148,25 +111,15 @@ export default function InvoiceDetailPage() {
             requestData = requestResponse;
           }
 
-          console.log('📋 Extracted Request Data:', JSON.stringify(requestData, null, 2));
-
           // Extract the nested request object if it exists
           const finalRequestData = requestData?.request || requestData;
-          console.log('✅ Final Request Data:', JSON.stringify(finalRequestData, null, 2));
 
           setServiceRequest(finalRequestData);
 
           // Fetch provider details if we have the provider ID
           if (finalRequestData?.serviceProviderId) {
-            console.log('----------------------------------');
-            console.log('👷 Fetching Provider Details...');
-            console.log('Provider ID:', finalRequestData.serviceProviderId);
-
             try {
               const providerResponse = await customerApi.getProvider(finalRequestData.serviceProviderId);
-              console.log('👷 Raw Provider Response:', providerResponse);
-              console.log('👷 Response Type:', typeof providerResponse);
-              console.log('👷 Response Keys:', Object.keys(providerResponse || {}));
 
               // Try different possible structures
               let providerData = null;
@@ -180,33 +133,16 @@ export default function InvoiceDetailPage() {
                 providerData = providerResponse;
               }
 
-              console.log('✅ Extracted Provider Data:', JSON.stringify(providerData, null, 2));
-              console.log('👷 Provider Name:', providerData?.name);
-              console.log('👷 Provider BusinessName:', providerData?.businessName);
-              console.log('👷 Provider ContactPerson:', providerData?.contactPerson);
-              console.log('👷 Provider Keys:', Object.keys(providerData || {}));
-
               setProvider(providerData);
             } catch (providerErr) {
-              console.error('❌ Error loading provider:', providerErr);
-              console.error('Error Details:', JSON.stringify(providerErr, null, 2));
               // Continue without provider data
             }
-          } else {
-            console.log('⚠️ No serviceProviderId found in request');
           }
-
-          console.log('✅ Service Request Loaded Successfully');
         } catch (err) {
-          console.error('❌ Error loading service request:', err);
+          // Continue without service request data
         }
       }
-
-      console.log('=================================');
-      console.log('✅ Invoice Page Data Loading Complete');
-      console.log('=================================');
     } catch (error: any) {
-      console.error('❌ Error loading invoice:', error);
       toast.error('Failed to load invoice');
       router.push('/customer/payments');
     } finally {
@@ -309,17 +245,6 @@ export default function InvoiceDetailPage() {
   if (!invoice) {
     return null;
   }
-
-  // Log all data for debugging
-  console.log('\n');
-  console.log('=================================');
-  console.log('🎨 RENDERING INVOICE/RECEIPT PAGE');
-  console.log('=================================');
-  console.log('📄 Invoice:', JSON.stringify(invoice, null, 2));
-  console.log('📋 Service Request:', JSON.stringify(serviceRequest, null, 2));
-  console.log('👷 Provider:', JSON.stringify(provider, null, 2));
-  console.log('👤 Customer (User):', JSON.stringify(user, null, 2));
-  console.log('=================================\n');
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-6 sm:py-8">
@@ -504,35 +429,84 @@ export default function InvoiceDetailPage() {
 
             {/* Summary */}
             <div className="space-y-3">
-              {/* Service Charges (includes material cost) */}
-              <div className="flex justify-between items-start text-sm">
-                <div>
-                  <span className="text-gray-600">Service Charges</span>
-                  <p className="text-xs text-gray-500 mt-0.5">(inclusive of material cost)</p>
-                </div>
-                <span className="font-semibold text-gray-900">₹{(parseFloat(invoice.subtotal) || 0).toFixed(2)}</span>
-              </div>
+              {/* Calculate service charge from line items */}
+              {(() => {
+                const serviceChargeItem = invoice.lineItems?.find((item: any) => item.itemType === 'service');
+                const materialCostItem = invoice.lineItems?.find((item: any) => item.itemType === 'material');
+                const platformFeeItem = invoice.lineItems?.find((item: any) => item.itemType === 'additional_charge');
 
-              {(parseFloat(invoice.taxAmount) || 0) > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Tax ({invoice.taxRate || 0}%)</span>
-                  <span className="font-semibold text-gray-900">₹{(parseFloat(invoice.taxAmount) || 0).toFixed(2)}</span>
-                </div>
-              )}
+                const serviceCharge = serviceChargeItem ? parseFloat(serviceChargeItem.total) : parseFloat(invoice.laborCost) || 0;
+                const materialCost = materialCostItem ? parseFloat(materialCostItem.total) : parseFloat(invoice.materialCost) || 0;
+                const platformFee = platformFeeItem ? parseFloat(platformFeeItem.total) : parseFloat(invoice.platformFee) || 0;
+                const subtotal = serviceCharge + materialCost;
+                const taxAmount = parseFloat(invoice.taxAmount) || 0;
 
-              {(parseFloat(invoice.platformFee) || 0) > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Platform Fee</span>
-                  <span className="font-semibold text-gray-900">₹{(parseFloat(invoice.platformFee) || 0).toFixed(2)}</span>
-                </div>
-              )}
+                // Calculate correct total: service charges + material cost + platform fee + tax
+                const calculatedTotal = serviceCharge + materialCost + platformFee + taxAmount;
 
-              <div className="border-t-2 border-gray-200 pt-3">
-                <div className="flex justify-between text-base">
-                  <span className="font-bold text-gray-900">Total Amount</span>
-                  <span className="font-bold text-sky-600 text-xl">₹{(parseFloat(invoice.totalAmount) || 0).toFixed(2)}</span>
-                </div>
-              </div>
+                return (
+                  <>
+                    {/* Service Charge */}
+                    {serviceCharge > 0 && (
+                      <div className="flex justify-between items-start text-sm">
+                        <div>
+                          <span className="text-gray-600">Service Charges</span>
+                          <p className="text-xs text-gray-500 mt-0.5">Professional service fee</p>
+                        </div>
+                        <span className="font-semibold text-gray-900">₹{serviceCharge.toFixed(2)}</span>
+                      </div>
+                    )}
+
+                    {/* Material Cost */}
+                    {materialCost > 0 && (
+                      <div className="flex justify-between items-start text-sm">
+                        <div>
+                          <span className="text-gray-600">Material Cost</span>
+                          {materialCostItem?.description && (
+                            <p className="text-xs text-gray-500 mt-0.5">{materialCostItem.description}</p>
+                          )}
+                        </div>
+                        <span className="font-semibold text-gray-900">₹{materialCost.toFixed(2)}</span>
+                      </div>
+                    )}
+
+                    {/* Subtotal (if not showing items separately) */}
+                    {serviceCharge === 0 && materialCost === 0 && (
+                      <div className="flex justify-between items-start text-sm">
+                        <div>
+                          <span className="text-gray-600">Service Charges</span>
+                          <p className="text-xs text-gray-500 mt-0.5">(inclusive of material cost)</p>
+                        </div>
+                        <span className="font-semibold text-gray-900">₹{subtotal.toFixed(2)}</span>
+                      </div>
+                    )}
+
+                    {/* Platform Fee */}
+                    {platformFee > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Platform Fee</span>
+                        <span className="font-semibold text-gray-900">₹{platformFee.toFixed(2)}</span>
+                      </div>
+                    )}
+
+                    {/* Tax */}
+                    {taxAmount > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Tax ({invoice.taxRate || 0}%)</span>
+                        <span className="font-semibold text-gray-900">₹{taxAmount.toFixed(2)}</span>
+                      </div>
+                    )}
+
+                    {/* Total */}
+                    <div className="border-t-2 border-gray-200 pt-3">
+                      <div className="flex justify-between text-base">
+                        <span className="font-bold text-gray-900">Total Amount</span>
+                        <span className="font-bold text-sky-600 text-xl">₹{calculatedTotal.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
 
             {/* Payment Information */}
@@ -598,7 +572,7 @@ export default function InvoiceDetailPage() {
 
             {invoice.status === 'pending' && (
               <Button
-                onClick={() => router.push(`/customer/payments/checkout/${invoice.requestId}`)}
+                onClick={() => router.push(`/customer/payments/checkout/${invoice.id}`)}
                 className="bg-sky-500 hover:bg-sky-600 text-white rounded-xl"
               >
                 Pay Now

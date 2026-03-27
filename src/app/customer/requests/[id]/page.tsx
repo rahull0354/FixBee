@@ -79,12 +79,12 @@ export default function RequestDetailsPage() {
     }
   }, [id]);
 
-  // Load invoice only when payment is already completed
+  // Load invoice when service is completed (backend auto-generates invoice with "pending" status)
   useEffect(() => {
-    if (request?.paymentStatus === 'paid' && request?.id) {
+    if (request?.status === 'completed' && request?.id) {
       loadInvoice();
     }
-  }, [request?.paymentStatus, request?.id]);
+  }, [request?.status, request?.id]);
 
   // Reload reviews when page becomes visible (e.g., navigating back from reviews list)
   useEffect(() => {
@@ -187,11 +187,14 @@ export default function RequestDetailsPage() {
         status: rawRequest.status === 'requested' ? 'pending' : rawRequest.status,
         estimatedPrice: rawRequest.estimatedPrice ? parseFloat(rawRequest.estimatedPrice) : undefined,
         finalPrice: rawRequest.finalPrice && rawRequest.finalPrice !== "0.00" ? parseFloat(rawRequest.finalPrice) : undefined,
+        materialCost: rawRequest.materialCost ? parseFloat(rawRequest.materialCost) : undefined,
+        materialDescription: rawRequest.materialDescription || '',
         beforeImages: rawRequest.beforeImages || [],
         afterImages: rawRequest.afterImages || [],
         additionalNotes: rawRequest.additionalNotes || rawRequest.notes || '',
         createdAt: rawRequest.createdAt,
         updatedAt: rawRequest.updatedAt,
+        completedAt: rawRequest.completedAt,
       };
 
       setRequest(data);
@@ -541,9 +544,48 @@ export default function RequestDetailsPage() {
               )}
 
               {request.finalPrice && (
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Final Price</p>
-                  <p className="text-2xl font-bold text-emerald-600">₹{request.finalPrice}</p>
+                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl border-2 border-emerald-200 p-4">
+                  <p className="text-xs font-bold text-emerald-800 mb-3 uppercase tracking-wide">Billing Details</p>
+
+                  {/* Service Price */}
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm text-gray-600">Service Price</span>
+                    <span className="font-semibold text-gray-800">
+                      ₹{typeof request.finalPrice === 'number' ? request.finalPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : parseFloat(request.finalPrice).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                  </div>
+
+                  {/* Material Cost (if exists) */}
+                  {request.materialCost && request.materialCost > 0 && (
+                    <>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm text-gray-600">Material Cost</span>
+                        <span className="font-semibold text-gray-800">
+                          ₹{typeof request.materialCost === 'number' ? request.materialCost.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : parseFloat(request.materialCost).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
+                      </div>
+
+                      {/* Material Description */}
+                      {request.materialDescription && (
+                        <div className="bg-white rounded-lg p-2 mb-2 border border-emerald-100">
+                          <p className="text-xs text-gray-500 mb-1">Materials:</p>
+                          <p className="text-xs text-gray-700">{request.materialDescription}</p>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* Total */}
+                  <div className="flex justify-between items-center pt-3 mt-2 border-t-2 border-emerald-300">
+                    <span className="text-sm font-bold text-emerald-900">Total Amount</span>
+                    <span className="text-lg font-bold text-emerald-600">
+                      ₹{
+                        ((typeof request.finalPrice === 'number' ? request.finalPrice : parseFloat(request.finalPrice || '0')) +
+                        (typeof request.materialCost === 'number' ? (request.materialCost || 0) : parseFloat(request.materialCost || '0')))
+                        .toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                      }
+                    </span>
+                  </div>
                 </div>
               )}
             </div>
@@ -639,162 +681,6 @@ export default function RequestDetailsPage() {
                     className="w-full h-40 object-cover rounded-xl border border-sky-200"
                   />
                 ))}
-              </div>
-            </div>
-          )}
-
-          {/* Actions Section - Only for Completed Requests */}
-          {request.status === 'completed' && (
-            <div className="bg-linear-to-r from-sky-500 via-blue-500 to-indigo-600 rounded-2xl shadow-2xl p-4 sm:p-6 text-white">
-              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
-                <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl border-2 border-white/30">
-                  <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-lg sm:text-xl font-bold">Request Actions</h3>
-                  <p className="text-sky-100 text-xs">Manage your completed service</p>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                {/* Payment Actions */}
-                {request.status === 'completed' && (
-                  <>
-                    {loadingInvoice ? (
-                      <div className="flex items-center gap-3 p-4 bg-white/10 backdrop-blur-sm rounded-xl border-2 border-white/20">
-                        <Loader2 className="h-5 w-5 animate-spin text-white" />
-                        <p className="text-sm text-sky-100">Loading payment information...</p>
-                      </div>
-                    ) : request.paymentStatus === 'paid' ? (
-                      <button
-                        onClick={() => invoice && router.push(`/customer/payments/invoices/${invoice.id}`)}
-                        className="w-full flex items-center gap-4 p-4 bg-linear-to-br from-blue-400/20 to-indigo-400/20 backdrop-blur-sm rounded-xl border-2 border-blue-300/30 hover:from-blue-400/30 hover:to-indigo-400/30 hover:scale-[1.02] transition-all"
-                      >
-                        <div className="p-3 bg-blue-400/30 rounded-xl">
-                          <CheckCircle className="h-6 w-6 text-blue-200" />
-                        </div>
-                        <div className="flex-1 text-left">
-                          <p className="font-bold text-base">View Receipt</p>
-                          <p className="text-xs text-blue-100">Payment completed successfully</p>
-                        </div>
-                        <ArrowRight className="h-5 w-5 text-blue-200" />
-                      </button>
-                    ) : request.paymentStatus === 'failed' ? (
-                      <div className="w-full flex items-center gap-4 p-4 bg-red-400/10 backdrop-blur-sm rounded-xl border-2 border-red-300/20">
-                        <div className="p-3 bg-red-400/20 rounded-xl">
-                          <XCircle className="h-6 w-6 text-red-300" />
-                        </div>
-                        <div className="flex-1 text-left">
-                          <p className="font-bold text-base">Payment Failed</p>
-                          <p className="text-xs text-red-200">Please try again or contact support</p>
-                        </div>
-                      </div>
-                    ) : request.paymentStatus === 'refunded' ? (
-                      <div className="w-full flex items-center gap-4 p-4 bg-amber-400/10 backdrop-blur-sm rounded-xl border-2 border-amber-300/20">
-                        <div className="p-3 bg-amber-400/20 rounded-xl">
-                          <FileText className="h-6 w-6 text-amber-300" />
-                        </div>
-                        <div className="flex-1 text-left">
-                          <p className="font-bold text-base">Payment Refunded</p>
-                          <p className="text-xs text-amber-200">Your payment has been refunded</p>
-                        </div>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => router.push(`/customer/payments/checkout/${request?.id}`)}
-                        className="w-full flex items-center gap-4 p-4 bg-linear-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 rounded-xl border-2 border-emerald-400/30 transition-all"
-                      >
-                        <div className="p-3 bg-white/20 rounded-xl">
-                          <CreditCard className="h-6 w-6 text-white" />
-                        </div>
-                        <div className="flex-1 text-left">
-                          <p className="font-bold text-base text-white">Complete Payment</p>
-                          <p className="text-xs text-emerald-100">
-                            {request?.finalPrice || request?.estimatedPrice
-                              ? `Pay ₹${parseFloat(String(request.finalPrice || request.estimatedPrice || '0')).toFixed(2)}`
-                              : 'Complete your payment for this service'
-                            }
-                          </p>
-                        </div>
-                        <ArrowRight className="h-5 w-5 text-white" />
-                      </button>
-                    )}
-                  </>
-                )}
-
-                {/* Review Actions */}
-                {(() => {
-                  if (reviewsLoading) {
-                    return (
-                      <div className="flex items-center gap-3 p-4 bg-white/10 backdrop-blur-sm rounded-xl border-2 border-white/20">
-                        <Loader2 className="h-5 w-5 animate-spin text-white" />
-                        <p className="text-sm text-sky-100">Loading review information...</p>
-                      </div>
-                    );
-                  }
-
-                  // Find the review for this specific request
-                  const requestReview = reviews.find(review =>
-                    review.requestId === request.id || review.serviceRequestId === request.id
-                  );
-
-                  console.log('[Request Details] Found review for request:', requestReview ? requestReview.id : 'none');
-
-                  if (requestReview) {
-                    return (
-                      <Link
-                        href={`/customer/reviews/${requestReview.id}/edit`}
-                        className="block"
-                      >
-                        <div className="flex items-center gap-4 p-4 bg-white/10 backdrop-blur-sm rounded-xl border-2 border-white/20 hover:bg-white/20 hover:scale-[1.02] transition-all">
-                          <div className="p-3 bg-amber-400/20 rounded-xl">
-                            <Star className="h-6 w-6 text-amber-300 fill-amber-300" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-1">
-                              <p className="font-bold text-base">Your Review</p>
-                              <div className="flex items-center gap-1">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    className={`h-3.5 w-3.5 ${
-                                      i < requestReview.rating
-                                        ? 'fill-amber-300 text-amber-300'
-                                        : 'fill-white/30 text-white/30'
-                                    }`}
-                                  />
-                                ))}
-                              </div>
-                            </div>
-                            <p className="text-xs text-sky-100 line-clamp-1">{requestReview.comment}</p>
-                          </div>
-                          <div className="flex items-center gap-2 text-xs font-semibold text-white">
-                            View Full Details
-                            <ArrowRight className="h-4 w-4" />
-                          </div>
-                        </div>
-                      </Link>
-                    );
-                  }
-
-                  return (
-                    <Link
-                      href={`/customer/reviews/create?requestId=${request.id}`}
-                      className="block"
-                    >
-                      <div className="flex items-center gap-4 p-4 bg-linear-to-br from-amber-400/20 to-orange-400/20 backdrop-blur-sm rounded-xl border-2 border-amber-300/30 hover:from-amber-400/30 hover:to-orange-400/30 hover:scale-[1.02] transition-all">
-                        <div className="p-3 bg-amber-400/30 rounded-xl">
-                          <Star className="h-6 w-6 text-amber-200 fill-amber-200" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-bold text-base">Write a Review</p>
-                          <p className="text-xs text-amber-100">Rate your service experience</p>
-                        </div>
-                        <ArrowRight className="h-5 w-5 text-amber-200" />
-                      </div>
-                    </Link>
-                  );
-                })()}
               </div>
             </div>
           )}
@@ -1010,6 +896,167 @@ export default function RequestDetailsPage() {
               </div>
             </div>
           ) : null}
+
+          {/* Actions Section - Only for Completed Requests */}
+          {request.status === 'completed' && (
+            <div className="bg-linear-to-r from-sky-500 via-blue-500 to-indigo-600 rounded-2xl shadow-2xl p-4 sm:p-6 text-white">
+              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
+                <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl border-2 border-white/30">
+                  <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg sm:text-xl font-bold">Request Actions</h3>
+                  <p className="text-sky-100 text-xs">Manage your completed service</p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {/* Payment Actions */}
+                {request.status === 'completed' && (
+                  <>
+                    {loadingInvoice ? (
+                      <div className="flex items-center gap-3 p-4 bg-white/10 backdrop-blur-sm rounded-xl border-2 border-white/20">
+                        <Loader2 className="h-5 w-5 animate-spin text-white" />
+                        <p className="text-sm text-sky-100">Loading payment information...</p>
+                      </div>
+                    ) : request.paymentStatus === 'paid' ? (
+                      <button
+                        onClick={() => invoice && router.push(`/customer/payments/invoices/${invoice.id}`)}
+                        className="w-full flex items-center gap-4 p-4 bg-linear-to-br from-blue-400/20 to-indigo-400/20 backdrop-blur-sm rounded-xl border-2 border-blue-300/30 hover:from-blue-400/30 hover:to-indigo-400/30 hover:scale-[1.02] transition-all"
+                      >
+                        <div className="p-3 bg-blue-400/30 rounded-xl">
+                          <CheckCircle className="h-6 w-6 text-blue-200" />
+                        </div>
+                        <div className="flex-1 text-left">
+                          <p className="font-bold text-base">View Receipt</p>
+                          <p className="text-xs text-blue-100">Payment completed successfully</p>
+                        </div>
+                        <ArrowRight className="h-5 w-5 text-blue-200" />
+                      </button>
+                    ) : request.paymentStatus === 'failed' ? (
+                      <div className="w-full flex items-center gap-4 p-4 bg-red-400/10 backdrop-blur-sm rounded-xl border-2 border-red-300/20">
+                        <div className="p-3 bg-red-400/20 rounded-xl">
+                          <XCircle className="h-6 w-6 text-red-300" />
+                        </div>
+                        <div className="flex-1 text-left">
+                          <p className="font-bold text-base">Payment Failed</p>
+                          <p className="text-xs text-red-200">Please try again or contact support</p>
+                        </div>
+                      </div>
+                    ) : request.paymentStatus === 'refunded' ? (
+                      <div className="w-full flex items-center gap-4 p-4 bg-amber-400/10 backdrop-blur-sm rounded-xl border-2 border-amber-300/20">
+                        <div className="p-3 bg-amber-400/20 rounded-xl">
+                          <FileText className="h-6 w-6 text-amber-300" />
+                        </div>
+                        <div className="flex-1 text-left">
+                          <p className="font-bold text-base">Payment Refunded</p>
+                          <p className="text-xs text-amber-200">Your payment has been refunded</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => router.push(`/customer/payments/checkout/${invoice?.id || request?.id}`)}
+                        disabled={!invoice && !request}
+                        className="w-full flex items-center gap-4 p-4 bg-linear-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 rounded-xl border-2 border-emerald-400/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <div className="p-3 bg-white/20 rounded-xl">
+                          <CreditCard className="h-6 w-6 text-white" />
+                        </div>
+                        <div className="flex-1 text-left">
+                          <p className="font-bold text-base text-white">Complete Payment</p>
+                          <p className="text-xs text-emerald-100">
+                            {request?.finalPrice
+                              ? `Pay ₹${((typeof request.finalPrice === 'number' ? request.finalPrice : parseFloat(request.finalPrice || '0')) +
+                                  (typeof request.materialCost === 'number' ? (request.materialCost || 0) : parseFloat(request.materialCost || '0')))
+                                  .toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                              : request?.estimatedPrice
+                              ? `Estimated: ₹${parseFloat(String(request.estimatedPrice)).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                              : 'Complete your payment for this service'
+                            }
+                          </p>
+                        </div>
+                        <ArrowRight className="h-5 w-5 text-white" />
+                      </button>
+                    )}
+                  </>
+                )}
+
+                {/* Review Actions */}
+                {(() => {
+                  if (reviewsLoading) {
+                    return (
+                      <div className="flex items-center gap-3 p-4 bg-white/10 backdrop-blur-sm rounded-xl border-2 border-white/20">
+                        <Loader2 className="h-5 w-5 animate-spin text-white" />
+                        <p className="text-sm text-sky-100">Loading review information...</p>
+                      </div>
+                    );
+                  }
+
+                  // Find the review for this specific request
+                  const requestReview = reviews.find(review =>
+                    review.requestId === request.id || review.serviceRequestId === request.id
+                  );
+
+                  console.log('[Request Details] Found review for request:', requestReview ? requestReview.id : 'none');
+
+                  if (requestReview) {
+                    return (
+                      <Link
+                        href={`/customer/reviews/${requestReview.id}/edit`}
+                        className="block"
+                      >
+                        <div className="flex items-center gap-4 p-4 bg-white/10 backdrop-blur-sm rounded-xl border-2 border-white/20 hover:bg-white/20 hover:scale-[1.02] transition-all">
+                          <div className="p-3 bg-amber-400/20 rounded-xl">
+                            <Star className="h-6 w-6 text-amber-300 fill-amber-300" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-1">
+                              <p className="font-bold text-base">Your Review</p>
+                              <div className="flex items-center gap-1">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star
+                                    key={i}
+                                    className={`h-3.5 w-3.5 ${
+                                      i < requestReview.rating
+                                        ? 'fill-amber-300 text-amber-300'
+                                        : 'fill-white/30 text-white/30'
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                            <p className="text-xs text-sky-100 line-clamp-1">{requestReview.comment}</p>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs font-semibold text-white">
+                            View Full Details
+                            <ArrowRight className="h-4 w-4" />
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  }
+
+                  return (
+                    <Link
+                      href={`/customer/reviews/create?requestId=${request.id}`}
+                      className="block"
+                    >
+                      <div className="flex items-center gap-4 p-4 bg-linear-to-br from-amber-400/20 to-orange-400/20 backdrop-blur-sm rounded-xl border-2 border-amber-300/30 hover:from-amber-400/30 hover:to-orange-400/30 hover:scale-[1.02] transition-all">
+                        <div className="p-3 bg-amber-400/30 rounded-xl">
+                          <Star className="h-6 w-6 text-amber-200 fill-amber-200" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-bold text-base">Write a Review</p>
+                          <p className="text-xs text-amber-100">Rate your service experience</p>
+                        </div>
+                        <ArrowRight className="h-5 w-5 text-amber-200" />
+                      </div>
+                    </Link>
+                  );
+                })()}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

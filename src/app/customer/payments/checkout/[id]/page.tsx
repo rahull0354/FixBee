@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { customerApi } from '@/lib/api';
-import { ArrowLeft, Calendar, User, Briefcase, Loader2, CheckCircle2, MapPin, Clock, CreditCard, Smartphone, Building2, Lock } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Briefcase, Loader2, CheckCircle2, MapPin, Clock, CreditCard, Smartphone, Building2, Lock, Banknote } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -53,7 +53,7 @@ export default function CheckoutPage() {
       return;
     }
     if (invoiceId) {
-      loadPaymentData();
+      loadInvoice();
     }
   }, [invoiceId, isAuthenticated]);
 
@@ -272,6 +272,8 @@ export default function CheckoutPage() {
       return;
     }
 
+    // Cash payment doesn't require any validation - ready to proceed
+
     try {
       setProcessing(true);
 
@@ -317,7 +319,24 @@ export default function CheckoutPage() {
     return null;
   }
 
-  const finalPrice = invoice.totalAmount || invoice.subtotal || serviceRequest?.finalPrice || serviceRequest?.estimatedPrice || serviceRequest?.pricing?.final || invoice.amount || 0;
+  // Extract invoice amounts for display
+  const materialCost = parseFloat(invoice.materialCost || '0');
+  const platformFee = parseFloat(invoice.platformFee || '0');
+  const taxAmount = parseFloat(invoice.taxAmount || '0');
+  const totalAmount = parseFloat(invoice.totalAmount || '0');
+
+  // Get service charge from line items (what provider actually entered)
+  const serviceChargeItem = invoice.lineItems?.find((item: any) => item.itemType === 'service');
+  const serviceCharge = serviceChargeItem
+    ? parseFloat(serviceChargeItem.total)
+    : parseFloat(invoice.laborCost || invoice.subtotal || '0');
+
+  // Get material cost from line items (for description)
+  const materialCostItem = invoice.lineItems?.find((item: any) => item.itemType === 'material');
+  const materialCostDescription = materialCostItem?.description || '';
+
+  // Calculate total dynamically to handle old invoices with incorrect stored totals
+  const calculatedTotal = serviceCharge + materialCost + platformFee + taxAmount;
 
   return (
     <div className="min-h-screen bg-linear-to-br from-sky-50 via-blue-50 to-indigo-50 px-4 py-6 sm:py-8">
@@ -539,6 +558,32 @@ export default function CheckoutPage() {
                       </div>
                     )}
                   </button>
+
+                  {/* Cash Payment */}
+                  <button
+                    onClick={() => !processing && setSelectedPaymentMethod('cash')}
+                    disabled={processing}
+                    className={`w-full flex items-center gap-4 p-4 border-2 rounded-xl transition-all disabled:opacity-50 ${
+                      selectedPaymentMethod === 'cash'
+                        ? 'border-sky-500 bg-sky-50 shadow-md'
+                        : 'border-gray-200 hover:border-sky-300 hover:bg-sky-50/50'
+                    }`}
+                  >
+                    <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
+                      selectedPaymentMethod === 'cash' ? 'bg-linear-to-br from-emerald-500 to-green-500' : 'bg-gray-100'
+                    }`}>
+                      <Banknote className={`h-6 w-6 ${selectedPaymentMethod === 'cash' ? 'text-white' : 'text-gray-500'}`} />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <p className="font-bold text-gray-900">Cash Payment</p>
+                      <p className="text-sm text-gray-600">Pay directly to service provider</p>
+                    </div>
+                    {selectedPaymentMethod === 'cash' && (
+                      <div className="w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center">
+                        <CheckCircle2 className="h-5 w-5 text-white" />
+                      </div>
+                    )}
+                  </button>
                 </div>
 
                 {/* Payment Form Fields */}
@@ -724,6 +769,46 @@ export default function CheckoutPage() {
                       </div>
                     </div>
                   )}
+
+                  {/* Cash Payment Form */}
+                  {selectedPaymentMethod === 'cash' && (
+                    <div className="bg-linear-to-br from-emerald-50 to-green-50 rounded-2xl p-6 border-2 border-emerald-100 animate-in fade-in slide-in-from-top-2 duration-300">
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 bg-linear-to-br from-emerald-500 to-green-500 rounded-lg">
+                          <Banknote className="h-5 w-5 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-gray-900">Cash Payment</h3>
+                          <p className="text-sm text-gray-600">Pay directly to service provider</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="bg-white rounded-xl p-4 border border-emerald-200">
+                          <p className="text-sm font-semibold text-gray-800 mb-2">Payment Instructions:</p>
+                          <ul className="space-y-2 text-sm text-gray-700">
+                            <li className="flex items-start gap-2">
+                              <span className="text-emerald-600 mt-0.5">✓</span>
+                              <span>Keep exact cash amount ready: <strong>₹{calculatedTotal.toFixed(2)}</strong></span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-emerald-600 mt-0.5">✓</span>
+                              <span>Payment will be collected after service completion</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-emerald-600 mt-0.5">✓</span>
+                              <span>Ask for receipt after payment</span>
+                            </li>
+                          </ul>
+                        </div>
+
+                        <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
+                          <p className="text-sm font-semibold text-amber-900 mb-1">Note:</p>
+                          <p className="text-xs text-amber-800">Provider will verify payment before marking service as complete. Please ensure you have the exact amount.</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -750,24 +835,50 @@ export default function CheckoutPage() {
                   {/* Card Content */}
                   <div className="p-6">
                     <div className="space-y-4 mb-6">
+                      {/* Service Charge */}
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <p className="text-gray-700 font-medium">Service Charges</p>
-                          <p className="text-xs text-gray-500 mt-1">Final price (service + materials)</p>
+                          <p className="text-xs text-gray-500 mt-1">Professional service fee</p>
                         </div>
-                        <span className="font-bold text-gray-900 text-lg">₹{finalPrice}</span>
+                        <span className="font-bold text-gray-900 text-lg">₹{serviceCharge.toFixed(2)}</span>
                       </div>
 
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-700 font-medium">Taxes (18% GST)</span>
-                        <span className="font-semibold text-gray-900">₹{(parseFloat(finalPrice) * 0.18).toFixed(2)}</span>
-                      </div>
+                      {/* Material Cost */}
+                      {materialCost > 0 && (
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <p className="text-gray-700 font-medium">Material Cost</p>
+                            {materialCostDescription && (
+                              <p className="text-xs text-gray-500 mt-1">{materialCostDescription}</p>
+                            )}
+                          </div>
+                          <span className="font-bold text-gray-900 text-lg">₹{materialCost.toFixed(2)}</span>
+                        </div>
+                      )}
 
+                      {/* Platform Fee */}
+                      {platformFee > 0 && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-700 font-medium">Platform Fee</span>
+                          <span className="font-semibold text-gray-900">₹{platformFee.toFixed(2)}</span>
+                        </div>
+                      )}
+
+                      {/* Tax */}
+                      {taxAmount > 0 && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-700 font-medium">Tax (18% GST)</span>
+                          <span className="font-semibold text-gray-900">₹{taxAmount.toFixed(2)}</span>
+                        </div>
+                      )}
+
+                      {/* Total */}
                       <div className="border-t-2 border-gray-200 pt-4">
                         <div className="flex justify-between items-center">
                           <span className="font-bold text-gray-900 text-lg">Total Amount</span>
                           <span className="font-bold text-transparent bg-clip-text bg-linear-to-r from-sky-600 to-indigo-600 text-2xl">
-                            ₹{(parseFloat(finalPrice) * 1.18).toFixed(2)}
+                            ₹{calculatedTotal.toFixed(2)}
                           </span>
                         </div>
                       </div>
@@ -801,7 +912,7 @@ export default function CheckoutPage() {
                       ) : (
                         <>
                           <Lock className="mr-2 h-5 w-5" />
-                          Pay ₹{(parseFloat(finalPrice) * 1.18).toFixed(2)}
+                          Pay ₹{calculatedTotal.toFixed(2)}
                         </>
                       )}
                     </Button>

@@ -121,29 +121,38 @@ body {
     display: none !important;
   }
 
-  /* Only show the invoice content when printing */
-  body > *:not(.max-w-4xl) {
-    display: none !important;
+  /* Show only the invoice/payment content when printing */
+  body * {
+    visibility: hidden;
   }
 
-  /* Ensure the invoice container is visible */
-  .max-w-4xl {
-    max-width: none !important;
-    margin: 0 !important;
-    padding: 20px !important;
+  #invoice-content,
+  #invoice-content *,
+  #payment-content,
+  #payment-content * {
+    visibility: visible;
   }
 
-  #invoice-content {
+  /* Position the invoice/payment content at the top */
+  #invoice-content,
+  #payment-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
     box-shadow: none !important;
     border: 1px solid #ddd !important;
+    margin: 0 !important;
+    padding: 20px !important;
   }
 
   body {
     background: white !important;
   }
 
-  /* Hide back button and header */
-  .mb-6.sm\:mb-8 {
+  /* Hide any modal overlays */
+  [role="dialog"],
+  [role="modal"] {
     display: none !important;
   }
 }

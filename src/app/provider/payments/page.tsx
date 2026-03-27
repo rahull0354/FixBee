@@ -186,20 +186,19 @@ export default function ProviderPaymentsPage() {
     });
   };
 
-  // Calculate totals correctly
-  const calculateProviderEarning = (payment: Payment) => {
-    return parseFloat(payment.totalAmount || '0') -
-           parseFloat(payment.taxAmount || '0') -
-           parseFloat(payment.platformFee || '0');
+  // Calculate totals correctly - providerEarning is already calculated by backend
+  const getProviderEarning = (payment: Payment) => {
+    // Use providerEarning field from backend (already calculated correctly)
+    return parseFloat(payment.providerEarning || '0');
   };
 
   const totalEarnings = payments
     .filter((p) => p.status === 'paid')
-    .reduce((sum, p) => sum + calculateProviderEarning(p), 0);
+    .reduce((sum, p) => sum + getProviderEarning(p), 0);
 
   const pendingEarnings = payments
     .filter((p) => p.status === 'pending' || p.status === 'processing')
-    .reduce((sum, p) => sum + calculateProviderEarning(p), 0);
+    .reduce((sum, p) => sum + getProviderEarning(p), 0);
 
   if (loading) {
     return <LoadingSkeleton />;
@@ -396,15 +395,20 @@ export default function ProviderPaymentsPage() {
                   </div>
                 </div>
 
-                {/* Right Section - Earnings & Actions */}
+                {/* Right Section - Amount & Actions */}
                 <div className="flex sm:flex-col items-start sm:items-end gap-3 sm:gap-4">
-                  {/* Earnings */}
-                  <div className="space-y-1">
+                  {/* Amount Breakdown */}
+                  <div className="space-y-1 text-right">
                     <div className="flex items-center gap-1 text-sm sm:text-base font-bold text-gray-900">
                       <IndianRupee className="h-4 w-4 sm:h-5 sm:w-5" />
-                      <span>{calculateProviderEarning(payment).toFixed(2)}</span>
+                      <span>{getProviderEarning(payment).toFixed(2)}</span>
                     </div>
                     <p className="text-xs text-gray-500">Your Earnings</p>
+                    {(parseFloat(payment.totalAmount) || 0) > 0 && (
+                      <p className="text-xs text-gray-400 line-through">
+                        Total: ₹{parseFloat(payment.totalAmount || '0').toFixed(2)}
+                      </p>
+                    )}
                   </div>
 
                   {/* Action Button */}

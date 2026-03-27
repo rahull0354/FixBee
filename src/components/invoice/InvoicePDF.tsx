@@ -26,6 +26,8 @@ interface InvoicePDFProps {
     platformFee: string;
     status: string;
     paymentMethod?: string;
+    laborCost?: string;
+    materialCost?: string;
     lineItems?: Array<{
       id: string;
       description: string;
@@ -393,41 +395,62 @@ export const InvoicePDF = ({
 
       {/* Summary */}
       <View style={styles.summary}>
-        {/* Calculate actual line items total */}
+        {/* Calculate breakdown correctly */}
         {(() => {
-          const lineItemsTotal = invoice.lineItems?.reduce((sum: number, item: any) =>
-            sum + (parseFloat(item.total) || 0), 0) || 0;
-          const displaySubtotal = lineItemsTotal > 0 ? lineItemsTotal : (parseFloat(invoice.subTotal) || 0);
+          // Extract from line items for accurate breakdown
+          const serviceChargeItem = invoice.lineItems?.find((item: any) => item.itemType === 'service');
+          const materialCostItem = invoice.lineItems?.find((item: any) => item.itemType === 'material');
+          const platformFeeItem = invoice.lineItems?.find((item: any) => item.itemType === 'additional_charge');
+
+          // Get actual values from line items or fallback to invoice fields
+          const serviceCharge = serviceChargeItem
+            ? parseFloat(serviceChargeItem.total)
+            : parseFloat(invoice.laborCost || '0');
+          const materialCost = materialCostItem
+            ? parseFloat(materialCostItem.total)
+            : parseFloat(invoice.materialCost || '0');
+          const platformFee = platformFeeItem
+            ? parseFloat(platformFeeItem.total)
+            : parseFloat(invoice.platformFee || '0');
+
+          // Service charges include service + material cost
+          const serviceChargesTotal = serviceCharge + materialCost;
+          const taxAmount = parseFloat(invoice.taxAmount || '0');
+          const totalAmount = parseFloat(invoice.totalAmount || '0');
 
           return (
             <>
+              {/* Service Charges (Service + Material) */}
               <View style={styles.summaryRow}>
                 <Text style={styles.summaryLabel}>Service Charges</Text>
                 <Text style={styles.summaryValue}>
-                  ₹{displaySubtotal.toFixed(2)}
+                  ₹{serviceChargesTotal.toFixed(2)}
                 </Text>
               </View>
 
-              {(parseFloat(invoice.taxAmount) || 0) > 0 && (
-                <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>
-                    Tax ({invoice.taxRate || 0}%)
-                  </Text>
-                  <Text style={styles.summaryValue}>
-                    ₹{parseFloat(invoice.taxAmount).toFixed(2)}
-                  </Text>
-                </View>
-              )}
-
-              {(parseFloat(invoice.platformFee) || 0) > 0 && (
+              {/* Platform Fee */}
+              {platformFee > 0 && (
                 <View style={styles.summaryRow}>
                   <Text style={styles.summaryLabel}>Platform Fee</Text>
                   <Text style={styles.summaryValue}>
-                    ₹{parseFloat(invoice.platformFee).toFixed(2)}
+                    ₹{platformFee.toFixed(2)}
                   </Text>
                 </View>
               )}
 
+              {/* Tax (GST) */}
+              {taxAmount > 0 && (
+                <View style={styles.summaryRow}>
+                  <Text style={styles.summaryLabel}>
+                    Tax ({invoice.taxRate || 18}% GST)
+                  </Text>
+                  <Text style={styles.summaryValue}>
+                    ₹{taxAmount.toFixed(2)}
+                  </Text>
+                </View>
+              )}
+
+              {/* Discount (if any) */}
               {(parseFloat(invoice.discountAmount || '0') || 0) > 0 && (
                 <View style={styles.summaryRow}>
                   <Text style={styles.summaryLabel}>Discount</Text>
@@ -437,10 +460,11 @@ export const InvoicePDF = ({
                 </View>
               )}
 
+              {/* Total */}
               <View style={styles.totalRow}>
                 <Text style={styles.totalLabel}>Total Amount</Text>
                 <Text style={styles.totalValue}>
-                  ₹{parseFloat(invoice.totalAmount).toFixed(2)}
+                  ₹{totalAmount.toFixed(2)}
                 </Text>
               </View>
             </>

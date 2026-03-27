@@ -242,9 +242,7 @@ export default function ProviderPaymentDetailPage() {
               <div className="text-right">
                 <p className="text-xs text-emerald-100">Net Earnings</p>
                 <p className="text-2xl sm:text-3xl font-bold">
-                  ₹{(parseFloat(payment.totalAmount || '0') -
-                     parseFloat(payment.taxAmount || '0') -
-                     parseFloat(payment.platformFee || '0')).toFixed(2)}
+                  ₹{parseFloat(payment.providerEarning || '0').toFixed(2)}
                 </p>
               </div>
             </div>
@@ -373,46 +371,49 @@ export default function ProviderPaymentDetailPage() {
                   </span>
                 </div>
 
-                {/* Tax (deducted first) */}
-                {payment.taxAmount && parseFloat(payment.taxAmount) > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600 flex items-center gap-1">
-                      <Percent className="h-3 w-3" />
-                      Tax ({payment.taxRate || 0}%)
-                    </span>
-                    <span className="font-semibold text-red-600">
-                      -₹{parseFloat(payment.taxAmount).toFixed(2)}
-                    </span>
-                  </div>
-                )}
+                {/* Deductions */}
+                {(parseFloat(payment.taxAmount || '0') > 0 || parseFloat(payment.platformFee || '0') > 0) && (
+                  <div className="bg-red-50 rounded-lg p-3 border border-red-100">
+                    <p className="text-xs font-semibold text-red-800 mb-2">Deductions</p>
 
-                {/* Platform Fee (deducted from remaining) - only show if > 0 */}
-                {payment.platformFee && parseFloat(payment.platformFee) > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600 flex items-center gap-1">
-                      <Building2 className="h-3 w-3" />
-                      Platform Fee
-                    </span>
-                    <span className="font-semibold text-red-600">
-                      -₹{parseFloat(payment.platformFee).toFixed(2)}
-                    </span>
+                    {/* Tax (deducted) */}
+                    {payment.taxAmount && parseFloat(payment.taxAmount) > 0 && (
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="text-gray-600 flex items-center gap-1">
+                          <Percent className="h-3 w-3" />
+                          Tax ({payment.taxRate || 0}% GST)
+                        </span>
+                        <span className="font-semibold text-red-600">
+                          -₹{parseFloat(payment.taxAmount).toFixed(2)}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Platform Fee (deducted) */}
+                    {payment.platformFee && parseFloat(payment.platformFee) > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600 flex items-center gap-1">
+                          <Building2 className="h-3 w-3" />
+                          Platform Fee (15%)
+                        </span>
+                        <span className="font-semibold text-red-600">
+                          -₹{parseFloat(payment.platformFee).toFixed(2)}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 )}
 
                 {/* Net Earnings */}
                 <div className="border-t-2 border-emerald-200 pt-3 mt-3">
                   <div className="flex justify-between text-base">
-                    <span className="font-bold text-gray-900">Your Earnings</span>
+                    <span className="font-bold text-gray-900">Your Net Earnings</span>
                     <span className="font-bold text-emerald-600 text-xl">
-                      ₹{(parseFloat(payment.totalAmount || '0') -
-                         parseFloat(payment.taxAmount || '0') -
-                         parseFloat(payment.platformFee || '0')).toFixed(2)}
+                      ₹{parseFloat(payment.providerEarning || '0').toFixed(2)}
                     </span>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    {parseFloat(payment.platformFee || '0') > 0
-                      ? 'After deducting tax and platform fee'
-                      : 'After deducting tax only'}
+                    This amount will be credited to your account
                   </p>
                 </div>
               </div>
