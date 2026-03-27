@@ -9,7 +9,7 @@ import {
   SlidersHorizontal,
   Briefcase,
   Loader2,
-  DollarSign,
+  IndianRupee,
   ChevronRight,
   X,
 } from "lucide-react";
@@ -233,7 +233,7 @@ export default function BrowseServicesPage() {
               {/* Price Range */}
               {category.priceRange && (
                 <div className="flex items-center gap-2 mb-4">
-                  <DollarSign className="h-4 w-4 text-emerald-600" />
+                  <IndianRupee className="h-4 w-4 text-emerald-600" />
                   <span className="text-sm text-gray-700 font-medium">
                     {category.priceRange.min} - {category.priceRange.max}{" "}
                     {category.priceRange.unit}
@@ -307,7 +307,7 @@ export default function BrowseServicesPage() {
                   htmlFor="maxPrice"
                   className="text-lg font-bold text-gray-800 flex items-center gap-2"
                 >
-                  <DollarSign className="h-5 w-5 text-emerald-600" />
+                  <IndianRupee className="h-5 w-5 text-emerald-600" />
                   Maximum Price
                 </Label>
                 <span
@@ -336,21 +336,21 @@ export default function BrowseServicesPage() {
                   className="w-full h-3 bg-linear-to-r from-sky-100 via-blue-100 to-indigo-100 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-linear-to-br [&::-webkit-slider-thumb]:from-sky-400 [&::-webkit-slider-thumb]:to-blue-500 [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:transition-transform [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-linear-to-br [&::-moz-range-thumb]:from-sky-400 [&::-moz-range-thumb]:to-blue-500 [&::-moz-range-thumb]:shadow-lg [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:hover:scale-110 [&::-moz-range-thumb]:transition-transform"
                 />
                 <div className="flex justify-between text-xs text-gray-500 mt-3 font-medium">
-                  <span>$0</span>
-                  <span>$2.5K</span>
-                  <span>$5K</span>
-                  <span>$7.5K</span>
-                  <span>$10K+</span>
+                  <span>₹0</span>
+                  <span>₹2.5K</span>
+                  <span>₹5K</span>
+                  <span>₹7.5K</span>
+                  <span>₹10K+</span>
                 </div>
               </div>
 
               {/* Price Presets */}
               <div className="flex flex-wrap gap-2">
                 {[
-                  { label: "Under $500", value: 500 },
-                  { label: "$500 - $1K", value: 1000 },
-                  { label: "$1K - $2.5K", value: 2500 },
-                  { label: "$2.5K - $5K", value: 5000 },
+                  { label: "Under ₹500", value: 500 },
+                  { label: "₹500 - ₹1K", value: 1000 },
+                  { label: "₹1K - ₹2.5K", value: 2500 },
+                  { label: "₹2.5K - ₹5K", value: 5000 },
                   { label: "Any Price", value: 10000 },
                 ].map((preset) => (
                   <button
@@ -394,7 +394,7 @@ export default function BrowseServicesPage() {
                   {maxPrice < 10000 && (
                     <div className="flex items-center gap-3 bg-white rounded-xl px-4 py-3 border border-emerald-100">
                       <div className="p-2 bg-emerald-100 rounded-lg">
-                        <DollarSign className="h-4 w-4 text-emerald-600" />
+                        <IndianRupee className="h-4 w-4 text-emerald-600" />
                       </div>
                       <div className="flex-1">
                         <p className="text-xs text-gray-500 font-medium">

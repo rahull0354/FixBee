@@ -56,5 +56,5 @@ export interface UpdateReviewData {
 }
 
 export interface RespondToReviewData {
-  response: string;
+  comment: string;
 }

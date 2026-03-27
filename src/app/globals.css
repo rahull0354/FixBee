@@ -114,3 +114,54 @@ body {
 .delay-2000 {
   animation-delay: 2s;
 }
+
+/* Print and PDF Styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  /* Show only the invoice/payment content when printing */
+  body * {
+    visibility: hidden;
+  }
+
+  #invoice-content,
+  #invoice-content *,
+  #payment-content,
+  #payment-content * {
+    visibility: visible;
+  }
+
+  /* Position the invoice/payment content at the top */
+  #invoice-content,
+  #payment-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+    margin: 0 !important;
+    padding: 20px !important;
+  }
+
+  body {
+    background: white !important;
+  }
+
+  /* Hide any modal overlays */
+  [role="dialog"],
+  [role="modal"] {
+    display: none !important;
+  }
+}
+
+/* PDF generation specific styles */
+body.generating-pdf .no-print {
+  display: none !important;
+}
+
+body.generating-pdf #invoice-content {
+  box-shadow: none !important;
+}

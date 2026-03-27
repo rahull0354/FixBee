@@ -29,8 +29,8 @@ export function RegisterProviderForm() {
     setIsLoading(true);
     try {
       await registerAuth(data, 'provider');
-      router.push('/provider/profile/setup');
-      router.refresh();
+      // Redirect to login page after successful registration
+      router.push('/login/provider');
     } catch (error) {
       // Error is handled by the register function
     } finally {

@@ -65,7 +65,7 @@ export const providerApi = {
   },
 
   getRequestDetails: async (id: string): Promise<ServiceRequest> => {
-    return apiClient.get<ServiceRequest>(`/request/provider/service-request/${id}`);
+    return apiClient.get<ServiceRequest>(`/serviceRequest/provider/service-request/${id}`);
   },
 
   getCustomerById: async (customerId: string) => {
@@ -114,5 +114,67 @@ export const providerApi = {
 
   deleteNotification: async (id: string) => {
     return apiClient.delete(`/providers/notifications/${id}`);
+  },
+
+  // Payments & Earnings
+  getMyPayments: async (): Promise<Array<{
+    id: string;
+    invoiceNumber: string;
+    requestId: string;
+    totalAmount: string;
+    providerEarning: string;
+    platformFee: string;
+    status: 'pending' | 'paid' | 'processing' | 'failed';
+    invoiceDate: string;
+    paidAt?: string;
+    customer?: {
+      name: string;
+    };
+    serviceRequest?: {
+      title: string;
+      serviceType: string;
+    };
+  }>> => {
+    return apiClient.get('/invoices/provider/my-invoices');
+  },
+
+  getMyEarnings: async (): Promise<Array<{
+    id: string;
+    invoiceNumber: string;
+    requestId: string;
+    totalAmount: string;
+    providerEarning: string;
+    platformFee: string;
+    status: 'pending' | 'paid' | 'processing' | 'failed';
+    invoiceDate: string;
+    paidAt?: string;
+    customer?: {
+      name: string;
+    };
+    serviceRequest?: {
+      title: string;
+      serviceType: string;
+    };
+  }>> => {
+    return apiClient.get('/invoices/provider/my-invoices');
+  },
+
+  getPaymentById: async (paymentId: string): Promise<any> => {
+    return apiClient.get(`/invoices/${paymentId}`);
+  },
+
+  getPayoutHistory: async (): Promise<Array<{
+    id: string;
+    amount: string;
+    status: string;
+    requestedAt: string;
+    processedAt?: string;
+    transactionId?: string;
+  }>> => {
+    return apiClient.get('/invoices/provider/payouts');
+  },
+
+  requestPayout: async (amount: number) => {
+    return apiClient.post('/invoices/provider/payouts/request', { amount });
   },
 };

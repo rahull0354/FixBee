@@ -57,11 +57,22 @@ export default function MyAssignmentsPage() {
   const loadMyAssignments = async () => {
     try {
       setLoading(true);
+
+      console.log('🔄 Fetching assignments from backend...');
       const response = await providerApi.getMyAssignedRequests();
       const data = (response as any).data || response;
       const requestsArray = Array.isArray(data) ? data : [];
 
       console.log('📋 Received', requestsArray.length, 'assignments from backend');
+
+      // Log each assignment's status
+      requestsArray.forEach((req: any) => {
+        console.log(`📌 Assignment ${req.id}:`);
+        console.log(`  - Status: ${req.status}`);
+        console.log(`  - Final Price: ${req.finalPrice}`);
+        console.log(`  - Material Cost: ${req.materialCost}`);
+        console.log(`  - Material Description: ${req.materialDescription}`);
+      });
 
       // Transform backend data and fetch missing customer details
       const transformedRequests = await Promise.all(

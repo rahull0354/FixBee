@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { providerApi } from '@/lib/api';
 import { toast } from 'sonner';
@@ -16,6 +16,7 @@ interface ProviderHeaderProps {
 
 export function ProviderHeader({ user, onMenuClick }: ProviderHeaderProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const { logout } = useAuth();
   const [isAvailable, setIsAvailable] = useState(false);
   const [toggling, setToggling] = useState(false);
@@ -27,12 +28,30 @@ export function ProviderHeader({ user, onMenuClick }: ProviderHeaderProps) {
 
   const [availabilityStatus, setAvailabilityStatus] = useState<'available' | 'busy' | 'offline'>('offline');
 
+  // Check if we're on the setup page - skip loading profile there
+  const isSetupPage = pathname === '/provider/profile/setup';
+  const [profileComplete, setProfileComplete] = useState(false);
+
   useEffect(() => {
+    // Skip loading availability if on setup page
+    if (isSetupPage) {
+      return;
+    }
+
     const loadAvailability = async () => {
       try {
         // Fetch profile to get actual availability status from backend
         const response = await providerApi.getProfile();
         const data = (response as any).data || response;
+
+        // Check if profile is complete
+        const isComplete = !!(
+          data.bio &&
+          data.skills?.length >= 3 &&
+          data.baseRate > 0
+        );
+        setProfileComplete(isComplete);
+
         // Backend returns availabilityStatus as "available", "offline", or "busy"
         let status = data.availabilityStatus || 'offline';
 
@@ -55,10 +74,11 @@ export function ProviderHeader({ user, onMenuClick }: ProviderHeaderProps) {
         console.error('Error loading availability:', error);
         setIsAvailable(false);
         setAvailabilityStatus('offline');
+        setProfileComplete(false);
       }
     };
     loadAvailability();
-  }, []);
+  }, [isSetupPage]);
 
   useEffect(() => {
     if (showNotifications) {
@@ -81,6 +101,12 @@ export function ProviderHeader({ user, onMenuClick }: ProviderHeaderProps) {
   };
 
   const handleToggleAvailability = async () => {
+    // Check if profile is complete before allowing availability change
+    if (!profileComplete) {
+      toast.error('Please complete your profile setup first before changing availability');
+      return;
+    }
+
     try {
       setToggling(true);
       const newStatus = isAvailable ? 'offline' : 'available';
@@ -234,7 +260,7 @@ export function ProviderHeader({ user, onMenuClick }: ProviderHeaderProps) {
               id="availability"
               checked={isAvailable}
               onCheckedChange={handleToggleAvailability}
-              disabled={toggling || availabilityStatus === 'busy'}
+              disabled={toggling || availabilityStatus === 'busy' || !profileComplete}
             />
           </div>
 

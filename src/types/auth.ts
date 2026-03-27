@@ -43,7 +43,7 @@ export interface RegisterCustomerData {
     street: string;
     city: string;
     state: string;
-    zipCode: string;
+    pincode: string;
     country?: string;
   };
   profilePicture?: string;

@@ -112,4 +112,22 @@ export const customerApi = {
   updateNotificationPreferences: async (data: Partial<NotificationPreferences>) => {
     return apiClient.put('/customers/notifications/preferences', data);
   },
+
+  // Invoices & Payments
+  getMyInvoices: async (params?: { status?: string; page?: number; limit?: number }) => {
+    const config = params ? { params } : undefined;
+    return apiClient.get('/invoices/customer/my-invoices', config);
+  },
+
+  getInvoice: async (id: string) => {
+    return apiClient.get(`/invoices/${id}`);
+  },
+
+  getInvoiceByRequest: async (requestId: string) => {
+    return apiClient.get(`/invoices/request/${requestId}`);
+  },
+
+  payInvoice: async (id: string, data: { paymentMethod: string; paymentId?: string; transactionId?: string }) => {
+    return apiClient.post(`/invoices/${id}/pay`, data);
+  },
 };

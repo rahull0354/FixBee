@@ -13,7 +13,7 @@ import {
   PlayCircle,
   CheckCircle,
   Image as ImageIcon,
-  DollarSign,
+  IndianRupee,
   FileText,
   Sparkles,
 } from 'lucide-react';
@@ -75,6 +75,12 @@ export default function AssignmentDetailsPage() {
         }
       };
 
+      console.log('📋 Updated Request Data:', JSON.stringify(updatedRequest, null, 2));
+      console.log('💰 Pricing Details:');
+      console.log('  - Final Price:', updatedRequest.finalPrice);
+      console.log('  - Material Cost:', updatedRequest.materialCost);
+      console.log('  - Material Description:', updatedRequest.materialDescription);
+
       setRequest(updatedRequest);
 
       // Update sessionStorage with fetched customer data
@@ -114,6 +120,17 @@ export default function AssignmentDetailsPage() {
         if (requestData.estimatedPrice) {
           setFinalPrice(requestData.estimatedPrice.toString());
         }
+
+        console.log('📋 Loaded Request from Storage:', JSON.stringify(requestData, null, 2));
+        console.log('💰 Pricing Details:');
+        console.log('  - Status:', requestData.status);
+        console.log('  - Estimated Price:', requestData.estimatedPrice);
+        console.log('  - Final Price:', requestData.finalPrice);
+        console.log('  - Material Cost:', requestData.materialCost);
+        console.log('  - Material Description:', requestData.materialDescription);
+        console.log('  - pricingDetails object:', JSON.stringify(requestData.pricingDetails, null, 2));
+        console.log('  - All request keys:', Object.keys(requestData));
+        console.log('  - Complete request object:', JSON.stringify(requestData, null, 2));
       } catch (error) {
         console.error('❌ Error parsing stored request data:', error);
         setLoading(false);
@@ -184,12 +201,25 @@ export default function AssignmentDetailsPage() {
 
     try {
       setActionLoading(true);
-      await providerApi.completeService(requestId, {
+
+      const completionData = {
         afterImages: afterImages.length > 0 ? afterImages : undefined,
         finalPrice: Number(finalPrice),
         materialCost: materialCost && Number(materialCost) > 0 ? Number(materialCost) : undefined,
         materialDescription: materialCost && Number(materialCost) > 0 ? materialDescription : undefined,
-      });
+      };
+
+      console.log('📤 Sending completion data:', JSON.stringify(completionData, null, 2));
+
+      await providerApi.completeService(requestId, completionData);
+
+      console.log('✅ Service completion API call successful');
+
+      // Clear the cached sessionStorage data so next load will fetch fresh from DB
+      const storageKey = `assignment_${requestId}`;
+      sessionStorage.removeItem(storageKey);
+      console.log('🗑️ Cleared cached data - will fetch fresh from database on next visit');
+
       toast.success('Service completed successfully!');
       setShowCompleteDialog(false);
 
@@ -544,27 +574,67 @@ export default function AssignmentDetailsPage() {
           <Card className="border-emerald-100">
             <CardContent className="p-6">
               <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <DollarSign className="h-5 w-5 text-emerald-600" />
+                <IndianRupee className="h-5 w-5 text-emerald-600" />
                 Pricing
               </h2>
 
               <div className="space-y-3">
-                {request.estimatedPrice && (
+                {request.status !== 'completed' && request.estimatedPrice && (
                   <div className="flex justify-between">
                     <span className="text-gray-600">Estimated Price</span>
                     <span className="font-semibold text-gray-800">
-                      ${request.estimatedPrice.toLocaleString()}
+                      ₹{typeof request.estimatedPrice === 'number' ? request.estimatedPrice.toLocaleString() : request.estimatedPrice}
                     </span>
                   </div>
                 )}
 
-                {request.finalPrice && (
-                  <div className="flex justify-between border-t border-gray-200 pt-3">
-                    <span className="text-gray-600 font-medium">Final Price</span>
-                    <span className="font-bold text-emerald-600 text-lg">
-                      ${request.finalPrice.toLocaleString()}
-                    </span>
-                  </div>
+                {request.status === 'completed' && (
+                  <>
+                    {request.finalPrice && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Service Price</span>
+                        <span className="font-semibold text-gray-800">
+                          ₹{typeof request.finalPrice === 'number' ? request.finalPrice.toLocaleString() : request.finalPrice}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Check for material cost in multiple possible locations */}
+                    {(request.materialCost || request.pricingDetails?.materialCost) && (
+                      <>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Material Cost</span>
+                          <span className="font-semibold text-gray-800">
+                            ₹{
+                              typeof (request.materialCost || request.pricingDetails?.materialCost) === 'number'
+                                ? (request.materialCost || request.pricingDetails?.materialCost).toLocaleString()
+                                : (request.materialCost || request.pricingDetails?.materialCost)
+                            }
+                          </span>
+                        </div>
+                        {(request.materialDescription || request.pricingDetails?.materialDescription) && (
+                          <div className="bg-gray-50 rounded p-2 mt-2">
+                            <p className="text-xs text-gray-500 mb-1">Materials:</p>
+                            <p className="text-sm text-gray-700">
+                              {request.materialDescription || request.pricingDetails?.materialDescription}
+                            </p>
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    <div className="flex justify-between border-t-2 border-emerald-200 pt-3 mt-2">
+                      <span className="text-gray-800 font-semibold">Total Bill</span>
+                      <span className="font-bold text-emerald-600 text-lg">
+                        ₹{
+                          ((typeof request.finalPrice === 'number' ? request.finalPrice : parseFloat(request.finalPrice || '0')) +
+                          (typeof (request.materialCost || request.pricingDetails?.materialCost) === 'number'
+                            ? (request.materialCost || request.pricingDetails?.materialCost || 0)
+                            : parseFloat((request.materialCost || request.pricingDetails?.materialCost || '0').toString()))).toLocaleString()
+                        }
+                      </span>
+                    </div>
+                  </>
                 )}
               </div>
             </CardContent>
@@ -683,7 +753,7 @@ export default function AssignmentDetailsPage() {
               />
               {request.estimatedPrice && (
                 <p className="text-sm text-gray-500 mt-1">
-                  Estimated: ${request.estimatedPrice.toLocaleString()}
+                  Estimated: ₹{request.estimatedPrice.toLocaleString()}
                 </p>
               )}
             </div>
@@ -692,7 +762,7 @@ export default function AssignmentDetailsPage() {
             <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-3">
                 <div className="p-1 bg-teal-100 rounded">
-                  <DollarSign className="h-4 w-4 text-teal-600" />
+                  <IndianRupee className="h-4 w-4 text-teal-600" />
                 </div>
                 <div>
                   <Label className="text-sm font-semibold text-teal-900">Additional Material Cost (Optional)</Label>
@@ -737,16 +807,16 @@ export default function AssignmentDetailsPage() {
               <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-emerald-800">Service Price:</span>
-                  <span className="font-semibold text-emerald-900">${finalPrice || '0'}</span>
+                  <span className="font-semibold text-emerald-900">₹{finalPrice || '0'}</span>
                 </div>
                 <div className="flex justify-between items-center mt-1">
                   <span className="text-sm text-emerald-800">Material Cost:</span>
-                  <span className="font-semibold text-emerald-900">${materialCost}</span>
+                  <span className="font-semibold text-emerald-900">₹{materialCost}</span>
                 </div>
                 <div className="flex justify-between items-center mt-2 pt-2 border-t border-emerald-300">
                   <span className="font-semibold text-emerald-900">Total Bill:</span>
                   <span className="font-bold text-lg text-emerald-600">
-                    ${((Number(finalPrice) || 0) + (Number(materialCost) || 0)).toFixed(2)}
+                    ₹{((Number(finalPrice) || 0) + (Number(materialCost) || 0)).toFixed(2)}
                   </span>
                 </div>
               </div>

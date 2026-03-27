@@ -42,8 +42,8 @@ export const adminApi = {
     return apiClient.get<ProviderProfile>(`/author/serviceProvider/${id}`);
   },
 
-  suspendProvider: async (id: string, reason: string): Promise<ProviderProfile> => {
-    return apiClient.patch<ProviderProfile>(`/author/serviceProvider/suspend/${id}`, { reason });
+  suspendProvider: async (id: string, suspensionReason: string): Promise<ProviderProfile> => {
+    return apiClient.patch<ProviderProfile>(`/author/serviceProvider/suspend/${id}`, { suspensionReason });
   },
 
   unsuspendProvider: async (id: string): Promise<ProviderProfile> => {

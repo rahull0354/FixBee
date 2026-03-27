@@ -19,6 +19,11 @@ export interface Availability {
   endTime: string; // HH:mm format
 }
 
+export interface WorkingHours {
+  start: string; // HH:mm format
+  end: string; // HH:mm format
+}
+
 export interface ProviderProfile {
   id: string;
   userId: string;
@@ -34,6 +39,8 @@ export interface ProviderProfile {
   experience: number;
   availability: Availability[];
   serviceAreas: ServiceArea[];
+  workingHours?: WorkingHours;
+  workingDays?: string[];
   isAvailable: boolean;
   availabilityStatus?: 'available' | 'busy' | 'offline';
   rating: number;

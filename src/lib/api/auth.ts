@@ -8,6 +8,7 @@ export const authApi = {
   },
 
   customerRegister: async (data: RegisterCustomerData): Promise<AuthResponse> => {
+    console.log('📤 Sending registration data to API:', JSON.stringify(data, null, 2));
     return apiClient.post<AuthResponse>('/customers/register', data);
   },
 

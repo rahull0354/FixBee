@@ -178,9 +178,6 @@ export default function CustomerReviewsPage() {
         ),
       ]);
 
-      console.log("[Reviews] Request results:", requestResults);
-      console.log("[Reviews] Provider results:", providerResults);
-
       // Build maps from results
       const requestMap = new Map();
       const providerMap = new Map();

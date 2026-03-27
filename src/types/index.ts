@@ -5,3 +5,4 @@ export * from './reviews';
 export * from './categories';
 export * from './notifications';
 export * from './common';
+export * from './payments';

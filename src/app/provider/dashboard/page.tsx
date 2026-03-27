@@ -6,7 +6,7 @@ import {
   Briefcase,
   CheckCircle,
   Clock,
-  DollarSign,
+  IndianRupee,
   Star,
   TrendingUp,
   Calendar,
@@ -17,9 +17,6 @@ import Link from 'next/link';
 import { providerApi } from '@/lib/api';
 import { useAuth } from '@/components/auth/AuthProvider';
 import {
-  PieChart,
-  Pie,
-  Cell,
   ResponsiveContainer,
   Tooltip,
   AreaChart,
@@ -30,6 +27,10 @@ import {
   Bar,
   Legend,
 } from 'recharts';
+import Highcharts from 'highcharts';
+import HighchartsReact from 'highcharts-react-official';
+import 'highcharts/highcharts-more';
+import 'highcharts/modules/accessibility';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface DashboardStats {
@@ -62,15 +63,73 @@ export default function ProviderDashboardPage() {
     { name: 'Pending', value: 0, color: '#f59e0b' },
   ]);
 
+  // Track hidden categories for toggle functionality
+  const [hiddenServices, setHiddenServices] = useState<Set<string>>(new Set());
+  const [hiddenRatings, setHiddenRatings] = useState<Set<string>>(new Set());
+
   const [earningsData, setEarningsData] = useState<Array<{ month: string; earnings: number }>>([]);
   const [monthlyPerformance, setMonthlyPerformance] = useState<Array<{ month: string; completed: number; earnings: number }>>([]);
   const [ratingDistribution, setRatingDistribution] = useState<Array<{ rating: string; count: number; color: string }>>([]);
   const [recentServices, setRecentServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Toggle functions for legend clicks
+  const toggleServiceCategory = (categoryName: string) => {
+    setHiddenServices(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(categoryName)) {
+        newSet.delete(categoryName);
+      } else {
+        newSet.add(categoryName);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleRatingCategory = (rating: string) => {
+    setHiddenRatings(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(rating)) {
+        newSet.delete(rating);
+      } else {
+        newSet.add(rating);
+      }
+      return newSet;
+    });
+  };
+
   useEffect(() => {
-    loadDashboardData();
+    checkProfileAndLoadData();
   }, []);
+
+  const checkProfileAndLoadData = async () => {
+    try {
+      // First check if profile is complete
+      const profileResponse = await providerApi.getProfile();
+      const profileData = (profileResponse as any).data || profileResponse;
+
+      // Check if profile is incomplete
+      const isProfileIncomplete =
+        !profileData.bio ||
+        !profileData.skills ||
+        profileData.skills.length === 0 ||
+        !profileData.baseRate ||
+        profileData.baseRate === 0;
+
+      if (isProfileIncomplete) {
+        toast.info('Please complete your profile setup first');
+        router.push('/provider/profile/setup');
+        return;
+      }
+
+      // Profile is complete, load dashboard data
+      await loadDashboardData();
+    } catch (error: any) {
+      console.error('Error checking profile:', error);
+      // If profile check fails, still try to load dashboard
+      await loadDashboardData();
+    }
+  };
 
   const formatDate = (dateString: string | Date | null | undefined) => {
     if (!dateString) return "N/A";
@@ -360,11 +419,11 @@ export default function ProviderDashboardPage() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-emerald-100 text-sm font-medium mb-2">Total Earnings</p>
-            <h2 className="text-4xl font-bold mb-1">${stats.totalEarnings.toLocaleString()}</h2>
+            <h2 className="text-4xl font-bold mb-1">₹{stats.totalEarnings.toLocaleString()}</h2>
             <p className="text-emerald-100 text-sm">From all completed services</p>
           </div>
           <div className="p-4 bg-white/20 rounded-xl backdrop-blur-sm">
-            <DollarSign className="h-12 w-12" />
+            <IndianRupee className="h-12 w-12" />
           </div>
         </div>
       </div>
@@ -396,7 +455,7 @@ export default function ProviderDashboardPage() {
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value) => `$${value}`}
+                tickFormatter={(value) => `₹${value}`}
               />
               <Tooltip
                 contentStyle={{
@@ -405,7 +464,7 @@ export default function ProviderDashboardPage() {
                   borderRadius: '8px',
                   boxShadow: '0 4px 6px -1px rgb(0 0 0 0.1)',
                 }}
-                formatter={(value: any) => [`$${Number(value || 0).toLocaleString()}`, 'Earnings']}
+                formatter={(value: any) => [`₹${Number(value || 0).toLocaleString()}`, 'Earnings']}
                 labelStyle={{ color: '#6b7280' }}
               />
               <Area
@@ -459,7 +518,7 @@ export default function ProviderDashboardPage() {
                 axisLine={false}
                 yAxisId="right"
                 orientation="right"
-                tickFormatter={(value) => `$${value}`}
+                tickFormatter={(value) => `₹${value}`}
               />
               <Tooltip
                 contentStyle={{
@@ -481,7 +540,7 @@ export default function ProviderDashboardPage() {
               <Bar
                 yAxisId="right"
                 dataKey="earnings"
-                name="Earnings ($)"
+                name="Earnings (₹)"
                 fill="#10b981"
                 radius={[4, 4, 0, 0]}
               />
@@ -503,42 +562,111 @@ export default function ProviderDashboardPage() {
               <Briefcase className="h-5 w-5 text-purple-600" />
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={servicesData}
-                cx="50%"
-                cy="50%"
-                innerRadius={50}
-                outerRadius={80}
-                paddingAngle={2}
-                dataKey="value"
-              >
-                {servicesData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip
-                contentStyle={{
+          {servicesData.some(item => item.value > 0) ? (
+            <HighchartsReact
+              highcharts={Highcharts}
+              options={{
+                chart: {
+                  type: 'pie',
+                  style: {
+                    fontFamily: 'system-ui, sans-serif',
+                  },
+                  height: 280,
+                },
+                credits: { enabled: false },
+                title: {
+                  text: undefined,
+                },
+                plotOptions: {
+                  pie: {
+                    innerSize: '65%',
+                    borderRadius: 8,
+                    borderWidth: 2,
+                    borderColor: '#fff',
+                    dataLabels: {
+                      enabled: true,
+                      format: '{point.name}',
+                      distance: 30,
+                      style: {
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        color: '#6b7280',
+                        textOutline: 'none',
+                      },
+                      connectorWidth: 2,
+                      connectorPadding: 5,
+                      softConnector: true,
+                    },
+                    showInLegend: false,
+                    states: {
+                      hover: {
+                        brightness: 0.1,
+                      },
+                    },
+                  },
+                },
+                tooltip: {
                   backgroundColor: '#fff',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 6px -1px rgb(0 0 0 0.1)',
-                }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="flex flex-wrap justify-center gap-3 mt-4">
-            {servicesData.map((item) => (
-              <div key={item.name} className="flex items-center gap-1">
-                <div
-                  className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: item.color }}
-                />
-                <span className="text-xs text-gray-600">{item.name}: {item.value}</span>
-              </div>
-            ))}
-          </div>
+                  borderColor: '#e5e7eb',
+                  borderRadius: 8,
+                  shadow: {
+                    color: 'rgba(0, 0, 0, 0.1)',
+                    offsetX: 0,
+                    offsetY: 4,
+                    opacity: 0.5,
+                    width: 4,
+                  },
+                  style: {
+                    fontSize: '12px',
+                    color: '#6b7280',
+                  },
+                  pointFormat: '<span style="color:{point.color}">●</span> <b>{point.name}</b><br/><span style="font-size: 11px;">{point.y} services</span>',
+                  useHTML: true,
+                },
+                series: [{
+                  name: 'Services',
+                  colorByPoint: true,
+                  data: servicesData
+                    .filter(item => item.value > 0 && !hiddenServices.has(item.name))
+                    .map(item => ({
+                      name: item.name,
+                      y: item.value,
+                      color: item.color,
+                    })),
+                }],
+              }}
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12">
+              <Briefcase className="h-12 w-12 text-gray-300 mb-3" />
+              <p className="text-sm text-gray-500">No services yet</p>
+              <p className="text-xs text-gray-400 mt-1">Start accepting requests to see your service distribution</p>
+            </div>
+          )}
+          {servicesData.some(item => item.value > 0) && (
+            <div className="flex flex-wrap justify-center gap-3 mt-3">
+              {servicesData.filter(item => item.value > 0).map((item) => (
+                <button
+                  key={item.name}
+                  onClick={() => toggleServiceCategory(item.name)}
+                  className={`flex items-center gap-1.5 px-2 py-1 rounded-full transition-all ${
+                    hiddenServices.has(item.name)
+                      ? 'bg-gray-100 opacity-50'
+                      : 'bg-gray-50 hover:bg-gray-100'
+                  }`}
+                  style={{
+                    border: hiddenServices.has(item.name) ? '1px dashed #d1d5db' : '1px solid transparent',
+                  }}
+                >
+                  <div
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: item.color }}
+                  />
+                  <span className="text-xs font-medium text-gray-700">{item.name}: {item.value}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Rating Distribution Chart */}
@@ -552,50 +680,110 @@ export default function ProviderDashboardPage() {
               <Star className="h-5 w-5 text-yellow-600" />
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={ratingDistribution}
-                cx="50%"
-                cy="50%"
-                innerRadius={50}
-                outerRadius={80}
-                paddingAngle={2}
-                dataKey="count"
-                label
-              >
-                {ratingDistribution.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#fff',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 6px -1px rgb(0 0 0 0.1)',
-                }}
-                formatter={(value: any, name: any, props: any) => [
-                  `${Number(value || 0)} reviews`,
-                  props.payload?.rating || ''
-                ]}
-              />
-            </PieChart>
-          </ResponsiveContainer>
           {ratingDistribution.length > 0 ? (
-            <div className="flex flex-wrap justify-center gap-3 mt-4">
-              {ratingDistribution.map((item) => (
-                <div key={item.rating} className="flex items-center gap-1">
-                  <div
-                    className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: item.color }}
-                  />
-                  <span className="text-xs text-gray-600">{item.rating}: {item.count}</span>
-                </div>
-              ))}
-            </div>
+            <>
+              <HighchartsReact
+                highcharts={Highcharts}
+                options={{
+                  chart: {
+                    type: 'pie',
+                    style: {
+                      fontFamily: 'system-ui, sans-serif',
+                    },
+                    height: 280,
+                  },
+                  credits: { enabled: false },
+                  title: {
+                    text: undefined,
+                  },
+                  plotOptions: {
+                    pie: {
+                      innerSize: '65%',
+                      borderRadius: 8,
+                      borderWidth: 2,
+                      borderColor: '#fff',
+                      dataLabels: {
+                        enabled: true,
+                        format: '{point.name}',
+                        distance: 30,
+                        style: {
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          color: '#6b7280',
+                          textOutline: 'none',
+                        },
+                        connectorWidth: 2,
+                        connectorPadding: 5,
+                        softConnector: true,
+                      },
+                      showInLegend: false,
+                      states: {
+                        hover: {
+                        brightness: 0.1,
+                      },
+                    },
+                  },
+                },
+                  tooltip: {
+                    backgroundColor: '#fff',
+                    borderColor: '#e5e7eb',
+                    borderRadius: 8,
+                    shadow: {
+                      color: 'rgba(0, 0, 0, 0.1)',
+                      offsetX: 0,
+                      offsetY: 4,
+                      opacity: 0.5,
+                      width: 4,
+                    },
+                    style: {
+                      fontSize: '12px',
+                      color: '#6b7280',
+                    },
+                    pointFormat: '<span style="color:{point.color}">●</span> <b>{point.name}</b><br/><span style="font-size: 11px;">{point.y} reviews</span>',
+                    useHTML: true,
+                  },
+                  series: [{
+                    name: 'Ratings',
+                    colorByPoint: true,
+                    data: ratingDistribution
+                      .filter(item => !hiddenRatings.has(item.rating))
+                      .map(item => ({
+                        name: item.rating,
+                        y: item.count,
+                        color: item.color,
+                      })),
+                  }],
+                }}
+              />
+              <div className="flex flex-wrap justify-center gap-3 mt-3">
+                {ratingDistribution.map((item) => (
+                  <button
+                    key={item.rating}
+                    onClick={() => toggleRatingCategory(item.rating)}
+                    className={`flex items-center gap-1.5 px-2 py-1 rounded-full transition-all ${
+                      hiddenRatings.has(item.rating)
+                        ? 'bg-gray-100 opacity-50'
+                        : 'bg-gray-50 hover:bg-gray-100'
+                    }`}
+                    style={{
+                      border: hiddenRatings.has(item.rating) ? '1px dashed #d1d5db' : '1px solid transparent',
+                    }}
+                  >
+                    <div
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: item.color }}
+                    />
+                    <span className="text-xs font-medium text-gray-700">{item.rating}: {item.count}</span>
+                  </button>
+                ))}
+              </div>
+            </>
           ) : (
-            <p className="text-center text-sm text-gray-500 mt-4">No reviews yet</p>
+            <div className="flex flex-col items-center justify-center py-12">
+              <Star className="h-12 w-12 text-gray-300 mb-3" />
+              <p className="text-sm text-gray-500">No reviews yet</p>
+              <p className="text-xs text-gray-400 mt-1">Complete services to get reviews</p>
+            </div>
           )}
         </div>
 
