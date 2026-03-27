@@ -105,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Extract user data from response
       const responseObj = response as any;
-      const user = responseObj.user || responseObj.checkCustomer || responseObj.checkServiceProvider || responseObj.checkProvider || responseObj.author || responseObj.checkAuthor || responseObj;
+      const user = responseObj.user || responseObj.checkCustomer || responseObj.checkServiceProvider || responseObj.checkProvider || responseObj.checkAdmin || responseObj.author || responseObj.checkAuthor || responseObj;
       const token = responseObj.token;
 
       // Clear any existing auth data
