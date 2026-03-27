@@ -42,8 +42,9 @@ interface PaymentDetails {
   transactionId?: string;
   serviceRequest?: {
     id: string;
-    title: string;
-    serviceType: string;
+    title?: string;
+    serviceTitle?: string;
+    serviceType?: string;
     serviceDescription?: string;
     schedule?: {
       date: string;
@@ -96,21 +97,37 @@ export default function ProviderPaymentDetailPage() {
     try {
       setLoading(true);
 
-      console.log('=================================');
-      console.log('🔄 Loading Payment/Earnings Details for Provider');
-      console.log('Payment ID:', paymentId);
-      console.log('=================================');
-
       const response = await providerApi.getPaymentById(paymentId);
-      console.log('📦 Raw Payment API Response:', response);
-
       const apiData = (response as any).data || response;
-      console.log('📄 Extracted Payment Data:', JSON.stringify(apiData, null, 2));
 
       setPayment(apiData);
 
-      // Load service request details if available
-      if (apiData.serviceRequest) {
+      // Fetch full service request details separately
+      if (apiData.serviceRequest?.id) {
+        try {
+          const requestResponse = await providerApi.getRequestDetails(apiData.serviceRequest.id);
+
+          // Extract request data from various possible structures
+          let requestData = null;
+          if ((requestResponse as any).data?.request) {
+            requestData = (requestResponse as any).data.request;
+          } else if ((requestResponse as any).request) {
+            requestData = (requestResponse as any).request;
+          } else if ((requestResponse as any).data) {
+            requestData = (requestResponse as any).data;
+          } else {
+            requestData = requestResponse;
+          }
+
+          const finalRequestData = requestData?.request || requestData;
+          setServiceRequest(finalRequestData);
+        } catch (err) {
+          // If fetch fails, use the embedded serviceRequest from payment
+          if (apiData.serviceRequest) {
+            setServiceRequest(apiData.serviceRequest);
+          }
+        }
+      } else if (apiData.serviceRequest) {
         setServiceRequest(apiData.serviceRequest);
       }
 
@@ -118,10 +135,7 @@ export default function ProviderPaymentDetailPage() {
       if (apiData.customer) {
         setCustomer(apiData.customer);
       }
-
-      console.log('✅ Payment Details Loaded Successfully');
     } catch (error: any) {
-      console.error('❌ Error loading payment:', error);
       toast.error('Failed to load payment details');
       router.push('/provider/payments');
     } finally {
@@ -284,7 +298,7 @@ export default function ProviderPaymentDetailPage() {
                 <div>
                   <p className="text-xs text-gray-600 mb-1">Service Title</p>
                   <p className="font-semibold text-gray-900">
-                    {serviceRequest?.title || payment.serviceRequest?.title || 'Service Request'}
+                    {serviceRequest?.serviceTitle || serviceRequest?.title || payment.serviceRequest?.title || 'Service Request'}
                   </p>
                   <p className="text-xs text-emerald-700 mt-1 font-medium">
                     Request ID: {serviceRequest?.id || payment.serviceRequest?.id || 'N/A'}
