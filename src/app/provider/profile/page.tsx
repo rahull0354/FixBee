@@ -78,6 +78,11 @@ export default function ProviderProfilePage() {
   const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false);
   const [requestingReactivation, setRequestingReactivation] = useState(false);
 
+  // Profile photo dialog state
+  const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
+  const [photoUrl, setPhotoUrl] = useState('');
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+
   useEffect(() => {
     loadProfile();
   }, []);
@@ -183,6 +188,27 @@ export default function ProviderProfilePage() {
       toast.error(error?.response?.data?.message || 'Failed to update profile');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleUpdatePhoto = async () => {
+    if (!photoUrl.trim()) {
+      toast.error('Please enter a photo URL');
+      return;
+    }
+
+    try {
+      setUploadingPhoto(true);
+      await providerApi.updateProfile({ profilePicture: photoUrl });
+      toast.success('Profile photo updated successfully');
+      setPhotoDialogOpen(false);
+      setPhotoUrl('');
+      await loadProfile();
+    } catch (error: any) {
+      console.error('Error updating profile photo:', error);
+      toast.error(error?.response?.data?.message || 'Failed to update profile photo');
+    } finally {
+      setUploadingPhoto(false);
     }
   };
 
@@ -882,7 +908,7 @@ export default function ProviderProfilePage() {
               {/* Profile picture and basic info - Centered layout */}
               <div className="flex flex-col items-center -mt-20 mb-6">
                 {/* Profile picture with enhanced shadow and border */}
-                <div className="relative">
+                <div className="relative group cursor-pointer" onClick={() => setPhotoDialogOpen(true)}>
                   <div className="w-36 h-36 rounded-3xl bg-white shadow-2xl flex items-center justify-center border-5 border-white overflow-hidden shrink-0 ring-4 ring-emerald-400/20">
                     {profile.profilePicture ? (
                       <img
@@ -903,9 +929,13 @@ export default function ProviderProfilePage() {
                       {profile?.name?.charAt(0).toUpperCase() || 'P'}
                     </div>
                   </div>
+                  {/* Camera Icon Overlay */}
+                  <div className="absolute inset-0 bg-black/50 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <Camera className="h-10 w-10 text-white" />
+                  </div>
                   {/* Status indicator */}
                   {profile.isAvailable && (
-                    <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full border-4 border-white shadow-lg flex items-center justify-center">
+                    <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full border-4 border-white shadow-lg flex items-center justify-center z-10">
                       <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
                     </div>
                   )}
@@ -1200,6 +1230,84 @@ export default function ProviderProfilePage() {
             </Button>
           </div>
         </div>
+      </DialogContent>
+    </Dialog>
+
+    {/* Update Profile Photo Dialog */}
+    <Dialog open={photoDialogOpen} onOpenChange={setPhotoDialogOpen}>
+      <DialogContent className="bg-white">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold text-gray-900">
+            Update Profile Photo
+          </DialogTitle>
+          <DialogDescription className="text-gray-600">
+            Enter the URL for your new profile photo
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div>
+            <Label htmlFor="photoUrl">Photo URL *</Label>
+            <div className="flex gap-2 mt-1.5">
+              <Input
+                id="photoUrl"
+                type="url"
+                value={photoUrl}
+                onChange={(e) => setPhotoUrl(e.target.value)}
+                placeholder="https://example.com/photo.jpg"
+                className="border-emerald-200 focus:border-emerald-400 focus:ring-emerald-400 flex-1"
+              />
+            </div>
+            <p className="text-xs text-gray-500 mt-1.5">
+              Enter a valid image URL (e.g., from your image hosting service)
+            </p>
+          </div>
+          {/* Preview */}
+          {photoUrl && (
+            <div className="border border-emerald-200 rounded-xl p-4">
+              <p className="text-xs font-semibold text-gray-700 mb-2">Preview:</p>
+              <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100">
+                <img
+                  src={photoUrl}
+                  alt="Preview"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect fill='%23f3f4f6' width='80' height='80'/%3E%3Ctext fill='%239ca3af' font-family='sans-serif' font-size='12' dy='.3em' text-anchor='middle' x='40' y='40'%3EInvalid%3C/text%3E%3C/svg%3E";
+                  }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setPhotoDialogOpen(false);
+              setPhotoUrl('');
+            }}
+            disabled={uploadingPhoto}
+            className="border-gray-200 text-gray-700 hover:bg-gray-50"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleUpdatePhoto}
+            disabled={uploadingPhoto || !photoUrl.trim()}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white"
+          >
+            {uploadingPhoto ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Updating...
+              </>
+            ) : (
+              <>
+                <Camera className="h-4 w-4 mr-2" />
+                Update Photo
+              </>
+            )}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
     </div>
