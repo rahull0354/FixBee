@@ -1,44 +1,33 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { adminApi } from "@/lib/api/admin";
-import {
-  ArrowLeft,
-  Plus,
-  X,
-  Loader2,
-  FolderKanban,
-  DollarSign,
-  Wrench,
-  Zap,
-  FileText,
-  Percent,
-  Search,
-} from "lucide-react";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { useEffect, useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import { adminApi } from '@/lib/api/admin';
+import { ArrowLeft, Plus, X, Loader2, FolderKanban, DollarSign, Wrench, Zap, FileText, Percent, Search, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import Link from "next/link";
-import { Skeleton } from "@/components/ui/skeleton";
-import * as LucideIcons from "lucide-react";
-import { CreateCategoryData } from "@/types";
+  DialogFooter,
+} from '@/components/ui/dialog';
+import Link from 'next/link';
+import { Skeleton } from '@/components/ui/skeleton';
+import * as LucideIcons from 'lucide-react';
+import { Category, UpdateCategoryData } from '@/types';
 
 interface CommonService {
   name: string;
@@ -46,43 +35,91 @@ interface CommonService {
   duration: string;
 }
 
-export default function NewCategoryPage() {
+export default function UpdateCategoryPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const params = useParams();
+  const categoryId = params.id as string;
+
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [category, setCategory] = useState<Category | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const [formData, setFormData] = useState({
-    name: "",
-    slug: "",
-    description: "",
-    icon: "",
-    priceRangeMin: "",
-    priceRangeMax: "",
-    priceRangeUnit: "",
-    commissionType: "",
-    commissionValue: "",
-    hybridFixed: "",
-    hybridPercentage: "",
-    hybridMinCommission: "",
-    hybridMaxCommission: "",
+    name: '',
+    slug: '',
+    description: '',
+    icon: '',
+    priceRangeMin: '',
+    priceRangeMax: '',
+    priceRangeUnit: '',
+    commissionType: '',
+    commissionValue: '',
+    hybridFixed: '',
+    hybridPercentage: '',
+    hybridMinCommission: '',
+    hybridMaxCommission: '',
     requiredSkills: [] as string[],
     commonServices: [] as CommonService[],
   });
 
-  const [newSkill, setNewSkill] = useState("");
+  const [newSkill, setNewSkill] = useState('');
+
+  // Fetch category data
+  useEffect(() => {
+    const fetchCategory = async () => {
+      try {
+        setLoading(true);
+        const data = await adminApi.getCategory(categoryId);
+        setCategory(data);
+
+        // Populate form with existing data
+        setFormData({
+          name: data.name || '',
+          slug: data.slug || '',
+          description: data.description || '',
+          icon: data.icon || '',
+          priceRangeMin: data.priceRange?.min?.toString() || '',
+          priceRangeMax: data.priceRange?.max?.toString() || '',
+          priceRangeUnit: data.priceRange?.unit || '',
+          commissionType: data.adminCommission?.type === 'hybrid' ? 'tiered' : data.adminCommission?.type || '',
+          commissionValue: data.adminCommission?.fixed?.toString() || data.adminCommission?.percentage?.toString() || '',
+          hybridFixed: data.adminCommission?.fixed?.toString() || '',
+          hybridPercentage: data.adminCommission?.percentage?.toString() || '',
+          hybridMinCommission: data.adminCommission?.minCommission?.toString() || '',
+          hybridMaxCommission: data.adminCommission?.maxCommission?.toString() || '',
+          requiredSkills: data.requiredSkills || [],
+          commonServices: (data.commonServices || []).map((service: any) => ({
+            name: typeof service === 'string' ? service : service.name || '',
+            typicalPrice: typeof service === 'string' ? '' : service.typicalPrice || '',
+            duration: typeof service === 'string' ? '' : service.duration || '',
+          })),
+        });
+      } catch (error: any) {
+        console.error('Error fetching category:', error);
+        toast.error(error?.response?.data?.message || 'Failed to load category');
+        router.push('/admin/categories');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategory();
+  }, [categoryId, router]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
     // Auto-generate slug from name
-    if (name === "name") {
+    if (name === 'name') {
       const slug = value
         .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "");
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
       setFormData((prev) => ({ ...prev, slug }));
     }
   };
@@ -93,26 +130,14 @@ export default function NewCategoryPage() {
 
   // Skill handlers
   const addSkill = () => {
-    if (
-      newSkill.trim() &&
-      !formData.requiredSkills?.includes(newSkill.trim())
-    ) {
-      setFormData({
-        ...formData,
-        requiredSkills: [
-          ...(formData.requiredSkills || []),
-          newSkill.trim().toLowerCase(),
-        ],
-      });
-      setNewSkill("");
+    if (newSkill.trim() && !formData.requiredSkills?.includes(newSkill.trim())) {
+      setFormData({ ...formData, requiredSkills: [...(formData.requiredSkills || []), newSkill.trim().toLowerCase()] });
+      setNewSkill('');
     }
   };
 
   const removeSkill = (skill: string) => {
-    setFormData({
-      ...formData,
-      requiredSkills: formData.requiredSkills?.filter((s) => s !== skill) || [],
-    });
+    setFormData({ ...formData, requiredSkills: formData.requiredSkills?.filter((s) => s !== skill) || [] });
   };
 
   const addCommonService = () => {
@@ -120,20 +145,16 @@ export default function NewCategoryPage() {
       ...prev,
       commonServices: [
         ...prev.commonServices,
-        { name: "", typicalPrice: "", duration: "" },
+        { name: '', typicalPrice: '', duration: '' },
       ],
     }));
   };
 
-  const updateCommonService = (
-    index: number,
-    field: keyof CommonService,
-    value: string,
-  ) => {
+  const updateCommonService = (index: number, field: keyof CommonService, value: string) => {
     setFormData((prev) => ({
       ...prev,
       commonServices: prev.commonServices.map((service, i) =>
-        i === index ? { ...service, [field]: value } : service,
+        i === index ? { ...service, [field]: value } : service
       ),
     }));
   };
@@ -150,74 +171,55 @@ export default function NewCategoryPage() {
 
     // Validation
     if (!formData.name.trim() || !formData.slug.trim()) {
-      toast.error("Name and slug are required");
+      toast.error('Name and slug are required');
       return;
     }
 
-    if (formData.commissionType === "fixed" && !formData.commissionValue) {
-      toast.error("Please enter the fixed commission amount");
+    if (formData.commissionType === 'fixed' && !formData.commissionValue) {
+      toast.error('Please enter the fixed commission amount');
       return;
     }
 
-    if (formData.commissionType === "percentage" && !formData.commissionValue) {
-      toast.error("Please enter the commission percentage");
+    if (formData.commissionType === 'percentage' && !formData.commissionValue) {
+      toast.error('Please enter the commission percentage');
       return;
     }
 
-    if (formData.commissionType === "tiered" && (!formData.hybridFixed || !formData.hybridPercentage)) {
-      toast.error("Please enter both fixed amount and percentage for hybrid commission");
+    if (formData.commissionType === 'tiered' && (!formData.hybridFixed || !formData.hybridPercentage)) {
+      toast.error('Please enter both fixed amount and percentage for hybrid commission');
       return;
     }
 
     try {
       setSubmitting(true);
 
-      const payload: CreateCategoryData = {
+      const payload: UpdateCategoryData = {
         name: formData.name.trim(),
-        slug: formData.slug.trim(),
         description: formData.description.trim() || undefined,
         icon: formData.icon.trim() || undefined,
         priceRange:
-          formData.priceRangeMin &&
-          formData.priceRangeMax &&
-          formData.priceRangeUnit
+          formData.priceRangeMin && formData.priceRangeMax && formData.priceRangeUnit
             ? {
                 min: parseFloat(formData.priceRangeMin),
                 max: parseFloat(formData.priceRangeMax),
                 unit: formData.priceRangeUnit,
               }
             : undefined,
-        adminCommission: formData.commissionType
-          ? {
-              type: (formData.commissionType === "tiered"
-                ? "hybrid"
-                : formData.commissionType) as "fixed" | "percentage" | "hybrid",
-              ...(formData.commissionType === "fixed" && {
-                fixed: formData.commissionValue
-                  ? parseFloat(formData.commissionValue)
-                  : undefined,
-              }),
-              ...(formData.commissionType === "percentage" && {
-                percentage: formData.commissionValue
-                  ? parseFloat(formData.commissionValue)
-                  : undefined,
-              }),
-              ...(formData.commissionType === "tiered" && {
-                fixed: formData.hybridFixed
-                  ? parseFloat(formData.hybridFixed)
-                  : undefined,
-                percentage: formData.hybridPercentage
-                  ? parseFloat(formData.hybridPercentage)
-                  : undefined,
-                minCommission: formData.hybridMinCommission
-                  ? parseFloat(formData.hybridMinCommission)
-                  : undefined,
-                maxCommission: formData.hybridMaxCommission
-                  ? parseFloat(formData.hybridMaxCommission)
-                  : undefined,
-              }),
-            }
-          : undefined,
+        adminCommission: formData.commissionType ? {
+          type: (formData.commissionType === 'tiered' ? 'hybrid' : formData.commissionType) as 'fixed' | 'percentage' | 'hybrid',
+          ...(formData.commissionType === 'fixed' && {
+            fixed: formData.commissionValue ? parseFloat(formData.commissionValue) : undefined,
+          }),
+          ...(formData.commissionType === 'percentage' && {
+            percentage: formData.commissionValue ? parseFloat(formData.commissionValue) : undefined,
+          }),
+          ...(formData.commissionType === 'tiered' && {
+            fixed: formData.hybridFixed ? parseFloat(formData.hybridFixed) : undefined,
+            percentage: formData.hybridPercentage ? parseFloat(formData.hybridPercentage) : undefined,
+            minCommission: formData.hybridMinCommission ? parseFloat(formData.hybridMinCommission) : undefined,
+            maxCommission: formData.hybridMaxCommission ? parseFloat(formData.hybridMaxCommission) : undefined,
+          }),
+        } : undefined,
         requiredSkills: formData.requiredSkills || [],
         commonServices: formData.commonServices
           .filter((s) => s.name.trim())
@@ -228,18 +230,80 @@ export default function NewCategoryPage() {
           })),
       };
 
-      await adminApi.createCategory(payload);
-      toast.success("Category created successfully");
-      router.push("/admin/categories");
+      await adminApi.updateCategory(categoryId, payload);
+      toast.success('Category updated successfully');
+      router.push('/admin/categories');
     } catch (error: any) {
-      console.error("Error creating category:", error);
-      toast.error(
-        error?.response?.data?.message || "Failed to create category",
-      );
+      console.error('Error updating category:', error);
+      toast.error(error?.response?.data?.message || 'Failed to update category');
     } finally {
       setSubmitting(false);
     }
   };
+
+  const handleDelete = async () => {
+    try {
+      setDeleting(true);
+      await adminApi.deleteCategory(categoryId);
+      toast.success('Category deleted successfully');
+      router.push('/admin/categories');
+    } catch (error: any) {
+      console.error('Error deleting category:', error);
+      toast.error(error?.response?.data?.message || 'Failed to delete category');
+    } finally {
+      setDeleting(false);
+      setDeleteDialogOpen(false);
+    }
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="space-y-6 sm:space-y-8">
+        {/* Header Skeleton */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="space-y-1">
+            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-9 w-64" />
+            <Skeleton className="h-5 w-80" />
+          </div>
+        </div>
+
+        {/* Form Skeletons */}
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden">
+            <div className="px-6 py-4 border-b border-blue-100">
+              <Skeleton className="h-6 w-48" />
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // Category not found
+  if (!category) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+          <FolderKanban className="h-10 w-10 text-gray-400" />
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Category Not Found</h2>
+        <p className="text-gray-600 mb-6">The category you're looking for doesn't exist.</p>
+        <Link href="/admin/categories">
+          <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+            Back to Categories
+          </Button>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -254,11 +318,14 @@ export default function NewCategoryPage() {
             Back to Categories
           </Link>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            Create New Category
+            Update Category
           </h1>
           <p className="text-sm sm:text-base text-gray-600">
-            Add a new service category to your platform
+            Edit category details and settings
           </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Badge isActive={category.isActive} />
         </div>
       </div>
 
@@ -272,9 +339,7 @@ export default function NewCategoryPage() {
               <div className="h-10 w-10 bg-linear-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
                 <FolderKanban className="h-5 w-5 text-white" />
               </div>
-              <h2 className="text-lg font-bold text-gray-900">
-                Basic Information
-              </h2>
+              <h2 className="text-lg font-bold text-gray-900">Basic Information</h2>
             </div>
           </div>
 
@@ -284,9 +349,7 @@ export default function NewCategoryPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
               {/* Name */}
               <div className="space-y-1.5">
-                <Label htmlFor="name" className="text-gray-700 font-medium">
-                  Category Name *
-                </Label>
+                <Label htmlFor="name" className="text-gray-700 font-medium">Category Name *</Label>
                 <Input
                   id="name"
                   name="name"
@@ -300,21 +363,17 @@ export default function NewCategoryPage() {
 
               {/* Icon */}
               <div className="space-y-1.5">
-                <Label htmlFor="icon" className="text-gray-700 font-medium">
-                  Icon (Optional)
-                </Label>
+                <Label htmlFor="icon" className="text-gray-700 font-medium">Icon (Optional)</Label>
                 <IconPicker
                   value={formData.icon}
-                  onChange={(value) => handleSelectChange("icon", value)}
+                  onChange={(value) => handleSelectChange('icon', value)}
                 />
               </div>
             </div>
 
             {/* Slug */}
             <div className="space-y-1.5">
-              <Label htmlFor="slug" className="text-gray-700 font-medium">
-                Slug *
-              </Label>
+              <Label htmlFor="slug" className="text-gray-700 font-medium">Slug *</Label>
               <Input
                 id="slug"
                 name="slug"
@@ -331,12 +390,7 @@ export default function NewCategoryPage() {
 
             {/* Description */}
             <div className="space-y-1.5">
-              <Label
-                htmlFor="description"
-                className="text-gray-700 font-medium"
-              >
-                Description
-              </Label>
+              <Label htmlFor="description" className="text-gray-700 font-medium">Description</Label>
               <Textarea
                 id="description"
                 name="description"
@@ -366,12 +420,7 @@ export default function NewCategoryPage() {
           <div className="p-6">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <Label
-                  htmlFor="priceRangeMin"
-                  className="text-gray-700 font-medium"
-                >
-                  Minimum Price
-                </Label>
+                <Label htmlFor="priceRangeMin" className="text-gray-700 font-medium">Minimum Price</Label>
                 <Input
                   id="priceRangeMin"
                   name="priceRangeMin"
@@ -386,12 +435,7 @@ export default function NewCategoryPage() {
               </div>
 
               <div>
-                <Label
-                  htmlFor="priceRangeMax"
-                  className="text-gray-700 font-medium"
-                >
-                  Maximum Price
-                </Label>
+                <Label htmlFor="priceRangeMax" className="text-gray-700 font-medium">Maximum Price</Label>
                 <Input
                   id="priceRangeMax"
                   name="priceRangeMax"
@@ -406,12 +450,7 @@ export default function NewCategoryPage() {
               </div>
 
               <div>
-                <Label
-                  htmlFor="priceRangeUnit"
-                  className="text-gray-700 font-medium"
-                >
-                  Unit
-                </Label>
+                <Label htmlFor="priceRangeUnit" className="text-gray-700 font-medium">Unit</Label>
                 <Input
                   id="priceRangeUnit"
                   name="priceRangeUnit"
@@ -433,49 +472,25 @@ export default function NewCategoryPage() {
               <div className="h-10 w-10 bg-linear-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
                 <Percent className="h-5 w-5 text-white" />
               </div>
-              <h2 className="text-lg font-bold text-gray-900">
-                Commission Type
-              </h2>
+              <h2 className="text-lg font-bold text-gray-900">Commission Type</h2>
             </div>
           </div>
 
           {/* Card Body */}
           <div className="p-6 space-y-4">
             <div>
-              <Label
-                htmlFor="commissionType"
-                className="text-gray-700 font-medium"
-              >
-                Commission Calculation Type
-              </Label>
+              <Label htmlFor="commissionType" className="text-gray-700 font-medium">Commission Calculation Type</Label>
               <Select
                 value={formData.commissionType}
-                onValueChange={(value) =>
-                  handleSelectChange("commissionType", value)
-                }
+                onValueChange={(value) => handleSelectChange('commissionType', value)}
               >
                 <SelectTrigger className="w-full border-blue-200 bg-white shadow-sm hover:shadow-md transition-shadow focus:border-blue-400 focus:ring-blue-400 h-12 mt-1.5">
                   <SelectValue placeholder="Select commission type" />
                 </SelectTrigger>
                 <SelectContent className="bg-white border border-blue-200 shadow-lg">
-                  <SelectItem
-                    value="percentage"
-                    className="hover:bg-blue-50 focus:bg-blue-100 cursor-pointer"
-                  >
-                    Percentage Based
-                  </SelectItem>
-                  <SelectItem
-                    value="fixed"
-                    className="hover:bg-blue-50 focus:bg-blue-100 cursor-pointer"
-                  >
-                    Fixed Amount
-                  </SelectItem>
-                  <SelectItem
-                    value="tiered"
-                    className="hover:bg-blue-50 focus:bg-blue-100 cursor-pointer"
-                  >
-                    Tiered Commission
-                  </SelectItem>
+                  <SelectItem value="percentage" className="hover:bg-blue-50 focus:bg-blue-100 cursor-pointer">Percentage Based</SelectItem>
+                  <SelectItem value="fixed" className="hover:bg-blue-50 focus:bg-blue-100 cursor-pointer">Fixed Amount</SelectItem>
+                  <SelectItem value="tiered" className="hover:bg-blue-50 focus:bg-blue-100 cursor-pointer">Tiered Commission</SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-xs text-gray-500 mt-1.5">
@@ -484,12 +499,9 @@ export default function NewCategoryPage() {
             </div>
 
             {/* Conditional Commission Value Fields */}
-            {formData.commissionType === "percentage" && (
+            {formData.commissionType === 'percentage' && (
               <div>
-                <Label
-                  htmlFor="commissionValue"
-                  className="text-gray-700 font-medium"
-                >
+                <Label htmlFor="commissionValue" className="text-gray-700 font-medium">
                   Commission Percentage *
                 </Label>
                 <Input
@@ -511,12 +523,9 @@ export default function NewCategoryPage() {
               </div>
             )}
 
-            {formData.commissionType === "fixed" && (
+            {formData.commissionType === 'fixed' && (
               <div>
-                <Label
-                  htmlFor="commissionValue"
-                  className="text-gray-700 font-medium"
-                >
+                <Label htmlFor="commissionValue" className="text-gray-700 font-medium">
                   Fixed Commission Amount (₹) *
                 </Label>
                 <Input
@@ -537,7 +546,7 @@ export default function NewCategoryPage() {
               </div>
             )}
 
-            {formData.commissionType === "tiered" && (
+            {formData.commissionType === 'tiered' && (
               <div className="space-y-4">
                 <p className="text-sm text-gray-600 bg-blue-50 border border-blue-200 rounded-xl p-3">
                   <span className="font-semibold text-blue-900">Hybrid Commission:</span> Combines a fixed amount with a percentage of the provider rate.
@@ -633,7 +642,7 @@ export default function NewCategoryPage() {
 
                 {/* Example Calculation */}
                 {(formData.hybridFixed || formData.hybridPercentage) && (
-                  <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-4">
+                  <div className="bg-linear-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-4">
                     <p className="text-sm font-semibold text-emerald-900 mb-2">Example Calculation</p>
                     <p className="text-xs text-emerald-700">
                       If provider rate is <span className="font-semibold">₹1,000</span>:
@@ -666,9 +675,7 @@ export default function NewCategoryPage() {
               <div className="h-10 w-10 bg-linear-to-br from-violet-400 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
                 <Wrench className="h-5 w-5 text-white" />
               </div>
-              <h2 className="text-lg font-bold text-gray-900">
-                Required Skills
-              </h2>
+              <h2 className="text-lg font-bold text-gray-900">Required Skills</h2>
             </div>
           </div>
 
@@ -679,8 +686,7 @@ export default function NewCategoryPage() {
                 Skills Required for this Category
               </Label>
               <p className="text-sm text-gray-600 mb-3">
-                Add skills that providers should have to offer services in this
-                category
+                Add skills that providers should have to offer services in this category
               </p>
 
               <div className="flex gap-2 mb-4">
@@ -689,9 +695,7 @@ export default function NewCategoryPage() {
                   placeholder="Enter a skill (e.g., Plumbing)"
                   value={newSkill}
                   onChange={(e) => setNewSkill(e.target.value)}
-                  onKeyPress={(e) =>
-                    e.key === "Enter" && (e.preventDefault(), addSkill())
-                  }
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
                   className="flex-1 border-blue-200 focus:border-blue-400 focus:ring-blue-400 h-12"
                 />
                 <Button
@@ -721,9 +725,7 @@ export default function NewCategoryPage() {
                 ))}
               </div>
 
-              <p className="text-xs text-gray-500 mt-2">
-                {formData.requiredSkills?.length || 0} skills added
-              </p>
+              <p className="text-xs text-gray-500 mt-2">{formData.requiredSkills?.length || 0} skills added</p>
             </div>
           </div>
         </div>
@@ -737,9 +739,7 @@ export default function NewCategoryPage() {
                 <div className="h-10 w-10 bg-linear-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
                   <Zap className="h-5 w-5 text-white" />
                 </div>
-                <h2 className="text-lg font-bold text-gray-900">
-                  Common Services
-                </h2>
+                <h2 className="text-lg font-bold text-gray-900">Common Services</h2>
               </div>
               <Button
                 type="button"
@@ -768,10 +768,7 @@ export default function NewCategoryPage() {
             ) : (
               <div className="space-y-4">
                 {formData.commonServices.map((service, index) => (
-                  <div
-                    key={index}
-                    className="border border-blue-100 rounded-xl p-4 hover:border-blue-200 transition-colors"
-                  >
+                  <div key={index} className="border border-blue-100 rounded-xl p-4 hover:border-blue-200 transition-colors">
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-sm font-semibold text-gray-900 bg-blue-50 px-3 py-1 rounded-full">
                         Service #{index + 1}
@@ -789,33 +786,21 @@ export default function NewCategoryPage() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div>
-                        <Label className="text-gray-700 font-medium">
-                          Service Name
-                        </Label>
+                        <Label className="text-gray-700 font-medium">Service Name</Label>
                         <Input
                           value={service.name}
-                          onChange={(e) =>
-                            updateCommonService(index, "name", e.target.value)
-                          }
+                          onChange={(e) => updateCommonService(index, 'name', e.target.value)}
                           placeholder="e.g., Faucet Repair"
                           className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 mt-1.5 h-12"
                         />
                       </div>
 
                       <div>
-                        <Label className="text-gray-700 font-medium">
-                          Typical Price (₹)
-                        </Label>
+                        <Label className="text-gray-700 font-medium">Typical Price (₹)</Label>
                         <Input
                           type="number"
                           value={service.typicalPrice}
-                          onChange={(e) =>
-                            updateCommonService(
-                              index,
-                              "typicalPrice",
-                              e.target.value,
-                            )
-                          }
+                          onChange={(e) => updateCommonService(index, 'typicalPrice', e.target.value)}
                           placeholder="500"
                           min="0"
                           step="0.01"
@@ -824,18 +809,10 @@ export default function NewCategoryPage() {
                       </div>
 
                       <div>
-                        <Label className="text-gray-700 font-medium">
-                          Duration
-                        </Label>
+                        <Label className="text-gray-700 font-medium">Duration</Label>
                         <Input
                           value={service.duration}
-                          onChange={(e) =>
-                            updateCommonService(
-                              index,
-                              "duration",
-                              e.target.value,
-                            )
-                          }
+                          onChange={(e) => updateCommonService(index, 'duration', e.target.value)}
                           placeholder="e.g., 1-2 hours"
                           className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 mt-1.5 h-12"
                         />
@@ -849,33 +826,106 @@ export default function NewCategoryPage() {
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-end gap-4 bg-white rounded-2xl shadow-lg border border-blue-100 p-6">
-          <Link href="/admin/categories">
+        <div className="flex items-center justify-between gap-4 bg-white rounded-2xl shadow-lg border border-blue-100 p-6">
+          <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={submitting || deleting}
+                className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete Category
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="bg-white">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold text-gray-900">
+                  Delete Category
+                </DialogTitle>
+              </DialogHeader>
+              <div className="py-4">
+                <p className="text-gray-700">
+                  Are you sure you want to delete <span className="font-semibold">"{category.name}"</span>? This action cannot be undone.
+                </p>
+                <p className="text-sm text-gray-500 mt-2">
+                  This will permanently delete the category and all associated data.
+                </p>
+              </div>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setDeleteDialogOpen(false)}
+                  disabled={deleting}
+                  className="border-gray-200 text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  {deleting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Deleting...
+                    </>
+                  ) : (
+                    'Delete Category'
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          <div className="flex items-center gap-4">
+            <Link href="/admin/categories">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={submitting}
+                className="border-blue-200 text-blue-700 hover:bg-blue-50"
+              >
+                Cancel
+              </Button>
+            </Link>
             <Button
-              type="button"
-              variant="outline"
+              type="submit"
               disabled={submitting}
-              className="border-blue-200 text-blue-700 hover:bg-blue-50"
+              className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg shadow-blue-200"
             >
-              Cancel
+              {submitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Updating...
+                </>
+              ) : (
+                'Update Category'
+              )}
             </Button>
-          </Link>
-          <Button
-            type="submit"
-            disabled={submitting}
-            className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg shadow-blue-200"
-          >
-            {submitting ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Creating...
-              </>
-            ) : (
-              "Create Category"
-            )}
-          </Button>
+          </div>
         </div>
       </form>
+    </div>
+  );
+}
+
+// Badge Component
+function Badge({ isActive }: { isActive: boolean }) {
+  return (
+    <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-medium ${
+      isActive
+        ? 'bg-green-100 text-green-700 border border-green-200'
+        : 'bg-gray-100 text-gray-700 border border-gray-200'
+    }`}>
+      <div className={`h-2.5 w-2.5 rounded-full ${
+        isActive ? 'bg-green-500' : 'bg-gray-400'
+      }`} />
+      {isActive ? 'Active' : 'Inactive'}
     </div>
   );
 }
@@ -888,135 +938,36 @@ interface IconPickerProps {
 
 function IconPicker({ value, onChange }: IconPickerProps) {
   const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
 
   // Common icon names for service categories
   const commonIcons = [
-    "Wrench",
-    "Hammer",
-    "Drill",
-    "Screwdriver",
-    "PaintBucket",
-    "Brush",
-    "Droplet",
-    "Water",
-    "Wind",
-    "Zap",
-    "Lightbulb",
-    "Lamp",
-    "Flame",
-    "Snowflake",
-    "Fan",
-    "AirVent",
-    "Thermometer",
-    "Gauge",
-    "Home",
-    "Building",
-    "Building2",
-    "Warehouse",
-    "Store",
-    "Shop",
-    "DoorOpen",
-    "Window",
-    "Frame",
-    "Layers",
-    "Blocks",
-    "BrickWall",
-    "Tree",
-    "Flower",
-    "Flower2",
-    "Leaf",
-    "Trees",
-    "Sprout",
-    "Car",
-    "Truck",
-    "Cog",
-    "Cogs",
-    "Settings",
-    "Phone",
-    "Mail",
-    "Message",
-    "Send",
-    "Wifi",
-    "Signal",
-    "Tv",
-    "Radio",
-    "Monitor",
-    "Laptop",
-    "Smartphone",
-    "Tablet",
-    "Camera",
-    "Video",
-    "Mic",
-    "Speaker",
-    "Headphones",
-    "Bell",
-    "Book",
-    "FileText",
-    "Files",
-    "Folder",
-    "FolderOpen",
-    "FolderKanban",
-    "Calendar",
-    "Clock",
-    "Timer",
-    "AlarmClock",
-    "Watch",
-    "Hourglass",
-    "MapPin",
-    "Navigation",
-    "Compass",
-    "Globe",
-    "Earth",
-    "Map",
-    "Star",
-    "Heart",
-    "Diamond",
-    "Sparkles",
-    "Sun",
-    "Moon",
-    "Umbrella",
-    "Cloud",
-    "CloudRain",
-    "Pizza",
-    "Coffee",
-    "Cookie",
-    "Cake",
-    "Cherry",
-    "Apple",
-    "Dumbbell",
-    "Bicycle",
-    "Football",
-    "Basketball",
-    "Tennis",
-    "Golf",
-    "Stethoscope",
-    "Pill",
-    "Syringe",
-    "Activity",
-    "Scales",
-    "Shield",
-    "Lock",
-    "Key",
-    "Fingerprint",
-    "Eye",
-    "EyeOff",
-    "Trash2",
-    "Recycle",
-    "Clean",
-    "Wand",
-    "Magic",
-    "Package",
-    "Box",
-    "ShoppingCart",
-    "ShoppingBag",
-    "Tag",
-    "Labels",
+    'Wrench', 'Hammer', 'Drill', 'Screwdriver', 'PaintBucket', 'Brush',
+    'Droplet', 'Water', 'Wind', 'Zap', 'Lightbulb', 'Lamp',
+    'Flame', 'Snowflake', 'Fan', 'AirVent', 'Thermometer', 'Gauge',
+    'Home', 'Building', 'Building2', 'Warehouse', 'Store', 'Shop',
+    'DoorOpen', 'Window', 'Frame', 'Layers', 'Blocks', 'BrickWall',
+    'Tree', 'Flower', 'Flower2', 'Leaf', 'Trees', 'Sprout',
+    'Car', 'Truck', 'Cog', 'Cogs', 'Settings',
+    'Phone', 'Mail', 'Message', 'Send', 'Wifi', 'Signal',
+    'Tv', 'Radio', 'Monitor', 'Laptop', 'Smartphone', 'Tablet',
+    'Camera', 'Video', 'Mic', 'Speaker', 'Headphones', 'Bell',
+    'Book', 'FileText', 'Files', 'Folder', 'FolderOpen', 'FolderKanban',
+    'Calendar', 'Clock', 'Timer', 'AlarmClock', 'Watch', 'Hourglass',
+    'MapPin', 'Navigation', 'Compass', 'Globe', 'Earth', 'Map',
+    'Star', 'Heart', 'Diamond', 'Sparkles', 'Sun', 'Moon',
+    'Umbrella', 'Cloud', 'CloudRain',
+    'Pizza', 'Coffee', 'Cookie', 'Cake', 'Cherry', 'Apple',
+    'Dumbbell', 'Bicycle', 'Football', 'Basketball', 'Tennis', 'Golf',
+    'Stethoscope', 'Pill', 'Syringe', 'Activity', 'Scales',
+    'Shield', 'Lock', 'Key', 'Fingerprint', 'Eye', 'EyeOff',
+    'Trash2', 'Recycle', 'Clean', 'Wand', 'Magic',
+    'Package', 'Box', 'ShoppingCart', 'ShoppingBag', 'Tag', 'Labels',
   ];
 
   const filteredIcons = search
-    ? commonIcons.filter((icon) =>
-        icon.toLowerCase().includes(search.toLowerCase()),
+    ? commonIcons.filter(icon =>
+        icon.toLowerCase().includes(search.toLowerCase())
       )
     : commonIcons;
 
@@ -1075,14 +1026,13 @@ function IconPicker({ value, onChange }: IconPickerProps) {
                   onClick={() => {
                     onChange(iconName);
                     setOpen(false);
-                    setSearch("");
+                    setSearch('');
                   }}
                   className={`
                     flex items-center justify-center p-3 rounded-xl border-2 transition-all
-                    ${
-                      isSelected
-                        ? "border-blue-500 bg-blue-50 shadow-lg"
-                        : "border-gray-200 hover:border-blue-300 hover:bg-blue-50"
+                    ${isSelected
+                      ? 'border-blue-500 bg-blue-50 shadow-lg'
+                      : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
                     }
                   `}
                   title={iconName}
@@ -1095,9 +1045,7 @@ function IconPicker({ value, onChange }: IconPickerProps) {
 
           {filteredIcons.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gray-500">
-                No icons found matching "{search}"
-              </p>
+              <p className="text-gray-500">No icons found matching "{search}"</p>
             </div>
           )}
         </div>
@@ -1106,13 +1054,9 @@ function IconPicker({ value, onChange }: IconPickerProps) {
         {value && (
           <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
             <div className="flex items-center gap-3">
-              {SelectedIcon && (
-                <SelectedIcon className="h-6 w-6 text-blue-600" />
-              )}
+              {SelectedIcon && <SelectedIcon className="h-6 w-6 text-blue-600" />}
               <div>
-                <p className="text-sm font-medium text-gray-900">
-                  Selected Icon
-                </p>
+                <p className="text-sm font-medium text-gray-900">Selected Icon</p>
                 <p className="text-xs text-gray-600">{value}</p>
               </div>
             </div>

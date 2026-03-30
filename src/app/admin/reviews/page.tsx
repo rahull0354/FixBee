@@ -130,23 +130,23 @@ export default function AdminReviewsPage() {
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white rounded-2xl shadow-lg border border-purple-100 p-4 sm:p-6">
+      <div className="bg-white rounded-2xl shadow-lg border border-blue-100 p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row gap-4">
           {/* Search */}
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-purple-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
             <Input
               type="text"
               placeholder="Search reviews..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 border-purple-200 focus:border-purple-400 focus:ring-purple-400"
+              className="pl-10 border-blue-200 focus:border-blue-400 focus:ring-blue-400"
             />
           </div>
 
           {/* Status Filter */}
           <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
-            <SelectTrigger className="w-full sm:w-48 border-purple-200">
+            <SelectTrigger className="w-full sm:w-48 border-blue-200">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
@@ -165,7 +165,7 @@ export default function AdminReviewsPage() {
           {filteredReviews.map((review) => (
             <div
               key={review.id}
-              className="bg-white rounded-2xl shadow-lg border border-purple-100 p-4 sm:p-6 hover:shadow-xl transition-shadow"
+              className="bg-white rounded-2xl shadow-lg border border-blue-100 p-4 sm:p-6 hover:shadow-xl transition-shadow"
             >
               <div className="flex flex-col gap-4">
                 {/* Header */}
@@ -273,8 +273,8 @@ function EmptyState({
 }) {
   return (
     <div className="text-center py-12 sm:py-16">
-      <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-purple-100 rounded-full mb-4 sm:mb-6">
-        <MessageSquare className="h-8 w-8 sm:h-10 sm:w-10 text-purple-500" />
+      <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-blue-100 rounded-full mb-4 sm:mb-6">
+        <MessageSquare className="h-8 w-8 sm:h-10 sm:w-10 text-blue-500" />
       </div>
       <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">
         {searchQuery || statusFilter !== 'all' ? 'No reviews found' : 'No reviews yet'}
