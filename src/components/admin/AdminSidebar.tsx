@@ -111,15 +111,15 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
 
       {/* Desktop sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:w-72 lg:block">
-        <div className="flex h-full flex-col bg-white/80 backdrop-blur-xl shadow-xl border-r border-rose-100">
+        <div className="flex h-full flex-col bg-white/80 backdrop-blur-xl shadow-xl border-r border-blue-100">
           {/* Logo */}
-          <div className="flex items-center px-6 py-6 border-b border-rose-100">
+          <div className="flex items-center px-6 py-6 border-b border-blue-100">
             <Link href="/admin/dashboard" className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-linear-to-br from-rose-400 via-red-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
                 <Shield className="h-5 w-5 text-white" />
               </div>
               <div>
-                <span className="text-xl font-bold bg-linear-to-r from-rose-500 via-red-500 to-pink-500 bg-clip-text text-transparent">
+                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 bg-clip-text text-transparent">
                   FixBee
                 </span>
                 <p className="text-xs text-gray-500">Admin Panel</p>
@@ -137,8 +137,8 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
                   href={item.href}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                     isActive
-                      ? 'bg-linear-to-r from-rose-500 via-red-500 to-pink-500 text-white shadow-lg'
-                      : 'text-gray-700 hover:bg-rose-50 hover:text-rose-600'
+                      ? 'bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 text-white shadow-lg'
+                      : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
                   }`}
                 >
                   <item.icon className={`h-5 w-5 ${isActive ? 'text-white' : ''}`} />
@@ -149,9 +149,9 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           </nav>
 
           {/* User info */}
-          <div className="border-t border-rose-100 p-4">
-            <div className="flex items-center gap-3 px-4 py-3 bg-rose-50 rounded-xl">
-              <div className="w-10 h-10 bg-linear-to-br from-rose-400 to-red-500 rounded-full flex items-center justify-center text-white font-semibold shadow-md">
+          <div className="border-t border-blue-100 p-4">
+            <div className="flex items-center gap-3 px-4 py-3 bg-blue-50 rounded-xl">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold shadow-md">
                 {getInitials(user?.name)}
               </div>
               <div className="flex-1 min-w-0">

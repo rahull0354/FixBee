@@ -109,17 +109,17 @@ export default function AdminCustomersPage() {
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white rounded-2xl shadow-lg border border-purple-100 p-4 sm:p-6">
+      <div className="bg-white rounded-2xl shadow-lg border border-blue-100 p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row gap-4">
           {/* Search */}
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-purple-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
             <Input
               type="text"
               placeholder="Search by name, email, or phone..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 border-purple-200 focus:border-purple-400 focus:ring-purple-400"
+              className="pl-10 border-blue-200 focus:border-blue-400 focus:ring-blue-400"
             />
           </div>
 
@@ -127,7 +127,7 @@ export default function AdminCustomersPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as any)}
-            className="px-4 py-2 border border-purple-200 rounded-xl focus:outline-none focus:border-purple-400 focus:ring-purple-400 bg-white"
+            className="px-4 py-2 border border-blue-200 rounded-xl focus:outline-none focus:border-blue-400 focus:ring-blue-400 bg-white"
           >
             <option value="all">All Customers</option>
             <option value="active">Active</option>
@@ -142,7 +142,7 @@ export default function AdminCustomersPage() {
           {filteredCustomers.map((customer) => (
             <div
               key={customer.id}
-              className="bg-white rounded-2xl shadow-lg border border-purple-100 p-4 sm:p-6 hover:shadow-xl transition-shadow"
+              className="bg-white rounded-2xl shadow-lg border border-blue-100 p-4 sm:p-6 hover:shadow-xl transition-shadow"
             >
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 {/* Left Section */}
@@ -167,21 +167,21 @@ export default function AdminCustomersPage() {
 
                   {/* Email */}
                   <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Mail className="h-4 w-4 text-purple-500" />
+                    <Mail className="h-4 w-4 text-blue-500" />
                     <span>{customer.email}</span>
                   </div>
 
                   {/* Phone */}
                   {customer.phone && (
                     <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Phone className="h-4 w-4 text-purple-500" />
+                      <Phone className="h-4 w-4 text-blue-500" />
                       <span>{customer.phone}</span>
                     </div>
                   )}
 
                   {/* Address */}
                   <div className="flex items-start gap-2 text-sm text-gray-600">
-                    <MapPin className="h-4 w-4 text-purple-500 mt-0.5 shrink-0" />
+                    <MapPin className="h-4 w-4 text-blue-500 mt-0.5 shrink-0" />
                     <span className="line-clamp-1">{formatAddress(customer.address)}</span>
                   </div>
 
@@ -200,7 +200,7 @@ export default function AdminCustomersPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => router.push(`/admin/customers/${customer.id}`)}
-                    className="border-purple-200 text-purple-700 hover:bg-purple-50"
+                    className="border-blue-200 text-blue-700 hover:bg-blue-50"
                   >
                     <Eye className="h-4 w-4 mr-1" />
                     View Details
@@ -226,8 +226,8 @@ function EmptyState({
 }) {
   return (
     <div className="text-center py-12 sm:py-16">
-      <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-purple-100 rounded-full mb-4 sm:mb-6">
-        <Mail className="h-8 w-8 sm:h-10 sm:w-10 text-purple-500" />
+      <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-blue-100 rounded-full mb-4 sm:mb-6">
+        <Mail className="h-8 w-8 sm:h-10 sm:w-10 text-blue-500" />
       </div>
       <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">
         {searchQuery || statusFilter !== 'all' ? 'No customers found' : 'No customers yet'}

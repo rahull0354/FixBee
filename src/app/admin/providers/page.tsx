@@ -149,23 +149,23 @@ export default function AdminProvidersPage() {
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white rounded-2xl shadow-lg border border-purple-100 p-4 sm:p-6">
+      <div className="bg-white rounded-2xl shadow-lg border border-blue-100 p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row gap-4">
           {/* Search */}
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-purple-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
             <Input
               type="text"
               placeholder="Search by name, email, or phone..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 border-purple-200 focus:border-purple-400 focus:ring-purple-400"
+              className="pl-10 border-blue-200 focus:border-blue-400 focus:ring-blue-400"
             />
           </div>
 
           {/* Status Filter */}
           <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
-            <SelectTrigger className="w-full sm:w-48 border-purple-200">
+            <SelectTrigger className="w-full sm:w-48 border-blue-200">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
@@ -183,7 +183,7 @@ export default function AdminProvidersPage() {
           {filteredProviders.map((provider) => (
             <div
               key={provider.id}
-              className="bg-white rounded-2xl shadow-lg border border-purple-100 p-4 sm:p-6 hover:shadow-xl transition-shadow"
+              className="bg-white rounded-2xl shadow-lg border border-blue-100 p-4 sm:p-6 hover:shadow-xl transition-shadow"
             >
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 {/* Left Section */}
@@ -233,7 +233,7 @@ export default function AdminProvidersPage() {
                       {provider.skills.slice(0, 5).map((skill, index) => (
                         <span
                           key={index}
-                          className="px-2 py-1 bg-purple-50 text-purple-700 rounded-md text-xs"
+                          className="px-2 py-1 bg-blue-50 text-blue-700 rounded-md text-xs"
                         >
                           {skill}
                         </span>
@@ -263,7 +263,7 @@ export default function AdminProvidersPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => router.push(`/admin/providers/${provider.id}`)}
-                      className="border-purple-200 text-purple-700 hover:bg-purple-50"
+                      className="border-blue-200 text-blue-700 hover:bg-blue-50"
                     >
                       <Eye className="h-4 w-4 mr-1" />
                       View Details
@@ -322,7 +322,7 @@ export default function AdminProvidersPage() {
                 onChange={(e) => setSuspensionReason(e.target.value)}
                 placeholder="e.g., Violation of service terms, multiple customer complaints, etc."
                 rows={3}
-                className="border-purple-200 focus:border-purple-400 focus:ring-purple-400"
+                className="border-blue-200 focus:border-blue-400 focus:ring-blue-400"
               />
             </div>
           </div>
@@ -368,8 +368,8 @@ function EmptyState({
 }) {
   return (
     <div className="text-center py-12 sm:py-16">
-      <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-purple-100 rounded-full mb-4 sm:mb-6">
-        <Shield className="h-8 w-8 sm:h-10 sm:w-10 text-purple-500" />
+      <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-blue-100 rounded-full mb-4 sm:mb-6">
+        <Shield className="h-8 w-8 sm:h-10 sm:w-10 text-blue-500" />
       </div>
       <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">
         {searchQuery || statusFilter !== 'all' ? 'No providers found' : 'No providers yet'}

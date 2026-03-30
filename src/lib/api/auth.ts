@@ -34,6 +34,10 @@ export const authApi = {
     return apiClient.post<AuthResponse>('/author/login', credentials);
   },
 
+  adminRegister: async (data: { name: string; email: string; password: string }): Promise<AuthResponse> => {
+    return apiClient.post<AuthResponse>('/author/register', data);
+  },
+
   adminLogout: async (): Promise<void> => {
     return apiClient.post('/author/logout');
   },

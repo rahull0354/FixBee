@@ -7,6 +7,18 @@ export const adminApi = {
     return apiClient.get('/author/dashboard');
   },
 
+  getServiceDistribution: async () => {
+    return apiClient.get('/author/service-distribution');
+  },
+
+  getRevenueDistribution: async () => {
+    return apiClient.get('/author/revenue-distribution');
+  },
+
+  getServiceEarnings: async (requestId: string) => {
+    return apiClient.get(`/author/service-earnings/${requestId}`);
+  },
+
   // Categories
   getCategories: async (): Promise<Category[]> => {
     return apiClient.get<Category[]>('/author/categories');
@@ -14,6 +26,10 @@ export const adminApi = {
 
   getCategory: async (id: string): Promise<Category> => {
     return apiClient.get<Category>(`/author/category/${id}`);
+  },
+
+  getCategoryBySlug: async (slug: string): Promise<Category> => {
+    return apiClient.get<Category>(`/author/category/slug/${slug}`);
   },
 
   createCategory: async (data: CreateCategoryData): Promise<Category> => {
@@ -58,6 +74,11 @@ export const adminApi = {
 
   getCustomer: async (id: string) => {
     return apiClient.get(`/author/customer/${id}`);
+  },
+
+  // Profile
+  getProfile: async () => {
+    return apiClient.get('/author/profile');
   },
 
   // Reviews
