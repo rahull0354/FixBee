@@ -633,7 +633,7 @@ export default function NewCategoryPage() {
 
                 {/* Example Calculation */}
                 {(formData.hybridFixed || formData.hybridPercentage) && (
-                  <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-4">
+                  <div className="bg-linear-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-4">
                     <p className="text-sm font-semibold text-emerald-900 mb-2">Example Calculation</p>
                     <p className="text-xs text-emerald-700">
                       If provider rate is <span className="font-semibold">₹1,000</span>:
