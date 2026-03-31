@@ -49,6 +49,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               token: null,
               isAuthenticated: true,
             });
+
+            // Check and store suspension status for providers
+            if (user.role === 'provider') {
+              const isSuspended = !user.isActive || user.isSuspended;
+              if (isSuspended) {
+                document.cookie = `is_suspended=true; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+              } else {
+                document.cookie = 'is_suspended=; path=/; max-age=0';
+              }
+            }
           } else {
             // Clear temp user from localStorage
             localStorage.removeItem('fixbee_user');
@@ -123,6 +133,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         // Set user_role cookie for middleware (7 days)
         document.cookie = `user_role=${role}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+
+        // Set is_suspended cookie for providers if user is suspended
+        if (role === 'provider' && (user.isSuspended || user.isActive === false)) {
+          document.cookie = `is_suspended=true; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+        } else {
+          // Clear suspension cookie if not suspended
+          document.cookie = 'is_suspended=; path=/; max-age=0';
+        }
 
         // Store user info in localStorage
         localStorage.setItem('fixbee_user', JSON.stringify({ ...user, role }));

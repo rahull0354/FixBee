@@ -101,7 +101,6 @@ export default function AdminCategoriesPage() {
         : (response as any).data || [];
       setCategories(apiData);
     } catch (error: any) {
-      console.error("Error loading categories:", error);
       toast.error("Failed to load categories");
     } finally {
       setLoading(false);
@@ -137,7 +136,6 @@ export default function AdminCategoriesPage() {
       );
       loadCategories();
     } catch (error: any) {
-      console.error("Error toggling category status:", error);
       toast.error("Failed to toggle category status");
     } finally {
       setProcessing(false);
@@ -155,7 +153,6 @@ export default function AdminCategoriesPage() {
       setCategoryToDelete(null);
       loadCategories();
     } catch (error: any) {
-      console.error("Error deleting category:", error);
       toast.error(
         error?.response?.data?.message || "Failed to delete category",
       );

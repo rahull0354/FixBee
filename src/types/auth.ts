@@ -9,6 +9,8 @@ export interface User {
   profilePicture?: string;
   isVerified?: boolean;
   isActive?: boolean;
+  isSuspended?: boolean;
+  suspensionReason?: string;
   address?: {
     street?: string;
     city?: string;

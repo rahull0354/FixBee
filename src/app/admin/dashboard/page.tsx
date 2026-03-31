@@ -257,14 +257,11 @@ export default function AdminDashboardPage() {
         try {
           const revDistResponse = await adminApi.getRevenueDistribution();
           const revDistData = (revDistResponse as any).data || revDistResponse;
-          console.log('Revenue Distribution API Response:', revDistData);
           if (isMounted) setRevenueDistribution(revDistData);
         } catch (e) {
-          console.error('Error loading revenue distribution:', e);
           if (isMounted) setRevenueDistribution(null);
         }
       } catch (error: any) {
-        console.error('Error loading dashboard:', error);
         toast.error('Failed to load dashboard');
       } finally {
         if (isMounted) setLoading(false);

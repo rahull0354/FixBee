@@ -14,6 +14,9 @@ import {
   ChevronDown,
   Loader2,
   Eye,
+  EyeOff,
+  Flag,
+  AlertTriangle,
   Award,
   ThumbsUp,
   AlertCircle,
@@ -497,6 +500,29 @@ export default function ProviderReviewsPage() {
                         </div>
                       </Badge>
 
+                      {/* Admin Status Badges */}
+                      {(!review.isVisible || review.isFlagged) && (
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                          {!review.isVisible && (
+                            <div className="flex items-center gap-1 bg-amber-50 px-2 sm:px-2.5 py-1 rounded-lg border-2 border-amber-300">
+                              <EyeOff className="h-3 w-3 text-amber-600" />
+                              <span className="text-[10px] sm:text-xs font-semibold text-amber-800">
+                                Hidden by Admin
+                              </span>
+                            </div>
+                          )}
+                          {review.isFlagged && (
+                            <div className="flex items-center gap-1 bg-red-50 px-2 sm:px-2.5 py-1 rounded-lg border-2 border-red-300">
+                              <Flag className="h-3 w-3 text-red-600" />
+                              <span className="text-[10px] sm:text-xs font-semibold text-red-800">
+                                Flagged
+                                {review.flagReason && `: ${review.flagReason.substring(0, 20)}...`}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                       <Button
                         variant="outline"
                         size="sm"
@@ -596,7 +622,10 @@ export default function ProviderReviewsPage() {
                     </div>
                     <Button
                       onClick={() => handleRespond(review)}
-                      className="gap-1.5 sm:gap-2 bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg w-full sm:w-auto text-sm sm:text-base"
+                      disabled={review.isFlagged}
+                      className={`gap-1.5 sm:gap-2 bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg w-full sm:w-auto text-sm sm:text-base ${
+                        review.isFlagged ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
                     >
                       <Reply className="h-4 w-4" />
                       {review.providerResponse && (

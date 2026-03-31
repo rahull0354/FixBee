@@ -69,39 +69,61 @@ export default function AdminProvidersPage() {
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
   const [suspensionReason, setSuspensionReason] = useState("");
   const [processing, setProcessing] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(12);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     loadProviders();
-  }, []);
+  }, [currentPage, itemsPerPage]);
 
   const loadProviders = async () => {
     try {
       setLoading(true);
-      const response = await adminApi.getProviders();
+      const params: any = {
+        page: currentPage,
+        limit: itemsPerPage,
+      };
+
+      // Add search and status parameters
+      if (searchQuery) {
+        params.search = searchQuery;
+      }
+      if (statusFilter === "active") {
+        params.status = "active";
+      } else if (statusFilter === "suspended") {
+        params.status = "suspended";
+      }
+
+      const response = await adminApi.getProviders(params);
       const apiData = (response as any).data || response;
-      const providersArray = Array.isArray(apiData) ? apiData : apiData.providers || [];
+      const providersArray = Array.isArray(apiData) ? apiData : apiData.providers || apiData.data || [];
+
       setProviders(providersArray);
+
+      // Set pagination info from response
+      const total = apiData.total || apiData.totalProviders || providersArray.length;
+      setTotalItems(total);
+      setTotalPages(Math.ceil(total / itemsPerPage));
     } catch (error: any) {
-      console.error("Error loading providers:", error);
       toast.error("Failed to load providers");
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredProviders = providers.filter((provider) => {
-    const matchesSearch =
-      searchQuery === "" ||
-      provider.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      provider.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      provider.phone?.includes(searchQuery);
+  // Reset to page 1 when search or filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+    loadProviders();
+  }, [searchQuery, statusFilter]);
 
-    const matchesStatus =
-      statusFilter === "all" ||
+  // Filter providers locally by status (in case backend doesn't support it)
+  const filteredProviders = providers.filter((provider) => {
+    return statusFilter === "all" ||
       (statusFilter === "active" && provider.isActive && !provider.isSuspended) ||
       (statusFilter === "suspended" && provider.isSuspended);
-
-    return matchesSearch && matchesStatus;
   });
 
   const handleSuspend = async () => {
@@ -119,7 +141,6 @@ export default function AdminProvidersPage() {
       setSuspensionReason("");
       loadProviders();
     } catch (error: any) {
-      console.error("Error suspending provider:", error);
       toast.error(error?.response?.data?.message || "Failed to suspend provider");
     } finally {
       setProcessing(false);
@@ -133,7 +154,6 @@ export default function AdminProvidersPage() {
       toast.success("Provider unsuspended successfully");
       loadProviders();
     } catch (error: any) {
-      console.error("Error unsuspending provider:", error);
       toast.error(error?.response?.data?.message || "Failed to unsuspend provider");
     } finally {
       setProcessing(false);
@@ -173,13 +193,13 @@ export default function AdminProvidersPage() {
           </div>
 
           <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
-            <SelectTrigger className="w-full sm:w-48 border-blue-200">
+            <SelectTrigger className="w-full sm:w-48 border-blue-200 bg-white shadow-sm hover:shadow-md transition-shadow focus:border-blue-400 focus:ring-blue-400">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Providers</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="suspended">Suspended</SelectItem>
+            <SelectContent className="bg-white border border-blue-200 shadow-lg">
+              <SelectItem value="all" className="hover:bg-blue-50 focus:bg-blue-100 cursor-pointer">All Providers</SelectItem>
+              <SelectItem value="active" className="hover:bg-blue-50 focus:bg-blue-100 cursor-pointer">Active</SelectItem>
+              <SelectItem value="suspended" className="hover:bg-blue-50 focus:bg-blue-100 cursor-pointer">Suspended</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -187,21 +207,113 @@ export default function AdminProvidersPage() {
 
       {/* Providers Grid */}
       {filteredProviders.length > 0 ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredProviders.map((provider) => (
-            <ProviderCard
-              key={provider.id}
-              provider={provider}
-              onViewDetails={() => router.push(`/admin/providers/${provider.id}`)}
-              onSuspend={() => {
-                setSelectedProvider(provider);
-                setSuspendDialogOpen(true);
-              }}
-              onUnsuspend={() => handleUnsuspend(provider)}
-              processing={processing}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {filteredProviders.map((provider) => (
+              <ProviderCard
+                key={provider.id}
+                provider={provider}
+                onViewDetails={() => router.push(`/admin/providers/${provider.id}`)}
+                onSuspend={() => {
+                  setSelectedProvider(provider);
+                  setSuspendDialogOpen(true);
+                }}
+                onUnsuspend={() => handleUnsuspend(provider)}
+                processing={processing}
+              />
+            ))}
+          </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-2xl shadow-lg border border-blue-100 p-4">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <span>Showing</span>
+                <span className="font-semibold text-gray-900">
+                  {Math.min((currentPage - 1) * itemsPerPage + 1, totalItems)}
+                </span>
+                <span>to</span>
+                <span className="font-semibold text-gray-900">
+                  {Math.min(currentPage * itemsPerPage, totalItems)}
+                </span>
+                <span>of</span>
+                <span className="font-semibold text-gray-900">{totalItems}</span>
+                <span>providers</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                >
+                  Previous
+                </Button>
+
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={
+                          currentPage === pageNum
+                            ? "bg-blue-600 text-white hover:bg-blue-700"
+                            : "border-blue-200 text-blue-700 hover:bg-blue-50"
+                        }
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                >
+                  Next
+                </Button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">Show</span>
+                <select
+                  value={itemsPerPage}
+                  onChange={(e) => {
+                    setItemsPerPage(Number(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                  className="border border-blue-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                >
+                  <option value={12}>12</option>
+                  <option value={24}>24</option>
+                  <option value={48}>48</option>
+                  <option value={96}>96</option>
+                </select>
+                <span className="text-sm text-gray-600">per page</span>
+              </div>
+            </div>
+          )}
+        </>
       ) : (
         <EmptyState searchQuery={searchQuery} statusFilter={statusFilter} />
       )}
@@ -291,13 +403,13 @@ function ProviderCard({
             }}
           />
           {/* Gradient overlay for better contrast */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-indigo-50/30" />
+          <div className="absolute inset-0 bg-linear-to-br from-blue-50/30 to-blue-50/30" />
 
           {/* View Button - Top Right */}
           <div className="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <Button
               onClick={onViewDetails}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white p-2 h-9 w-9 shadow-lg"
+              className="bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white p-2 h-9 w-9 shadow-lg"
             >
               <Eye className="h-4 w-4" />
             </Button>
@@ -311,7 +423,7 @@ function ProviderCard({
                 Suspended
               </Badge>
             ) : provider.isActive ? (
-              <Badge className="bg-emerald-500/90 text-white border-0 px-3 py-1 backdrop-blur-sm">
+              <Badge className="bg-blue-500/90 text-white border-0 px-3 py-1 backdrop-blur-sm">
                 <CheckCircle className="h-3 w-3 mr-1" />
                 Active
               </Badge>
@@ -326,7 +438,7 @@ function ProviderCard({
         {/* Profile Picture and Experience Bar - Overlapping the background */}
         <div className="absolute top-20 left-6 right-6 z-10 flex items-end gap-4">
           {/* Profile Picture */}
-          <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden border-4 border-white shadow-xl flex-shrink-0">
+          <div className="w-24 h-24 rounded-2xl bg-linear-to-br from-gray-100 to-gray-200 overflow-hidden border-4 border-white shadow-xl shrink-0">
             {provider.profilePicture ? (
               <img
                 src={provider.profilePicture}
@@ -334,7 +446,7 @@ function ProviderCard({
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600">
+              <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-blue-500 to-blue-700">
                 <span className="text-3xl font-bold text-white">
                   {provider.name.charAt(0).toUpperCase()}
                 </span>
@@ -405,8 +517,8 @@ function ProviderCard({
           </div>
 
           {/* Services Completed */}
-          <div className="bg-white rounded-xl p-3 border-2 border-emerald-200 text-center">
-            <Briefcase className="h-4 w-4 text-emerald-600 mx-auto mb-1" />
+          <div className="bg-white rounded-xl p-3 border-2 border-blue-200 text-center">
+            <Briefcase className="h-4 w-4 text-blue-600 mx-auto mb-1" />
             <p className="text-lg font-bold text-gray-900">{provider.totalJobsCompleted}</p>
             <p className="text-xs text-gray-600 font-medium">Completed</p>
           </div>
@@ -425,7 +537,7 @@ function ProviderCard({
             <Button
               onClick={onUnsuspend}
               disabled={processing}
-              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white h-10 font-medium"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white h-10 font-medium"
             >
               <Zap className="h-4 w-4 mr-1.5" />
               Activate

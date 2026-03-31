@@ -16,6 +16,10 @@ import {
   Plus,
   Search,
   X,
+  Eye,
+  EyeOff,
+  Flag,
+  AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -717,6 +721,27 @@ export default function CustomerReviewsPage() {
                     )}
                   </div>
 
+                  {/* Admin Status Badges */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {!review.isVisible && (
+                      <div className="flex items-center gap-1.5 bg-amber-50 px-3 py-1.5 rounded-lg border-2 border-amber-300">
+                        <EyeOff className="h-3.5 w-3.5 text-amber-600" />
+                        <span className="text-xs font-semibold text-amber-800">
+                          Hidden by Admin
+                        </span>
+                      </div>
+                    )}
+                    {review.isFlagged && (
+                      <div className="flex items-center gap-1.5 bg-red-50 px-3 py-1.5 rounded-lg border-2 border-red-300">
+                        <Flag className="h-3.5 w-3.5 text-red-600" />
+                        <span className="text-xs font-semibold text-red-800">
+                          Flagged by Admin
+                          {review.flagReason && `: ${review.flagReason}`}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
                   {/* Rating & Actions */}
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-center gap-3">
@@ -732,6 +757,8 @@ export default function CustomerReviewsPage() {
                         onClick={() =>
                           (window.location.href = `/customer/reviews/${review.id}/edit`)
                         }
+                        disabled={review.isFlagged}
+                        className={review.isFlagged ? "opacity-50 cursor-not-allowed" : ""}
                       >
                         <Edit className="h-4 w-4 mr-1" />
                         Edit
@@ -740,7 +767,10 @@ export default function CustomerReviewsPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => confirmDelete(review.id)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        disabled={review.isFlagged}
+                        className={`text-red-600 hover:text-red-700 hover:bg-red-50 ${
+                          review.isFlagged ? "opacity-50 cursor-not-allowed" : ""
+                        }`}
                       >
                         <Trash2 className="h-4 w-4 mr-1" />
                         Delete

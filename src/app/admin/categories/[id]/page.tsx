@@ -97,7 +97,6 @@ export default function UpdateCategoryPage() {
           })),
         });
       } catch (error: any) {
-        console.error('Error fetching category:', error);
         toast.error(error?.response?.data?.message || 'Failed to load category');
         router.push('/admin/categories');
       } finally {
@@ -234,7 +233,6 @@ export default function UpdateCategoryPage() {
       toast.success('Category updated successfully');
       router.push('/admin/categories');
     } catch (error: any) {
-      console.error('Error updating category:', error);
       toast.error(error?.response?.data?.message || 'Failed to update category');
     } finally {
       setSubmitting(false);
@@ -248,7 +246,6 @@ export default function UpdateCategoryPage() {
       toast.success('Category deleted successfully');
       router.push('/admin/categories');
     } catch (error: any) {
-      console.error('Error deleting category:', error);
       toast.error(error?.response?.data?.message || 'Failed to delete category');
     } finally {
       setDeleting(false);

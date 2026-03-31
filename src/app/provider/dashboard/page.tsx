@@ -10,6 +10,7 @@ import {
   Star,
   TrendingUp,
   Calendar,
+  ShieldAlert,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -44,7 +45,7 @@ interface DashboardStats {
 }
 
 export default function ProviderDashboardPage() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const router = useRouter();
   const [stats, setStats] = useState<DashboardStats>({
     totalAssignments: 0,
@@ -167,6 +168,20 @@ export default function ProviderDashboardPage() {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
+
+      // Load provider profile to get latest suspension status
+      try {
+        const profileResponse = await providerApi.getProfile();
+        const profileData = (profileResponse as any).data || profileResponse;
+        // Update user context with latest profile data including suspension reason
+        updateUser({
+          isSuspended: profileData.isSuspended,
+          isActive: profileData.isActive,
+          suspensionReason: profileData.suspensionReason,
+        });
+      } catch (err) {
+        console.error('Error loading profile for suspension status:', err);
+      }
 
       // Load dashboard stats
       const statsResponse = await providerApi.getDashboardStats();
@@ -337,6 +352,30 @@ export default function ProviderDashboardPage() {
 
   return (
     <div className="space-y-6">
+      {/* Suspension Banner */}
+      {(!user?.isActive || user?.isSuspended) && (
+        <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-6">
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0 w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center">
+              <ShieldAlert className="h-6 w-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-bold text-red-900 mb-1">
+                Account Suspended
+              </h3>
+              <p className="text-sm text-red-700 mb-3">
+                Your account has been suspended by the admin. You have limited access to your dashboard.
+              </p>
+              <div className="flex items-center gap-3 text-sm text-red-600">
+                <p className="font-semibold">
+                  Reason: {user?.suspensionReason || 'Contact admin for details'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>

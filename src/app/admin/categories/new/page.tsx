@@ -232,7 +232,6 @@ export default function NewCategoryPage() {
       toast.success("Category created successfully");
       router.push("/admin/categories");
     } catch (error: any) {
-      console.error("Error creating category:", error);
       toast.error(
         error?.response?.data?.message || "Failed to create category",
       );

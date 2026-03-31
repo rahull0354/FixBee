@@ -60,13 +60,6 @@ class ApiClient {
     // Response interceptor - unwrap backend response format
     this.client.interceptors.response.use(
       (response: AxiosResponse) => {
-        // Log response for debugging
-        console.log('✅ API Response:', {
-          url: response.config.url,
-          status: response.status,
-          data: response.data,
-          hasPhoneInResponse: response.data?.customer?.phone || response.data?.user?.phone || response.data?.phone
-        });
 
         // Handle backend response format: { message, success, data }
         const backendResponse = response.data as any;
@@ -85,9 +78,9 @@ class ApiClient {
         }
 
         // Extract the actual data from the backend response
-        // Backend sends: { message, success, user/data/customer/provider/author }
-        // We want to return the actual data (user, customer, etc)
-        const data = backendResponse.data || backendResponse.user || backendResponse.customer || backendResponse.provider || backendResponse.author;
+        // Backend sends: { message, success, user/data/customer/provider/author/review }
+        // We want to return the actual data (user, customer, review, etc)
+        const data = backendResponse.data || backendResponse.user || backendResponse.customer || backendResponse.provider || backendResponse.author || backendResponse.review;
 
         // Return the data in the expected format
         return {
