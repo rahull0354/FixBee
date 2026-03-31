@@ -20,6 +20,12 @@ const dashboardRoutes = {
   admin: "/admin/dashboard",
 };
 
+// Allowed routes for suspended providers
+const suspendedProviderAllowedRoutes = [
+  "/provider/dashboard",
+  "/provider/profile",
+];
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -30,6 +36,7 @@ export function middleware(request: NextRequest) {
     | "provider"
     | "admin"
     | null;
+  const isSuspended = request.cookies.get("is_suspended")?.value === "true";
 
   // Check if current path is a public route
   const isPublicRoute = publicRoutes.includes(pathname);
@@ -63,6 +70,19 @@ export function middleware(request: NextRequest) {
     const dashboardPath = dashboardRoutes[userRole];
     if (dashboardPath) {
       return NextResponse.redirect(new URL(dashboardPath, request.url));
+    }
+  }
+
+  // Check if provider is suspended and restrict access
+  if (userRole === "provider" && isSuspended) {
+    // Only allow dashboard and profile pages for suspended providers
+    const isAllowedRoute = suspendedProviderAllowedRoutes.some(route =>
+      pathname === route || pathname.startsWith(route + "/")
+    );
+
+    if (!isAllowedRoute) {
+      // Redirect to dashboard
+      return NextResponse.redirect(new URL("/provider/dashboard?suspended=true", request.url));
     }
   }
 

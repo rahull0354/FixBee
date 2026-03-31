@@ -68,7 +68,6 @@ export default function AdminSettingsPage() {
         confirmPassword: '',
       });
     } catch (error: any) {
-      console.error('Error changing password:', error);
       toast.error('Failed to change password');
     } finally {
       setChangePasswordLoading(false);

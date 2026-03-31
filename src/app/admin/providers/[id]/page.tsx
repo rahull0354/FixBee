@@ -91,7 +91,6 @@ export default function AdminProviderDetailPage() {
 
       setProvider(transformedData);
     } catch (error: any) {
-      console.error("Error loading provider:", error);
       toast.error(error?.response?.data?.message || "Failed to load provider");
       router.push("/admin/providers");
     } finally {
@@ -113,7 +112,6 @@ export default function AdminProviderDetailPage() {
       setSuspensionReason("");
       loadProvider();
     } catch (error: any) {
-      console.error("Error suspending provider:", error);
       toast.error(
         error?.response?.data?.message || "Failed to suspend provider",
       );
@@ -129,7 +127,6 @@ export default function AdminProviderDetailPage() {
       toast.success("Provider unsuspended successfully");
       loadProvider();
     } catch (error: any) {
-      console.error("Error unsuspending provider:", error);
       toast.error(
         error?.response?.data?.message || "Failed to unsuspend provider",
       );
@@ -274,12 +271,12 @@ export default function AdminProviderDetailPage() {
 
           {/* Rating & Stats */}
           <div className="flex flex-col items-center sm:items-end gap-2">
-            <div className="flex items-center gap-2 bg-white/20 rounded-full px-4 py-2">
-              <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-              <span className="text-xl font-bold">
+            <div className="flex items-center gap-1.5 bg-white/20 rounded-full px-3 py-1.5">
+              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+              <span className="text-base font-bold">
                 {provider.rating?.toFixed(1) || "0.0"}
               </span>
-              <span className="text-blue-100">
+              <span className="text-sm text-blue-100">
                 ({provider.reviewCount} reviews)
               </span>
             </div>

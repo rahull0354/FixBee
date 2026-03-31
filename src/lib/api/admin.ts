@@ -87,6 +87,10 @@ export const adminApi = {
     return apiClient.get<PaginatedResponse<Review>>('/review/admin/all-reviews', config);
   },
 
+  getReview: async (id: string): Promise<Review> => {
+    return apiClient.get<Review>(`/review/admin/${id}`);
+  },
+
   flagReview: async (id: string, data: { reason: string; hide: boolean }): Promise<Review> => {
     return apiClient.patch<Review>(`/review/admin/flag/${id}`, data);
   },
@@ -95,7 +99,7 @@ export const adminApi = {
     return apiClient.patch<Review>(`/review/admin/un-flag/${id}`);
   },
 
-  toggleReviewVisibility: async (id: string): Promise<Review> => {
-    return apiClient.patch<Review>(`/review/admin/visibility/${id}`);
+  toggleReviewVisibility: async (id: string, isVisible: boolean): Promise<Review> => {
+    return apiClient.patch<Review>(`/review/admin/visibility/${id}`, { isVisible });
   },
 };

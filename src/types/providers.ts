@@ -49,6 +49,7 @@ export interface ProviderProfile {
   totalEarnings?: number;
   isSuspended?: boolean;
   isActive?: boolean;
+  suspensionReason?: string;
   deactivatedAt?: string;
   createdAt: string;
   updatedAt: string;

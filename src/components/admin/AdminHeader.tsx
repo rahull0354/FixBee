@@ -43,7 +43,7 @@ export function AdminHeader({ user, onMenuClick }: AdminHeaderProps) {
   };
 
   return (
-    <header className="bg-white/80 backdrop-blur-xl shadow-sm border-b border-blue-100 sticky top-0 z-20">
+    <header className="bg-white/80 backdrop-blur-xl shadow-sm border-b border-blue-100 sticky top-0 z-30">
       <div className="flex items-center justify-between px-4 lg:px-8 py-5">
         {/* Left: Menu button + Title */}
         <div className="flex items-center gap-4">

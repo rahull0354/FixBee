@@ -155,7 +155,7 @@ export default function ProviderLayout({
         <ProviderHeader user={user} onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
         {/* Deactivated Account Banner */}
-        {isDeactivated && (
+        {isDeactivated && !user?.isSuspended && (
           <div className="mx-4 lg:mx-8 mt-4 bg-linear-to-r from-amber-50 via-orange-50 to-red-50 border-2 border-amber-300 rounded-2xl p-6 shadow-lg">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-start gap-4">

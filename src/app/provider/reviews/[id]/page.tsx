@@ -17,6 +17,8 @@ import {
   MapPin,
   Award,
   CheckCircle,
+  EyeOff,
+  Flag,
 } from "lucide-react";
 import { providerApi } from "@/lib/api";
 import { Review } from "@/types";
@@ -330,6 +332,29 @@ export default function ReviewDetailPage() {
               </div>
             )}
 
+            {/* Admin Status Indicators */}
+            {(!review.isVisible || review.isFlagged) && (
+              <div className="flex flex-wrap items-center gap-2">
+                {!review.isVisible && (
+                  <div className="flex items-center gap-1.5 bg-amber-50 px-3 py-2 rounded-lg border-2 border-amber-300">
+                    <EyeOff className="h-4 w-4 text-amber-600" />
+                    <span className="text-xs font-semibold text-amber-800">
+                      This review is hidden from public view by admin
+                    </span>
+                  </div>
+                )}
+                {review.isFlagged && (
+                  <div className="flex items-center gap-1.5 bg-red-50 px-3 py-2 rounded-lg border-2 border-red-300">
+                    <Flag className="h-4 w-4 text-red-600" />
+                    <span className="text-xs font-semibold text-red-800">
+                      Flagged by admin
+                      {review.flagReason && `: ${review.flagReason}`}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Chat-style Conversation */}
             <div className="space-y-4 sm:space-y-6">
               {/* Conversation Header */}
@@ -464,7 +489,10 @@ export default function ReviewDetailPage() {
                 setResponseText(typeof review.providerResponse === "object" ? review.providerResponse?.comment || "" : review.providerResponse || "");
                 setRespondDialogOpen(true);
               }}
-              className="w-full sm:w-auto gap-2 bg-linear-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:from-emerald-500 hover:via-teal-500 hover:to-cyan-500 text-white"
+              disabled={review.isFlagged}
+              className={`w-full sm:w-auto gap-2 bg-linear-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:from-emerald-500 hover:via-teal-500 hover:to-cyan-500 text-white ${
+                review.isFlagged ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
               <Reply className="h-4 w-4" />
               {review.providerResponse ? "Edit Response" : "Write Response"}
