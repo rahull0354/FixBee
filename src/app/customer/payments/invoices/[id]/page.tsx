@@ -154,7 +154,7 @@ export default function InvoiceDetailPage() {
     switch (status) {
       case 'paid':
         return (
-          <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200">
+          <Badge className="bg-sky-100 text-sky-800 border-sky-200">
             <CheckCircle className="h-3 w-3 mr-1 inline" />
             Paid
           </Badge>
@@ -511,17 +511,17 @@ export default function InvoiceDetailPage() {
 
             {/* Payment Information */}
             {invoice.status === 'paid' && (
-              <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
+              <div className="bg-sky-50 rounded-xl p-4 border border-sky-200">
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="h-5 w-5 text-emerald-600 mt-0.5" />
+                  <CheckCircle className="h-5 w-5 text-sky-600 mt-0.5" />
                   <div className="flex-1">
-                    <p className="font-bold text-emerald-900">Payment Successful</p>
-                    <p className="text-sm text-emerald-700">
+                    <p className="font-bold text-sky-900">Payment Successful</p>
+                    <p className="text-sm text-sky-700">
                       Paid on {invoice.paidAt ? formatDate(invoice.paidAt) : 'N/A'}
                       {invoice.paymentMethod && ` via ${invoice.paymentMethod}`}
                     </p>
                     {invoice.transactionId && (
-                      <p className="text-xs text-emerald-600 mt-1">Transaction ID: {invoice.transactionId}</p>
+                      <p className="text-xs text-sky-600 mt-1">Transaction ID: {invoice.transactionId}</p>
                     )}
                   </div>
                 </div>

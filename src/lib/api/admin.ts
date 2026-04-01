@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import { Category, CreateCategoryData, UpdateCategoryData, ProviderProfile, Review, PaginatedResponse } from '@/types';
+import { Category, CreateCategoryData, UpdateCategoryData, ProviderProfile, Review, PaginatedResponse, Invoice, Payment } from '@/types';
 
 export const adminApi = {
   // Dashboard
@@ -101,5 +101,29 @@ export const adminApi = {
 
   toggleReviewVisibility: async (id: string, isVisible: boolean): Promise<Review> => {
     return apiClient.patch<Review>(`/review/admin/visibility/${id}`, { isVisible });
+  },
+
+  // Payments & Invoices
+  getPaymentStats: async () => {
+    return apiClient.get('/payments/stats');
+  },
+
+  getAllPayments: async (params?: { page?: number; limit?: number }) => {
+    const config = params ? { params } : undefined;
+    return apiClient.get('/payments/history', config);
+  },
+
+  getPayment: async (paymentId: string) => {
+    return apiClient.get(`/payments/${paymentId}/status`);
+  },
+
+  // Note: Invoice endpoints
+  getAllInvoices: async (params?: { status?: string; page?: number; limit?: number; search?: string }) => {
+    const config = params ? { params } : undefined;
+    return apiClient.get('/invoices', config);
+  },
+
+  getInvoice: async (id: string): Promise<Invoice> => {
+    return apiClient.get(`/invoices/${id}`);
   },
 };

@@ -8,6 +8,7 @@ import {
   Users,
   Building2,
   MessageSquare,
+  DollarSign,
   Settings,
   Shield,
   X,
@@ -25,6 +26,7 @@ const navigation = [
   { name: 'Providers', href: '/admin/providers', icon: Building2 },
   { name: 'Customers', href: '/admin/customers', icon: Users },
   { name: 'Reviews', href: '/admin/reviews', icon: MessageSquare },
+  { name: 'Payments', href: '/admin/payments', icon: DollarSign },
   { name: 'Settings', href: '/admin/settings', icon: Settings },
 ];
 

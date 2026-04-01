@@ -16,6 +16,7 @@ import {
   MapPin,
   Star,
 } from 'lucide-react';
+import { IconRenderer } from '@/components/ui/icon-renderer';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -50,7 +51,7 @@ export default function ServiceDetailPage() {
           name: 'Electrician Services',
           slug: slug,
           description: 'Professional electrical services for your home and business. Our certified electricians handle everything from simple repairs to complete electrical installations.',
-          icon: '⚡',
+          icon: 'Zap',
           priceRange: {
             min: 50,
             max: 500,
@@ -186,11 +187,11 @@ export default function ServiceDetailPage() {
         <div className="flex flex-col md:flex-row gap-6">
           {/* Icon */}
           <div className="w-24 h-24 bg-linear-to-br from-sky-400 via-blue-400 to-indigo-400 rounded-2xl flex items-center justify-center shadow-lg shrink-0">
-            {category.icon ? (
-              <span className="text-5xl">{category.icon}</span>
-            ) : (
-              <Briefcase className="h-12 w-12 text-white" />
-            )}
+            <IconRenderer
+              iconName={category.icon}
+              className="h-12 w-12 text-white"
+              fallback={<Briefcase className="h-12 w-12 text-white" />}
+            />
           </div>
 
           {/* Info */}
@@ -263,10 +264,16 @@ export default function ServiceDetailPage() {
                     {typeof service === 'object' && (service.duration || service.typicalPrice) && (
                       <div className="flex gap-3 mt-2 text-xs text-gray-500">
                         {service.duration && (
-                          <span>⏱️ {service.duration}</span>
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {service.duration}
+                          </span>
                         )}
                         {service.typicalPrice && (
-                          <span>💰 {service.typicalPrice}</span>
+                          <span className="flex items-center gap-1">
+                            <IndianRupee className="h-3 w-3" />
+                            {service.typicalPrice}
+                          </span>
                         )}
                       </div>
                     )}
@@ -274,24 +281,6 @@ export default function ServiceDetailPage() {
                 </div>
               );
             })}
-          </div>
-        </div>
-      )}
-
-      {/* Required Skills */}
-      {category.requiredSkills.length > 0 && (
-        <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Required Skills</h2>
-          <div className="flex flex-wrap gap-3">
-            {category.requiredSkills.map((skill, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-2 px-4 py-2 bg-violet-50 text-violet-700 rounded-full border border-violet-200"
-              >
-                <Star className="h-4 w-4" />
-                <span className="font-medium">{skill}</span>
-              </div>
-            ))}
           </div>
         </div>
       )}

@@ -474,11 +474,38 @@ export const InvoicePDF = ({
 
       {/* Payment Info */}
       {invoice.status === 'paid' && invoice.paidAt && (
-        <View style={{ marginTop: 20 }}>
-          <Text style={styles.label}>Payment Information</Text>
+        <View style={{ marginTop: 20, padding: 12, backgroundColor: '#F0F9FF', borderRadius: 6, borderWidth: 1, borderColor: '#BAE6FD' }}>
+          <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#0369A1', marginBottom: 6 }}>
+            Payment Information
+          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+            <Text style={styles.label}>Status:</Text>
+            <View style={{ backgroundColor: '#D1FAE5', marginLeft: 6, padding: 3, paddingHorizontal: 8, borderRadius: 3 }}>
+              <Text style={{ fontSize: 8, fontWeight: 'bold', color: '#065F46' }}>PAID</Text>
+            </View>
+          </View>
           <Text style={styles.description}>
-            Paid on {formatDate(invoice.paidAt)}
-            {invoice.paymentMethod && ` via ${invoice.paymentMethod}`}
+            Payment Date: {formatDate(invoice.paidAt)}
+          </Text>
+          {invoice.paymentMethod && (
+            <Text style={styles.description}>
+              Payment Method: {invoice.paymentMethod}
+            </Text>
+          )}
+          <Text style={styles.description}>
+            Total Amount Paid: ₹{parseFloat(invoice.totalAmount || '0').toFixed(2)}
+          </Text>
+        </View>
+      )}
+
+      {/* Pending Payment Notice */}
+      {invoice.status !== 'paid' && (
+        <View style={{ marginTop: 20, padding: 12, backgroundColor: '#FEF3C7', borderRadius: 6, borderWidth: 1, borderColor: '#FDE68A' }}>
+          <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#92400E', marginBottom: 4 }}>
+            Payment Pending
+          </Text>
+          <Text style={{ fontSize: 9, color: '#78350F' }}>
+            This invoice is awaiting payment. Please complete the payment to confirm your service.
           </Text>
         </View>
       )}

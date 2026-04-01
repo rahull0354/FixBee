@@ -22,6 +22,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { IconRenderer } from "@/components/ui/icon-renderer";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -307,8 +308,12 @@ export default function AdminCategoriesPage() {
                 <div className="bg-linear-to-r from-blue-50 to-blue-100 px-6 py-4 border-b border-blue-100">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className="h-10 w-10 bg-linear-to-br from-blue-400 to-blue-1000 rounded-xl flex items-center justify-center shadow-lg shrink-0">
-                        <FolderKanban className="h-5 w-5 text-white" />
+                      <div className="h-10 w-10 bg-linear-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shrink-0">
+                        <IconRenderer
+                          iconName={category.icon}
+                          className="h-5 w-5 text-white"
+                          fallback={<FolderKanban className="h-5 w-5 text-white" />}
+                        />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
