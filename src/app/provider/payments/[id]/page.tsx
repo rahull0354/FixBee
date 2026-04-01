@@ -40,6 +40,22 @@ interface PaymentDetails {
   paidAt?: string;
   paymentMethod?: string;
   transactionId?: string;
+  service?: {
+    serviceTitle?: string;
+    serviceType?: string;
+    serviceDescription?: string;
+    schedule?: {
+      date: string;
+      timeSlot?: string;
+      preferredTime?: string;
+    };
+    serviceAddress?: {
+      street?: string;
+      city?: string;
+      state?: string;
+      pincode?: string;
+    } | string;
+  };
   serviceRequest?: {
     id: string;
     title?: string;
@@ -79,7 +95,6 @@ export default function ProviderPaymentDetailPage() {
   const { user } = useAuth();
 
   const [payment, setPayment] = useState<PaymentDetails | null>(null);
-  const [serviceRequest, setServiceRequest] = useState<any>(null);
   const [customer, setCustomer] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -100,36 +115,13 @@ export default function ProviderPaymentDetailPage() {
       const response = await providerApi.getPaymentById(paymentId);
       const apiData = (response as any).data || response;
 
+      console.log('📦 Payment Detail Response:', apiData);
+
       setPayment(apiData);
 
-      // Fetch full service request details separately
-      if (apiData.serviceRequest?.id) {
-        try {
-          const requestResponse = await providerApi.getRequestDetails(apiData.serviceRequest.id);
-
-          // Extract request data from various possible structures
-          let requestData = null;
-          if ((requestResponse as any).data?.request) {
-            requestData = (requestResponse as any).data.request;
-          } else if ((requestResponse as any).request) {
-            requestData = (requestResponse as any).request;
-          } else if ((requestResponse as any).data) {
-            requestData = (requestResponse as any).data;
-          } else {
-            requestData = requestResponse;
-          }
-
-          const finalRequestData = requestData?.request || requestData;
-          setServiceRequest(finalRequestData);
-        } catch (err) {
-          // If fetch fails, use the embedded serviceRequest from payment
-          if (apiData.serviceRequest) {
-            setServiceRequest(apiData.serviceRequest);
-          }
-        }
-      } else if (apiData.serviceRequest) {
-        setServiceRequest(apiData.serviceRequest);
-      }
+      // The new backend structure includes 'service' field with service details
+      // No need to fetch separately anymore
+      console.log('✅ Service details from payment:', apiData.service);
 
       // Load customer details if available
       if (apiData.customer) {
@@ -283,7 +275,7 @@ export default function ProviderPaymentDetailPage() {
                   Service Type
                 </h3>
                 <p className="font-semibold text-gray-900">
-                  {serviceRequest?.serviceType || 'N/A'}
+                  {payment?.service?.serviceType || payment?.serviceRequest?.serviceType || 'N/A'}
                 </p>
               </div>
             </div>
@@ -298,39 +290,39 @@ export default function ProviderPaymentDetailPage() {
                 <div>
                   <p className="text-xs text-gray-600 mb-1">Service Title</p>
                   <p className="font-semibold text-gray-900">
-                    {serviceRequest?.serviceTitle || serviceRequest?.title || payment.serviceRequest?.title || 'Service Request'}
+                    {payment?.service?.serviceTitle || payment?.serviceRequest?.serviceTitle || payment?.serviceRequest?.title || 'Service Request'}
                   </p>
                   <p className="text-xs text-emerald-700 mt-1 font-medium">
-                    Request ID: {serviceRequest?.id || payment.serviceRequest?.id || 'N/A'}
+                    Request ID: {payment?.requestId || 'N/A'}
                   </p>
                 </div>
 
-                {serviceRequest?.serviceDescription && (
+                {(payment?.service?.serviceDescription || payment?.serviceRequest?.serviceDescription) && (
                   <div>
                     <p className="text-xs text-gray-600 mb-1">Description</p>
                     <p className="text-sm text-gray-800">
-                      {serviceRequest.serviceDescription}
+                      {payment?.service?.serviceDescription || payment?.serviceRequest?.serviceDescription}
                     </p>
                   </div>
                 )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {serviceRequest?.schedule?.date && (
+                  {(payment?.service?.schedule?.date || payment?.serviceRequest?.schedule?.date) && (
                     <div>
                       <p className="text-xs text-gray-600 mb-1">Service Date</p>
                       <p className="text-sm text-gray-800 flex items-center gap-1">
                         <Calendar className="h-3 w-3 text-emerald-600" />
-                        {formatDate(serviceRequest.schedule.date)}
+                        {formatDate(payment?.service?.schedule?.date || payment?.serviceRequest?.schedule?.date)}
                       </p>
                     </div>
                   )}
 
-                  {serviceRequest?.serviceAddress && (
+                  {(payment?.service?.serviceAddress || payment?.serviceRequest?.serviceAddress) && (
                     <div>
                       <p className="text-xs text-gray-600 mb-1">Service Address</p>
                       <p className="text-sm text-gray-800 flex items-start gap-1">
                         <MapPin className="h-3 w-3 text-emerald-600 mt-1 shrink-0" />
-                        <span>{formatAddress(serviceRequest.serviceAddress)}</span>
+                        <span>{formatAddress(payment?.service?.serviceAddress || payment?.serviceRequest?.serviceAddress)}</span>
                       </p>
                     </div>
                   )}

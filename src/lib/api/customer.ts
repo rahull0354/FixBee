@@ -130,4 +130,21 @@ export const customerApi = {
   payInvoice: async (id: string, data: { paymentMethod: string; paymentId?: string; transactionId?: string }) => {
     return apiClient.post(`/invoices/${id}/pay`, data);
   },
+
+  // Stripe Payments
+  createPaymentIntent: async (invoiceId: string) => {
+    return apiClient.post('/payments/create-intent', { invoiceId });
+  },
+
+  confirmPayment: async (paymentId: string, paymentIntentId: string) => {
+    return apiClient.post('/payments/confirm', { paymentId, paymentIntentId });
+  },
+
+  cancelPayment: async (paymentId: string) => {
+    return apiClient.post('/payments/cancel', { paymentId });
+  },
+
+  getPaymentStatus: async (paymentId: string) => {
+    return apiClient.get(`/payments/${paymentId}/status`);
+  },
 };

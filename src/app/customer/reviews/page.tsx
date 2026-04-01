@@ -20,6 +20,9 @@ import {
   EyeOff,
   Flag,
   AlertTriangle,
+  Clock,
+  TrendingUp,
+  TrendingDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -523,25 +526,37 @@ export default function CustomerReviewsPage() {
                       value="newest"
                       className="hover:bg-sky-50 focus:bg-sky-100 cursor-pointer text-sm"
                     >
-                      🕐 Newest First
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4" />
+                        Newest First
+                      </div>
                     </SelectItem>
                     <SelectItem
                       value="oldest"
                       className="hover:bg-sky-50 focus:bg-sky-100 cursor-pointer text-sm"
                     >
-                      📅 Oldest First
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4" />
+                        Oldest First
+                      </div>
                     </SelectItem>
                     <SelectItem
                       value="highest"
                       className="hover:bg-sky-50 focus:bg-sky-100 cursor-pointer text-sm"
                     >
-                      ⭐ Highest Rated
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4" />
+                        Highest Rated
+                      </div>
                     </SelectItem>
                     <SelectItem
                       value="lowest"
                       className="hover:bg-sky-50 focus:bg-sky-100 cursor-pointer text-sm"
                     >
-                      ⭐ Lowest Rated
+                      <div className="flex items-center gap-2">
+                        <TrendingDown className="h-4 w-4" />
+                        Lowest Rated
+                      </div>
                     </SelectItem>
                   </SelectContent>
                 </Select>

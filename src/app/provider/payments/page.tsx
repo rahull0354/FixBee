@@ -50,8 +50,8 @@ interface Payment {
   customer?: {
     name: string;
   };
-  serviceRequest?: {
-    title: string;
+  service?: {
+    serviceTitle: string;
     serviceType: string;
   };
 }
@@ -90,24 +90,28 @@ export default function ProviderPaymentsPage() {
       setLoading(true);
 
       console.log('=================================');
-      console.log('🔄 Loading Payments/Earnings for Provider');
+      console.log('🔄 Loading Provider Payments/Invoices');
       console.log('=================================');
 
-      // Try to get provider's payments/earnings
-      const response = await providerApi.getMyPayments().catch(async (err) => {
-        // If getMyPayments doesn't exist, try getting invoices from provider perspective
-        console.log('⚠️ getMyPayments not available, trying alternative...');
-        return await providerApi.getMyEarnings();
-      });
+      // Fetch provider's payments/earnings
+      const response = await providerApi.getMyPayments();
 
-      console.log('📦 Raw Payments API Response:', response);
+      console.log('📦 Raw API Response:', response);
 
       const apiData = (response as any).data || response;
-      console.log('📄 Extracted Payments Data:', JSON.stringify(apiData, null, 2));
+      console.log('📄 Number of payments/invoices:', apiData?.length || 0);
+
+      // Log each payment to see the structure
+      (apiData || []).forEach((payment: any, index: number) => {
+        console.log(`\n🔍 Payment #${index + 1}:`, payment.invoiceNumber);
+        console.log('  - requestId:', payment.requestId);
+        console.log('  - service:', payment.service);
+        console.log('  - All fields:', Object.keys(payment));
+      });
 
       setPayments(apiData || []);
     } catch (error: any) {
-      console.error('Error loading payments:', error);
+      console.error('❌ Error loading payments:', error);
       const message = error?.response?.data?.message || error?.message || 'Failed to load payments';
       toast.error(message);
       setPayments([]);
@@ -130,7 +134,7 @@ export default function ProviderPaymentsPage() {
       filtered = filtered.filter(
         (payment) =>
           payment.invoiceNumber?.toLowerCase().includes(query) ||
-          payment.serviceRequest?.title?.toLowerCase().includes(query) ||
+          payment.service?.serviceTitle?.toLowerCase().includes(query) ||
           payment.customer?.name?.toLowerCase().includes(query)
       );
     }
@@ -373,10 +377,10 @@ export default function ProviderPaymentsPage() {
                   {/* Service Title */}
                   <div>
                     <h3 className="text-base sm:text-lg font-bold text-gray-900">
-                      {payment.serviceRequest?.title || 'Service'}
+                      {payment.service?.serviceTitle || 'Service Request'}
                     </h3>
                     <p className="text-xs sm:text-sm text-gray-600">
-                      {payment.serviceRequest?.serviceType || 'General Service'}
+                      {payment.service?.serviceType || 'General Service'}
                     </p>
                   </div>
 

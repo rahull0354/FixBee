@@ -18,6 +18,7 @@ import {
   Star,
   Phone,
   Mail,
+  FileText,
   Edit,
   X,
   Image as ImageIcon,
@@ -25,7 +26,7 @@ import {
   ArrowRight,
   ChevronDown,
   CreditCard,
-  FileText,
+  IndianRupee,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -499,9 +500,8 @@ export default function RequestDetailsPage() {
                 ? 'bg-green-100 text-green-800 border-green-300'
                 : 'bg-red-100 text-red-800 border-red-300'
             }`}>
-              <span className="text-xs opacity-75">ID: </span>
               <span className="hidden sm:inline">Request ID: </span>
-              {request.id.slice(0, 8)}...
+              {request.id}
             </div>
           )}
         </div>
@@ -536,56 +536,10 @@ export default function RequestDetailsPage() {
               {request.additionalNotes && request.additionalNotes.trim() !== '' && (
                 <div className="mt-6 p-4 bg-linear-to-r from-amber-50 to-yellow-50 rounded-xl border-2 border-amber-300">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-lg">📝</span>
+                    <FileText className="h-5 w-5 text-amber-600" />
                     <p className="text-sm font-bold text-amber-800">Additional Notes</p>
                   </div>
                   <p className="text-sm text-amber-900 capitalize leading-relaxed">"{request.additionalNotes}"</p>
-                </div>
-              )}
-
-              {request.finalPrice && (
-                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl border-2 border-emerald-200 p-4">
-                  <p className="text-xs font-bold text-emerald-800 mb-3 uppercase tracking-wide">Billing Details</p>
-
-                  {/* Service Price */}
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-gray-600">Service Price</span>
-                    <span className="font-semibold text-gray-800">
-                      ₹{typeof request.finalPrice === 'number' ? request.finalPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : parseFloat(request.finalPrice).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>
-                  </div>
-
-                  {/* Material Cost (if exists) */}
-                  {request.materialCost && request.materialCost > 0 && (
-                    <>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-gray-600">Material Cost</span>
-                        <span className="font-semibold text-gray-800">
-                          ₹{typeof request.materialCost === 'number' ? request.materialCost.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : parseFloat(request.materialCost).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </span>
-                      </div>
-
-                      {/* Material Description */}
-                      {request.materialDescription && (
-                        <div className="bg-white rounded-lg p-2 mb-2 border border-emerald-100">
-                          <p className="text-xs text-gray-500 mb-1">Materials:</p>
-                          <p className="text-xs text-gray-700">{request.materialDescription}</p>
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  {/* Total */}
-                  <div className="flex justify-between items-center pt-3 mt-2 border-t-2 border-emerald-300">
-                    <span className="text-sm font-bold text-emerald-900">Total Amount</span>
-                    <span className="text-lg font-bold text-emerald-600">
-                      ₹{
-                        ((typeof request.finalPrice === 'number' ? request.finalPrice : parseFloat(request.finalPrice || '0')) +
-                        (typeof request.materialCost === 'number' ? (request.materialCost || 0) : parseFloat(request.materialCost || '0')))
-                        .toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                      }
-                    </span>
-                  </div>
                 </div>
               )}
             </div>
@@ -664,6 +618,56 @@ export default function RequestDetailsPage() {
               )}
             </div>
           </div>
+
+          {/* Billing Details - Only for Completed Services */}
+          {request.status === 'completed' && request.finalPrice && (
+            <div className="bg-linear-to-br from-emerald-50 to-teal-50 rounded-2xl shadow-lg border-2 border-emerald-200 p-4 sm:p-6 lg:p-8">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-4 sm:mb-6 flex items-center gap-2">
+                <IndianRupee className="h-5 w-5 text-emerald-600" />
+                Billing Details
+              </h3>
+
+              {/* Service Price */}
+              <div className="flex justify-between items-center mb-3">
+                <span className="text-sm text-gray-600">Service Price</span>
+                <span className="font-semibold text-gray-800">
+                  ₹{typeof request.finalPrice === 'number' ? request.finalPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : parseFloat(request.finalPrice).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
+
+              {/* Material Cost (if exists) */}
+              {request.materialCost && request.materialCost > 0 && (
+                <>
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-sm text-gray-600">Material Cost</span>
+                    <span className="font-semibold text-gray-800">
+                      ₹{typeof request.materialCost === 'number' ? request.materialCost.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : parseFloat(request.materialCost).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                  </div>
+
+                  {/* Material Description */}
+                  {request.materialDescription && (
+                    <div className="bg-white rounded-lg p-3 mb-3 border border-emerald-100">
+                      <p className="text-xs text-gray-500 mb-1">Materials:</p>
+                      <p className="text-xs text-gray-700">{request.materialDescription}</p>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Total */}
+              <div className="flex justify-between items-center pt-4 mt-3 border-t-2 border-emerald-300">
+                <span className="text-sm font-bold text-emerald-900">Total Amount</span>
+                <span className="text-lg font-bold text-emerald-600">
+                  ₹{
+                    ((typeof request.finalPrice === 'number' ? request.finalPrice : parseFloat(request.finalPrice || '0')) +
+                    (typeof request.materialCost === 'number' ? (request.materialCost || 0) : parseFloat(request.materialCost || '0')))
+                    .toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                  }
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* After Images (if completed) */}
           {request.status === 'completed' && request.afterImages && request.afterImages.length > 0 && (
@@ -898,7 +902,9 @@ export default function RequestDetailsPage() {
           ) : null}
 
           {/* Actions Section - Only for Completed Requests */}
-          {request.status === 'completed' && (
+
+          {/* Actions Section - For Pending/Assigned Requests */}
+          {(request.status === 'pending' || request.status === 'assigned') && (
             <div className="bg-linear-to-r from-sky-500 via-blue-500 to-indigo-600 rounded-2xl shadow-2xl p-4 sm:p-6 text-white">
               <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
                 <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl border-2 border-white/30">
@@ -906,88 +912,139 @@ export default function RequestDetailsPage() {
                 </div>
                 <div>
                   <h3 className="text-lg sm:text-xl font-bold">Request Actions</h3>
-                  <p className="text-sky-100 text-xs">Manage your completed service</p>
+                  <p className="text-sky-100 text-xs">Manage your service request</p>
                 </div>
               </div>
 
               <div className="space-y-3">
+                {/* Reschedule Button */}
+                <button
+                  onClick={() => setRescheduleDialogOpen(true)}
+                  className="w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-white/10 backdrop-blur-sm rounded-xl border-2 border-white/20 hover:bg-white/20 hover:scale-[1.02] transition-all"
+                >
+                  <div className="p-2 sm:p-3 bg-white/20 rounded-xl">
+                    <Calendar className="h-5 w-5 text-white" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="font-semibold text-sm sm:text-base">Reschedule Service</p>
+                    <p className="text-xs text-sky-100">Change date and time</p>
+                  </div>
+                  <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 text-white/70" />
+                </button>
+
+                {/* Cancel Button */}
+                <button
+                  onClick={() => setCancelDialogOpen(true)}
+                  className="w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-white/10 backdrop-blur-sm rounded-xl border-2 border-white/20 hover:bg-red-400/20 hover:border-red-300/40 hover:scale-[1.02] transition-all"
+                >
+                  <div className="p-2 sm:p-3 bg-white/20 rounded-xl">
+                    <XCircle className="h-5 w-5 text-white" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="font-semibold text-sm sm:text-base">Cancel Request</p>
+                    <p className="text-xs text-sky-100">Permanently cancel this service</p>
+                  </div>
+                  <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 text-white/70" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Actions Section - Only for Completed Requests */}
+          {request.status === 'completed' && (
+            <div className="bg-white rounded-2xl shadow-lg border border-sky-100 overflow-hidden">
+              <div className="bg-linear-to-br from-sky-500 via-blue-500 to-indigo-600 p-4 sm:p-6 pb-6 sm:pb-8 text-white relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                    <Briefcase className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <h3 className="text-base sm:text-lg font-bold">Request Actions</h3>
+                  </div>
+                  <p className="text-sky-100 text-xs sm:text-sm">Manage your completed service</p>
+                </div>
+              </div>
+
+              <div className="p-4 sm:p-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Payment Actions */}
-                {request.status === 'completed' && (
-                  <>
-                    {loadingInvoice ? (
-                      <div className="flex items-center gap-3 p-4 bg-white/10 backdrop-blur-sm rounded-xl border-2 border-white/20">
-                        <Loader2 className="h-5 w-5 animate-spin text-white" />
-                        <p className="text-sm text-sky-100">Loading payment information...</p>
+                {loadingInvoice ? (
+                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200 sm:col-span-2">
+                    <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+                    <p className="text-sm text-gray-600">Loading payment information...</p>
+                  </div>
+                ) : invoice?.status === 'paid' ? (
+                  <button
+                    onClick={() => invoice && router.push(`/customer/payments/invoices/${invoice.id}`)}
+                    className="w-full bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 p-4 hover:shadow-md transition-shadow text-left"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="p-3 bg-blue-100 rounded-xl shrink-0">
+                        <CheckCircle className="h-6 w-6 text-blue-600" />
                       </div>
-                    ) : request.paymentStatus === 'paid' ? (
-                      <button
-                        onClick={() => invoice && router.push(`/customer/payments/invoices/${invoice.id}`)}
-                        className="w-full flex items-center gap-4 p-4 bg-linear-to-br from-blue-400/20 to-indigo-400/20 backdrop-blur-sm rounded-xl border-2 border-blue-300/30 hover:from-blue-400/30 hover:to-indigo-400/30 hover:scale-[1.02] transition-all"
-                      >
-                        <div className="p-3 bg-blue-400/30 rounded-xl">
-                          <CheckCircle className="h-6 w-6 text-blue-200" />
-                        </div>
-                        <div className="flex-1 text-left">
-                          <p className="font-bold text-base">View Receipt</p>
-                          <p className="text-xs text-blue-100">Payment completed successfully</p>
-                        </div>
-                        <ArrowRight className="h-5 w-5 text-blue-200" />
-                      </button>
-                    ) : request.paymentStatus === 'failed' ? (
-                      <div className="w-full flex items-center gap-4 p-4 bg-red-400/10 backdrop-blur-sm rounded-xl border-2 border-red-300/20">
-                        <div className="p-3 bg-red-400/20 rounded-xl">
-                          <XCircle className="h-6 w-6 text-red-300" />
-                        </div>
-                        <div className="flex-1 text-left">
-                          <p className="font-bold text-base">Payment Failed</p>
-                          <p className="text-xs text-red-200">Please try again or contact support</p>
-                        </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-gray-900 mb-1">View Receipt</p>
+                        <p className="text-xs text-gray-600">Payment completed successfully</p>
                       </div>
-                    ) : request.paymentStatus === 'refunded' ? (
-                      <div className="w-full flex items-center gap-4 p-4 bg-amber-400/10 backdrop-blur-sm rounded-xl border-2 border-amber-300/20">
-                        <div className="p-3 bg-amber-400/20 rounded-xl">
-                          <FileText className="h-6 w-6 text-amber-300" />
-                        </div>
-                        <div className="flex-1 text-left">
-                          <p className="font-bold text-base">Payment Refunded</p>
-                          <p className="text-xs text-amber-200">Your payment has been refunded</p>
-                        </div>
+                    </div>
+                  </button>
+                ) : invoice?.status === 'failed' ? (
+                  <div className="w-full bg-linear-to-br from-red-50 to-rose-50 rounded-xl border-2 border-red-200 p-4 sm:col-span-2">
+                    <div className="flex items-start gap-3">
+                      <div className="p-3 bg-red-100 rounded-xl shrink-0">
+                        <XCircle className="h-6 w-6 text-red-600" />
                       </div>
-                    ) : (
-                      <button
-                        onClick={() => router.push(`/customer/payments/checkout/${invoice?.id || request?.id}`)}
-                        disabled={!invoice && !request}
-                        className="w-full flex items-center gap-4 p-4 bg-linear-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 rounded-xl border-2 border-emerald-400/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <div className="p-3 bg-white/20 rounded-xl">
-                          <CreditCard className="h-6 w-6 text-white" />
-                        </div>
-                        <div className="flex-1 text-left">
-                          <p className="font-bold text-base text-white">Complete Payment</p>
-                          <p className="text-xs text-emerald-100">
-                            {request?.finalPrice
-                              ? `Pay ₹${((typeof request.finalPrice === 'number' ? request.finalPrice : parseFloat(request.finalPrice || '0')) +
-                                  (typeof request.materialCost === 'number' ? (request.materialCost || 0) : parseFloat(request.materialCost || '0')))
-                                  .toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                              : request?.estimatedPrice
-                              ? `Estimated: ₹${parseFloat(String(request.estimatedPrice)).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                              : 'Complete your payment for this service'
-                            }
-                          </p>
-                        </div>
-                        <ArrowRight className="h-5 w-5 text-white" />
-                      </button>
-                    )}
-                  </>
+                      <div className="flex-1">
+                        <p className="font-bold text-gray-900 mb-1">Payment Failed</p>
+                        <p className="text-xs text-gray-600">Please try again or contact support</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : invoice?.status === 'refunded' ? (
+                  <div className="w-full bg-linear-to-br from-amber-50 to-orange-50 rounded-xl border-2 border-amber-200 p-4 sm:col-span-2">
+                    <div className="flex items-start gap-3">
+                      <div className="p-3 bg-amber-100 rounded-xl shrink-0">
+                        <FileText className="h-6 w-6 text-amber-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-bold text-gray-900 mb-1">Payment Refunded</p>
+                        <p className="text-xs text-gray-600">Your payment has been refunded</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => router.push(`/customer/payments/checkout/${invoice?.id || request?.id}`)}
+                    disabled={!invoice && !request}
+                    className="w-full bg-linear-to-br from-emerald-50 to-green-50 rounded-xl border-2 border-emerald-200 p-4 hover:shadow-md transition-shadow disabled:opacity-50 disabled:cursor-not-allowed text-left"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="p-3 bg-emerald-100 rounded-xl shrink-0">
+                        <CreditCard className="h-6 w-6 text-emerald-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-gray-900 mb-1">Complete Payment</p>
+                        <p className="text-xs text-gray-600">
+                          {request?.finalPrice
+                            ? `Pay ₹${((typeof request.finalPrice === 'number' ? request.finalPrice : parseFloat(request.finalPrice || '0')) +
+                                (typeof request.materialCost === 'number' ? (request.materialCost || 0) : parseFloat(request.materialCost || '0')))
+                                .toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                            : request?.estimatedPrice
+                            ? `Estimated: ₹${parseFloat(String(request.estimatedPrice)).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                            : 'Complete your payment for this service'
+                          }
+                        </p>
+                      </div>
+                    </div>
+                  </button>
                 )}
 
                 {/* Review Actions */}
                 {(() => {
                   if (reviewsLoading) {
                     return (
-                      <div className="flex items-center gap-3 p-4 bg-white/10 backdrop-blur-sm rounded-xl border-2 border-white/20">
-                        <Loader2 className="h-5 w-5 animate-spin text-white" />
-                        <p className="text-sm text-sky-100">Loading review information...</p>
+                      <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                        <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+                        <p className="text-sm text-gray-600">Loading review information...</p>
                       </div>
                     );
                   }
@@ -1005,31 +1062,30 @@ export default function RequestDetailsPage() {
                         href={`/customer/reviews/${requestReview.id}/edit`}
                         className="block"
                       >
-                        <div className="flex items-center gap-4 p-4 bg-white/10 backdrop-blur-sm rounded-xl border-2 border-white/20 hover:bg-white/20 hover:scale-[1.02] transition-all">
-                          <div className="p-3 bg-amber-400/20 rounded-xl">
-                            <Star className="h-6 w-6 text-amber-300 fill-amber-300" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-1">
-                              <p className="font-bold text-base">Your Review</p>
-                              <div className="flex items-center gap-1">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    className={`h-3.5 w-3.5 ${
-                                      i < requestReview.rating
-                                        ? 'fill-amber-300 text-amber-300'
-                                        : 'fill-white/30 text-white/30'
-                                    }`}
-                                  />
-                                ))}
-                              </div>
+                        <div className="bg-linear-to-br from-amber-50 to-orange-50 rounded-xl border-2 border-amber-200 p-4 hover:shadow-md transition-shadow">
+                          <div className="flex items-start gap-3">
+                            <div className="p-3 bg-amber-100 rounded-xl shrink-0">
+                              <Star className="h-6 w-6 text-amber-600 fill-amber-600" />
                             </div>
-                            <p className="text-xs text-sky-100 line-clamp-1">{requestReview.comment}</p>
-                          </div>
-                          <div className="flex items-center gap-2 text-xs font-semibold text-white">
-                            View Full Details
-                            <ArrowRight className="h-4 w-4" />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-2">
+                                <p className="font-bold text-gray-900">Your Review</p>
+                                <div className="flex items-center gap-0.5">
+                                  {[...Array(5)].map((_, i) => (
+                                    <Star
+                                      key={i}
+                                      className={`h-3.5 w-3.5 ${
+                                        i < (typeof requestReview.rating === 'number' ? requestReview.rating : parseFloat(requestReview.rating || '0'))
+                                          ? 'fill-amber-400 text-amber-400'
+                                          : 'fill-gray-200 text-gray-200'
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                              <p className="text-xs text-gray-600 line-clamp-2">{requestReview.comment || 'No comment'}</p>
+                              <p className="text-xs text-amber-600 mt-1">Tap to edit</p>
+                            </div>
                           </div>
                         </div>
                       </Link>
@@ -1041,19 +1097,21 @@ export default function RequestDetailsPage() {
                       href={`/customer/reviews/create?requestId=${request.id}`}
                       className="block"
                     >
-                      <div className="flex items-center gap-4 p-4 bg-linear-to-br from-amber-400/20 to-orange-400/20 backdrop-blur-sm rounded-xl border-2 border-amber-300/30 hover:from-amber-400/30 hover:to-orange-400/30 hover:scale-[1.02] transition-all">
-                        <div className="p-3 bg-amber-400/30 rounded-xl">
-                          <Star className="h-6 w-6 text-amber-200 fill-amber-200" />
+                      <div className="bg-linear-to-br from-amber-50 to-orange-50 rounded-xl border-2 border-amber-200 p-4 hover:shadow-md transition-shadow">
+                        <div className="flex items-start gap-3">
+                          <div className="p-3 bg-amber-100 rounded-xl shrink-0">
+                            <Star className="h-6 w-6 text-amber-600" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-bold text-gray-900 mb-1">Write a Review</p>
+                            <p className="text-xs text-gray-600">Rate your service experience</p>
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <p className="font-bold text-base">Write a Review</p>
-                          <p className="text-xs text-amber-100">Rate your service experience</p>
-                        </div>
-                        <ArrowRight className="h-5 w-5 text-amber-200" />
                       </div>
                     </Link>
                   );
                 })()}
+                </div>
               </div>
             </div>
           )}

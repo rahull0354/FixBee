@@ -47,12 +47,11 @@ export default function CustomerRequestsPage() {
     loadRequests();
   }, []);
 
-  // Reset to page 1 when filters change
   useEffect(() => {
-    setCurrentPage(1);
-  }, [statusFilter, searchQuery]);
+    filterRequests();
+  }, [requests, statusFilter, searchQuery]);
 
-  useEffect(() => {
+  const filterRequests = () => {
     let filtered = requests;
 
     // Apply status filter
@@ -70,7 +69,12 @@ export default function CustomerRequestsPage() {
     }
 
     setFilteredRequests(filtered);
-  }, [requests, statusFilter, searchQuery]);
+  };
+
+  const clearFilters = () => {
+    setStatusFilter('all');
+    setSearchQuery('');
+  };
 
   const loadRequests = async () => {
     try {
@@ -227,41 +231,40 @@ export default function CustomerRequestsPage() {
         </Link>
       </div>
 
-      {/* Filters & Search */}
-      <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          {/* Status Filter */}
-          <div className="flex-1">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full h-12 border-sky-200 bg-white shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-2">
-                  <Filter className="h-4 w-4 text-sky-500" />
-                  <SelectValue placeholder="Filter by status" />
-                </div>
-              </SelectTrigger>
-              <SelectContent className="bg-white border border-sky-200 shadow-lg">
-                {statusFilters.map((filter) => (
-                  <SelectItem key={filter.value} value={filter.value} className="hover:bg-sky-50 focus:bg-sky-100 cursor-pointer">
-                    {filter.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      {/* Search Bar */}
+      <div className="bg-white rounded-2xl shadow-lg border border-sky-100 p-4">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search requests..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 bg-sky-50 rounded-xl border border-sky-200 focus:outline-none focus:border-sky-500 transition-colors"
+            />
           </div>
-
-          {/* Search */}
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search requests..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-sky-50 rounded-xl border border-sky-200 focus:outline-none focus:border-sky-500"
-              />
-            </div>
-          </div>
+          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as any)}>
+            <SelectTrigger className="w-full sm:w-48 border-sky-200 bg-white shadow-sm hover:shadow-md transition-shadow h-12">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent className="bg-white border border-sky-200 shadow-lg">
+              {statusFilters.map((filter) => (
+                <SelectItem key={filter.value} value={filter.value}>
+                  {filter.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {(statusFilter !== 'all' || searchQuery) && (
+            <Button
+              onClick={clearFilters}
+              variant="outline"
+              className="border-sky-200 text-sky-700 hover:bg-sky-50 h-12"
+            >
+              Clear
+            </Button>
+          )}
         </div>
       </div>
 

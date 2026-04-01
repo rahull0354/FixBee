@@ -158,7 +158,7 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
 
   return (
     <header className="bg-white/80 backdrop-blur-xl shadow-sm border-b border-sky-100 sticky top-0 z-20">
-      <div className="flex items-center justify-between px-4 lg:px-8 py-4">
+      <div className="flex items-center justify-between px-4 lg:px-8 py-4.5">
         {/* Left: Menu button + Title */}
         <div className="flex items-center gap-4">
           {/* Mobile menu button */}
@@ -203,7 +203,7 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
             >
               <Bell className="h-5 w-5 text-gray-600" />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full px-1 shadow-sm">
+                <span className="absolute -top-1 -right-1 min-w-4.5 h-4.5 flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full px-1 shadow-sm">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
@@ -216,7 +216,7 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
                   className="fixed inset-0 z-50 bg-transparent"
                   onClick={() => setShowNotifications(false)}
                 />
-                <div className="fixed left-4 right-4 sm:absolute sm:left-auto sm:right-0 sm:w-96 top-[72px] sm:mt-2 bg-white rounded-xl shadow-2xl border border-sky-100 z-50 max-h-[70vh] sm:max-h-[500px] flex flex-col">
+                <div className="fixed left-4 right-4 sm:absolute sm:left-auto sm:right-0 sm:w-96 top-18 sm:mt-2 bg-white rounded-xl shadow-2xl border border-sky-100 z-50 max-h-[70vh] sm:max-h-125 flex flex-col">
                   {/* Header */}
                   <div className="px-4 py-3 border-b border-sky-100">
                     <div className="flex items-center justify-between">
@@ -353,7 +353,7 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
                   className="fixed inset-0 z-50 bg-transparent"
                   onClick={() => setShowDropdown(false)}
                 />
-                <div className="fixed left-4 right-4 sm:absolute sm:left-auto sm:right-0 sm:w-56 top-[72px] sm:mt-2 bg-white rounded-xl shadow-lg border border-sky-100 py-2 z-50">
+                <div className="fixed left-4 right-4 sm:absolute sm:left-auto sm:right-0 sm:w-56 top-18 sm:mt-2 bg-white rounded-xl shadow-lg border border-sky-100 py-2 z-50">
                   {/* User Info Section */}
                   <div className="px-4 py-3 border-b border-sky-100">
                     <div className="flex items-center gap-3 mb-2">

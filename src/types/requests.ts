@@ -41,6 +41,7 @@ export interface ServiceRequest {
   afterImages?: string[];
   additionalNotes?: string;
   pricingDetails?: any;
+  paymentMethod?: string;
   paymentStatus?: PaymentStatus;
   completedAt?: string;
   createdAt: string;
@@ -70,6 +71,7 @@ export interface CreateServiceRequestData {
   serviceTitle: string;
   serviceDescription: string;
   additionalNotes?: string;
+  paymentMethod?: string;
   schedule: {
     date: string;
     timeSlot: string;

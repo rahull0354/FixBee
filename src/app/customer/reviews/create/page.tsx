@@ -14,6 +14,8 @@ import {
   Briefcase,
   Calendar,
   User,
+  AlertTriangle,
+  Lightbulb,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -369,7 +371,7 @@ export default function CreateReviewPage() {
 
                 {errors.comment && (
                   <p className="text-xs sm:text-sm text-red-500 flex items-center gap-1">
-                    <span>⚠️</span>
+                    <AlertTriangle className="h-4 w-4" />
                     {errors.comment.message}
                   </p>
                 )}
@@ -397,11 +399,11 @@ export default function CreateReviewPage() {
                     />
                     <div className="mt-3 sm:mt-4 text-center">
                       <p className="text-xs sm:text-sm font-semibold text-gray-800">
-                        {rating === 5 && '⭐ Exceptional!'}
-                        {rating === 4 && '👍 Very Good!'}
-                        {rating === 3 && '👌 Good!'}
-                        {rating === 2 && '👎 Fair!'}
-                        {rating === 1 && '❌ Poor!'}
+                        {rating === 5 && 'Exceptional!'}
+                        {rating === 4 && 'Very Good!'}
+                        {rating === 3 && 'Good!'}
+                        {rating === 2 && 'Fair!'}
+                        {rating === 1 && 'Poor!'}
                       </p>
                     </div>
                   </div>
@@ -409,7 +411,7 @@ export default function CreateReviewPage() {
 
                 {errors.rating && (
                   <p className="text-xs text-red-500 flex items-center gap-1">
-                    <span>⚠️</span>
+                    <AlertTriangle className="h-4 w-4" />
                     {errors.rating.message}
                   </p>
                 )}
@@ -449,7 +451,7 @@ export default function CreateReviewPage() {
             {/* Tips Card */}
             <div className="bg-linear-to-br from-sky-50 via-blue-50 to-indigo-50 border border-sky-200 rounded-2xl p-4 sm:p-6">
               <h3 className="font-bold text-sky-900 mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base">
-                <span className="text-xl sm:text-2xl">💡</span>
+                <Lightbulb className="h-5 w-5 text-sky-600" />
                 Tips
               </h3>
               <ul className="text-xs sm:text-sm text-sky-800 space-y-1 sm:space-y-2">

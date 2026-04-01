@@ -26,9 +26,19 @@ import {
   IndianRupee,
   Info,
   TrendingUp,
+  AlertTriangle,
+  Sun,
+  Smartphone,
+  Building,
+  CreditCard,
+  Banknote,
+  Sunrise,
+  Sunset,
 } from "lucide-react";
+import { IconRenderer } from "@/components/ui/icon-renderer";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { CalendarFilter } from "@/components/customer/CalendarFilter";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -36,9 +46,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 // Time slots
 const timeSlots = [
-  { value: "morning", label: "Morning (8AM - 12PM)", icon: "🌅" },
-  { value: "afternoon", label: "Afternoon (12PM - 5PM)", icon: "☀️" },
-  { value: "evening", label: "Evening (5PM - 8PM)", icon: "🌆" },
+  { value: "morning", label: "Morning (8AM - 12PM)", icon: "Sunrise" },
+  { value: "afternoon", label: "Afternoon (12PM - 5PM)", icon: "Sun" },
+  { value: "evening", label: "Evening (5PM - 8PM)", icon: "Sunset" },
 ];
 
 // Payment methods
@@ -46,25 +56,25 @@ const paymentMethods = [
   {
     value: "cash",
     label: "Cash",
-    icon: "💵",
+    icon: "Banknote",
     description: "Pay directly to the provider after service",
   },
   {
     value: "card",
     label: "Credit/Debit Card",
-    icon: "💳",
+    icon: "CreditCard",
     description: "Pay via card after service completion",
   },
   {
     value: "upi",
     label: "UPI",
-    icon: "📱",
+    icon: "Smartphone",
     description: "Pay using UPI apps (GPay, PhonePe, etc.)",
   },
   {
     value: "bank_transfer",
     label: "Bank Transfer",
-    icon: "🏦",
+    icon: "Building",
     description: "Direct bank transfer to provider",
   },
 ];
@@ -547,9 +557,10 @@ export default function NewServiceRequestPage() {
                         />
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            {category.icon && (
-                              <span className="text-2xl">{category.icon}</span>
-                            )}
+                            <IconRenderer
+                              iconName={category.icon}
+                              className="h-6 w-6 text-sky-600"
+                            />
                             <p className="font-semibold text-gray-800">
                               {category.name}
                             </p>
@@ -616,7 +627,7 @@ export default function NewServiceRequestPage() {
 
                 {errors.categoryId && (
                   <p className="text-sm text-red-500 mt-2 flex items-center gap-1">
-                    <span>⚠️</span>
+                    <AlertTriangle className="h-4 w-4" />
                     {errors.categoryId.message}
                   </p>
                 )}
@@ -660,7 +671,7 @@ export default function NewServiceRequestPage() {
                   />
                   {errors.title && (
                     <p className="text-sm text-red-500 flex items-center gap-1">
-                      <span>⚠️</span>
+                      <AlertTriangle className="h-4 w-4" />
                       {errors.title.message}
                     </p>
                   )}
@@ -685,7 +696,7 @@ export default function NewServiceRequestPage() {
                   />
                   {errors.description && (
                     <p className="text-sm text-red-500 flex items-center gap-1">
-                      <span>⚠️</span>
+                      <AlertTriangle className="h-4 w-4" />
                       {errors.description.message}
                     </p>
                   )}
@@ -954,18 +965,15 @@ export default function NewServiceRequestPage() {
                     >
                       Preferred Date <span className="text-red-500">*</span>
                     </Label>
-                    <Input
-                      id="scheduledDate"
-                      type="date"
-                      min={today}
-                      {...register("scheduledDate")}
-                      className={`border-sky-200 focus:border-sky-400 focus:ring-sky-400 rounded-xl ${
-                        errors.scheduledDate ? "border-red-500" : ""
-                      }`}
+                    <CalendarFilter
+                      value={watch("scheduledDate") || ""}
+                      onChange={(date) => setValue("scheduledDate", date)}
+                      placeholder="Select preferred date"
+                      minDate={today}
                     />
                     {errors.scheduledDate && (
                       <p className="text-sm text-red-500 flex items-center gap-1">
-                        <span>⚠️</span>
+                        <AlertTriangle className="h-4 w-4" />
                         {errors.scheduledDate.message}
                       </p>
                     )}
@@ -994,7 +1002,7 @@ export default function NewServiceRequestPage() {
                             className="mt-1"
                           />
                           <div className="flex items-center gap-2 flex-1">
-                            <span className="text-2xl">{slot.icon}</span>
+                            <IconRenderer iconName={slot.icon} className="h-6 w-6 text-sky-600" />
                             <div>
                               <p className="font-semibold text-gray-800 text-sm">
                                 {slot.label.split(" ")[0]}
@@ -1012,7 +1020,7 @@ export default function NewServiceRequestPage() {
                     </div>
                     {errors.scheduledTimeSlot && (
                       <p className="text-sm text-red-500 flex items-center gap-1">
-                        <span>⚠️</span>
+                        <AlertTriangle className="h-4 w-4" />
                         {errors.scheduledTimeSlot.message}
                       </p>
                     )}
@@ -1056,7 +1064,7 @@ export default function NewServiceRequestPage() {
                     />
                     {errors.address?.street && (
                       <p className="text-sm text-red-500 flex items-center gap-1">
-                        <span>⚠️</span>
+                        <AlertTriangle className="h-4 w-4" />
                         {errors.address.street.message}
                       </p>
                     )}
@@ -1080,7 +1088,7 @@ export default function NewServiceRequestPage() {
                       />
                       {errors.address?.city && (
                         <p className="text-sm text-red-500 flex items-center gap-1">
-                          <span>⚠️</span>
+                          <AlertTriangle className="h-4 w-4" />
                           {errors.address.city.message}
                         </p>
                       )}
@@ -1103,7 +1111,7 @@ export default function NewServiceRequestPage() {
                       />
                       {errors.address?.state && (
                         <p className="text-sm text-red-500 flex items-center gap-1">
-                          <span>⚠️</span>
+                          <AlertTriangle className="h-4 w-4" />
                           {errors.address.state.message}
                         </p>
                       )}
@@ -1128,7 +1136,7 @@ export default function NewServiceRequestPage() {
                       />
                       {errors.address?.zipCode && (
                         <p className="text-sm text-red-500 flex items-center gap-1">
-                          <span>⚠️</span>
+                          <AlertTriangle className="h-4 w-4" />
                           {errors.address.zipCode.message}
                         </p>
                       )}
@@ -1189,7 +1197,7 @@ export default function NewServiceRequestPage() {
                         />
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xl">{method.icon}</span>
+                            <IconRenderer iconName={method.icon} className="h-5 w-5 text-sky-600" />
                             <p className="font-semibold text-gray-800 text-sm">
                               {method.label}
                             </p>
@@ -1206,7 +1214,7 @@ export default function NewServiceRequestPage() {
                   </div>
                   {errors.paymentMethod && (
                     <p className="text-sm text-red-500 flex items-center gap-1">
-                      <span>⚠️</span>
+                      <AlertTriangle className="h-4 w-4" />
                       {errors.paymentMethod.message}
                     </p>
                   )}

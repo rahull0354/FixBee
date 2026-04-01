@@ -1,24 +1,28 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { customerApi } from '@/lib/api';
-import { ArrowLeft, Calendar, User, Briefcase, Loader2, CheckCircle2, MapPin, Clock, CreditCard, Smartphone, Building2, Lock, Banknote } from 'lucide-react';
+import {
+  ArrowLeft,
+  Calendar,
+  User,
+  Briefcase,
+  Loader2,
+  CheckCircle2,
+  MapPin,
+  Clock,
+  CreditCard,
+  IndianRupee,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import Link from 'next/link';
+import StripePaymentForm from '@/components/payments/StripePaymentForm';
+import { PaymentIntent } from '@stripe/stripe-js';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -30,22 +34,15 @@ export default function CheckoutPage() {
   const [serviceRequest, setServiceRequest] = useState<any>(null);
   const [provider, setProvider] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [processing, setProcessing] = useState(false);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('upi');
-  const [isRequestDirectPayment, setIsRequestDirectPayment] = useState(false);
+  const [creatingIntent, setCreatingIntent] = useState(false);
 
-  // Payment form fields
-  const [upiId, setUpiId] = useState('');
-  const [cardNumber, setCardNumber] = useState('');
-  const [cardName, setCardName] = useState('');
-  const [expiryDate, setExpiryDate] = useState('');
-  const [cvv, setCvv] = useState('');
-  const [selectedBank, setSelectedBank] = useState('');
-
-  // Log user data
-  console.log('👤 Authenticated User:', user);
-  console.log('👤 User Name:', user?.name);
-  console.log('👤 User Email:', user?.email);
+  // Stripe payment state
+  const [paymentIntent, setPaymentIntent] = useState<{
+    clientSecret: string;
+    paymentIntentId: string;
+    paymentId: string;
+    amount: number;
+  } | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -53,41 +50,42 @@ export default function CheckoutPage() {
       return;
     }
     if (invoiceId) {
-      loadInvoice();
+      loadInvoiceAndCreateIntent();
     }
   }, [invoiceId, isAuthenticated]);
 
-  const loadInvoice = async () => {
+  const loadInvoiceAndCreateIntent = async () => {
     try {
       setLoading(true);
+      setCreatingIntent(true);
 
       console.log('=================================');
-      console.log('🔄 Loading Invoice and Service Data');
+      console.log('🔄 Loading Invoice and Creating Payment Intent');
       console.log('Invoice ID:', invoiceId);
       console.log('=================================');
 
       // First, try to load as invoice
       try {
         const response = await customerApi.getInvoice(invoiceId);
-        console.log('📦 Raw Invoice API Response:', response);
+        console.log('Raw Invoice API Response:', response);
 
         const apiData = (response as any).data || response;
-        console.log('📄 Extracted Invoice Data:', JSON.stringify(apiData, null, 2));
-        console.log('📄 Invoice Request ID:', apiData?.requestId);
+        console.log('Extracted Invoice Data:', JSON.stringify(apiData, null, 2));
 
         setInvoice(apiData);
+
+        // Check if invoice is already paid
+        if (apiData.status === 'paid') {
+          toast.info('This invoice has already been paid');
+          router.push(`/customer/payments/invoices/${invoiceId}`);
+          return;
+        }
 
         // Load service request details
         if (apiData.requestId) {
           try {
-            console.log('----------------------------------');
-            console.log('🔍 Fetching Service Request...');
-            console.log('Request ID:', apiData.requestId);
-
             const requestResponse = await customerApi.getServiceRequest(apiData.requestId);
-            console.log('📦 Raw Service Request Response:', requestResponse);
 
-            // The data is nested inside a "request" object
             let requestData = null;
             if ((requestResponse as any).data?.request) {
               requestData = (requestResponse as any).data.request;
@@ -99,27 +97,14 @@ export default function CheckoutPage() {
               requestData = requestResponse;
             }
 
-            console.log('📋 Extracted Request Data:', JSON.stringify(requestData, null, 2));
-
-            // Extract the nested request object if it exists
             const finalRequestData = requestData?.request || requestData;
-            console.log('✅ Final Request Data:', JSON.stringify(finalRequestData, null, 2));
-
             setServiceRequest(finalRequestData);
 
-            // Fetch provider details if we have the provider ID
+            // Fetch provider details
             if (finalRequestData?.serviceProviderId) {
-              console.log('----------------------------------');
-              console.log('👷 Fetching Provider Details...');
-              console.log('Provider ID:', finalRequestData.serviceProviderId);
-
               try {
                 const providerResponse = await customerApi.getProvider(finalRequestData.serviceProviderId);
-                console.log('👷 Raw Provider Response:', providerResponse);
-                console.log('👷 Response Type:', typeof providerResponse);
-                console.log('👷 Response Keys:', Object.keys(providerResponse || {}));
 
-                // Try different possible structures
                 let providerData = null;
                 if ((providerResponse as any).data?.provider) {
                   providerData = (providerResponse as any).data.provider;
@@ -131,184 +116,101 @@ export default function CheckoutPage() {
                   providerData = providerResponse;
                 }
 
-                console.log('✅ Extracted Provider Data:', JSON.stringify(providerData, null, 2));
-                console.log('👷 Provider Name:', providerData?.name);
-                console.log('👷 Provider BusinessName:', providerData?.businessName);
-                console.log('👷 Provider ContactPerson:', providerData?.contactPerson);
-                console.log('👷 Provider Keys:', Object.keys(providerData || {}));
-
                 setProvider(providerData);
               } catch (providerErr) {
-                console.error('❌ Error loading provider:', providerErr);
-                console.error('Error Details:', JSON.stringify(providerErr, null, 2));
-                // Continue without provider data
+                console.error('Error loading provider:', providerErr);
               }
-            } else {
-              console.log('⚠️ No serviceProviderId found in request');
             }
-
-            console.log('✅ Service Request Loaded Successfully');
           } catch (err) {
-            console.error('❌ Error loading service request:', err);
+            console.error('Error loading service request:', err);
           }
         }
 
-        console.log('=================================');
-        console.log('✅ Data Loading Complete');
-        console.log('=================================');
+        // Create Stripe payment intent
+        console.log('Creating Stripe Payment Intent...');
+        try {
+          const intentResponse = await customerApi.createPaymentIntent(invoiceId);
+          console.log('Payment Intent Response:', intentResponse);
+
+          const intentData = (intentResponse as any).data || intentResponse;
+          console.log('Payment Intent Created:', intentData);
+
+          // Validate required fields
+          if (!intentData.clientSecret) {
+            console.error('Invalid payment intent response - missing clientSecret:', intentData);
+            toast.error('Invalid payment intent response from server');
+            return;
+          }
+
+          setPaymentIntent({
+            clientSecret: intentData.clientSecret,
+            paymentIntentId: intentData.paymentIntentId,
+            paymentId: intentData.paymentId,
+            amount: intentData.amount || parseFloat(apiData.totalAmount),
+          });
+
+          console.log('Invoice and Payment Intent Loaded Successfully');
+        } catch (intentError: any) {
+          console.error('Error creating payment intent:', intentError);
+          toast.error(intentError?.response?.data?.message || 'Failed to create payment intent');
+          return;
+        }
       } catch (invoiceError: any) {
-        // Invoice not found, try as request ID
-        if (invoiceError?.response?.status === 404) {
-          console.log('📝 Invoice not found, loading as service request...');
-          setIsRequestDirectPayment(true);
-
-          try {
-            const requestResponse = await customerApi.getServiceRequest(invoiceId);
-            console.log('📦 Raw Service Request Response:', requestResponse);
-
-            // The data is nested inside a "request" object
-            let requestData = null;
-            if ((requestResponse as any).data?.request) {
-              requestData = (requestResponse as any).data.request;
-            } else if ((requestResponse as any).request) {
-              requestData = (requestResponse as any).request;
-            } else if ((requestResponse as any).data) {
-              requestData = (requestResponse as any).data;
-            } else {
-              requestData = requestResponse;
-            }
-
-            console.log('📋 Extracted Request Data:', JSON.stringify(requestData, null, 2));
-
-            // Extract the nested request object if it exists
-            const finalRequestData = requestData?.request || requestData;
-            console.log('✅ Final Request Data:', JSON.stringify(finalRequestData, null, 2));
-
-            setServiceRequest(finalRequestData);
-
-            // Fetch provider details if we have the provider ID
-            if (finalRequestData?.serviceProviderId) {
-              console.log('----------------------------------');
-              console.log('👷 Fetching Provider Details...');
-              console.log('Provider ID:', finalRequestData.serviceProviderId);
-
-              try {
-                const providerResponse = await customerApi.getProvider(finalRequestData.serviceProviderId);
-                console.log('👷 Raw Provider Response:', providerResponse);
-
-                // Try different possible structures
-                let providerData = null;
-                if ((providerResponse as any).data?.provider) {
-                  providerData = (providerResponse as any).data.provider;
-                } else if ((providerResponse as any).data) {
-                  providerData = (providerResponse as any).data;
-                } else if ((providerResponse as any).provider) {
-                  providerData = (providerResponse as any).provider;
-                } else {
-                  providerData = providerResponse;
-                }
-
-                console.log('✅ Extracted Provider Data:', JSON.stringify(providerData, null, 2));
-                setProvider(providerData);
-              } catch (providerErr) {
-                console.error('❌ Error loading provider:', providerErr);
-                // Continue without provider data
-              }
-            }
-
-            console.log('✅ Service Request Loaded Successfully (Direct Payment Mode)');
-          } catch (requestError: any) {
-            console.error('❌ Error loading service request:', requestError);
-            toast.error('Failed to load service request details');
-            router.push('/customer/requests');
-          }
-        } else {
-          throw invoiceError;
-        }
+        console.error('Error loading invoice:', invoiceError);
+        toast.error(invoiceError?.response?.data?.message || 'Failed to load invoice');
+        router.push('/customer/payments');
       }
     } catch (error: any) {
-      console.error('❌ Error loading payment data:', error);
-      toast.error('Failed to load payment details');
-      router.push('/customer/requests');
+      console.error('Error in loadInvoiceAndCreateIntent:', error);
+      toast.error(error?.response?.data?.message || 'Failed to initialize payment');
     } finally {
       setLoading(false);
+      setCreatingIntent(false);
     }
   };
 
-  const handlePayment = async () => {
-    // For direct request payment (no invoice yet), we need to handle it differently
-    if (!invoice && !isRequestDirectPayment) {
-      toast.error('Invoice not found');
-      return;
-    }
+  const handlePaymentSuccess = useCallback((paymentIntent: PaymentIntent) => {
+    console.log('Payment Successful:', paymentIntent);
+    toast.success('Payment successful! Redirecting to receipt...');
 
-    // Validate payment fields based on selected method
-    if (selectedPaymentMethod === 'upi' && !upiId) {
-      toast.error('Please enter your UPI ID');
-      return;
-    }
+    // Redirect to invoice detail page after a short delay
+    setTimeout(() => {
+      router.push(`/customer/payments/invoices/${invoiceId}`);
+    }, 2000);
+  }, [invoiceId, router]);
 
-    if (selectedPaymentMethod === 'card') {
-      if (!cardNumber || cardNumber.length < 16) {
-        toast.error('Please enter a valid card number');
-        return;
-      }
-      if (!cardName) {
-        toast.error('Please enter cardholder name');
-        return;
-      }
-      if (!expiryDate) {
-        toast.error('Please enter expiry date');
-        return;
-      }
-      if (!cvv || cvv.length < 3) {
-        toast.error('Please enter a valid CVV');
-        return;
-      }
-    }
+  const handlePaymentError = useCallback((error: string) => {
+    console.error('Payment Failed:', error);
+  }, []);
 
-    if (selectedPaymentMethod === 'netbanking' && !selectedBank) {
-      toast.error('Please select your bank');
-      return;
-    }
+  const handleCancelPayment = useCallback(() => {
+    toast.info('Payment cancelled');
+    router.push('/customer/payments');
+  }, [router]);
 
-    // Cash payment doesn't require any validation - ready to proceed
-
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) return 'N/A';
     try {
-      setProcessing(true);
-
-      // For direct request payment, backend will create invoice
-      if (isRequestDirectPayment && serviceRequest) {
-        toast.info('Processing payment and creating invoice...');
-
-        // Backend should handle creating invoice and processing payment
-        // For now, we'll show a message that this feature is coming soon
-        toast.error('Direct request payment is being set up. Please try again later.');
-        setProcessing(false);
-        return;
-      }
-
-      // Call the actual payment API for existing invoices
-      const paymentData = {
-        paymentMethod: selectedPaymentMethod.toUpperCase(),
-        paymentId: `payment_${Date.now()}`,
-        transactionId: `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-      };
-
-      await customerApi.payInvoice(invoice.id, paymentData);
-
-      toast.success('Payment successful! Redirecting to receipt...');
-
-      // Redirect to invoice detail page to view receipt
-      setTimeout(() => {
-        router.push(`/customer/payments/invoices/${invoice.id}`);
-      }, 1000);
-    } catch (error: any) {
-      console.error('Payment error:', error);
-      toast.error(error?.response?.data?.message || 'Payment failed. Please try again.');
-    } finally {
-      setProcessing(false);
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'Invalid Date';
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+    } catch {
+      return 'Invalid Date';
     }
+  };
+
+  const formatCurrency = (amount: number | string) => {
+    const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(num);
   };
 
   if (loading) {
@@ -319,27 +221,10 @@ export default function CheckoutPage() {
     return null;
   }
 
-  // Extract invoice amounts for display
-  const materialCost = parseFloat(invoice.materialCost || '0');
-  const platformFee = parseFloat(invoice.platformFee || '0');
-  const taxAmount = parseFloat(invoice.taxAmount || '0');
   const totalAmount = parseFloat(invoice.totalAmount || '0');
 
-  // Get service charge from line items (what provider actually entered)
-  const serviceChargeItem = invoice.lineItems?.find((item: any) => item.itemType === 'service');
-  const serviceCharge = serviceChargeItem
-    ? parseFloat(serviceChargeItem.total)
-    : parseFloat(invoice.laborCost || invoice.subtotal || '0');
-
-  // Get material cost from line items (for description)
-  const materialCostItem = invoice.lineItems?.find((item: any) => item.itemType === 'material');
-  const materialCostDescription = materialCostItem?.description || '';
-
-  // Calculate total dynamically to handle old invoices with incorrect stored totals
-  const calculatedTotal = serviceCharge + materialCost + platformFee + taxAmount;
-
   return (
-    <div className="min-h-screen bg-linear-to-br from-sky-50 via-blue-50 to-indigo-50 px-4 py-6 sm:py-8">
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-50 px-4 py-6 sm:py-8">
       <div className="max-w-6xl mx-auto">
         {/* Back Button */}
         <Link
@@ -355,19 +240,16 @@ export default function CheckoutPage() {
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
             Checkout, {user?.name?.split(' ')[0] || 'User'}!
           </h1>
-          <p className="text-gray-600">
-            Complete your payment securely
-          </p>
+          <p className="text-gray-600">Complete your payment securely</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-          {/* Left Column - Scrollable Content */}
-          <div className="lg:col-span-2 space-y-6 overflow-y-auto max-h-[calc(100vh-200px)] pr-2">
+          {/* Left Column - Service Details */}
+          <div className="lg:col-span-2 space-y-6">
             {/* Service Details Card */}
             <Card className="border-2 border-sky-100 shadow-xl overflow-hidden">
               <CardContent className="p-0">
-                {/* Card Header */}
-                <div className="bg-linear-to-r from-sky-500 via-blue-500 to-indigo-600 p-6 text-white">
+                <div className="bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-600 p-6 text-white">
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-white/20 rounded-xl">
                       <Briefcase className="h-6 w-6" />
@@ -379,12 +261,11 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                {/* Card Content */}
                 <div className="p-6 space-y-4">
                   <div>
                     <p className="text-sm font-semibold text-gray-500 mb-1">Service Title</p>
                     <p className="text-lg font-semibold text-gray-900">
-                      {serviceRequest?.serviceTitle || serviceRequest?.title || invoice?.serviceRequest?.title || 'Service Request'}
+                      {serviceRequest?.serviceTitle || serviceRequest?.title || 'Service Request'}
                     </p>
                   </div>
 
@@ -392,7 +273,7 @@ export default function CheckoutPage() {
                     <div>
                       <p className="text-sm font-semibold text-gray-500 mb-1">Service Type</p>
                       <p className="text-gray-800 capitalize">
-                        {serviceRequest?.serviceType || invoice?.serviceRequest?.serviceType || 'N/A'}
+                        {serviceRequest?.serviceType || 'N/A'}
                       </p>
                     </div>
 
@@ -401,7 +282,7 @@ export default function CheckoutPage() {
                         <p className="text-sm font-semibold text-gray-500 mb-1">Service Provider</p>
                         <p className="text-gray-800 flex items-center gap-2">
                           <User className="h-4 w-4 text-sky-600" />
-                          {provider?.name || provider?.businessName || provider?.contactPerson || 'Service Provider'}
+                          {provider?.name || provider?.businessName || 'Service Provider'}
                         </p>
                       </div>
                     )}
@@ -410,9 +291,7 @@ export default function CheckoutPage() {
                   {serviceRequest?.serviceDescription && (
                     <div>
                       <p className="text-sm font-semibold text-gray-500 mb-1">Description</p>
-                      <p className="text-gray-700 leading-relaxed">
-                        {serviceRequest?.serviceDescription}
-                      </p>
+                      <p className="text-gray-700 leading-relaxed">{serviceRequest.serviceDescription}</p>
                     </div>
                   )}
 
@@ -423,508 +302,148 @@ export default function CheckoutPage() {
                         Service Address
                       </p>
                       <p className="text-gray-800 text-sm">
-                        {typeof serviceRequest?.serviceAddress === 'object'
-                          ? `${serviceRequest?.serviceAddress?.street || ''}, ${serviceRequest?.serviceAddress?.city || ''}, ${serviceRequest?.serviceAddress?.state || ''} ${serviceRequest?.serviceAddress?.pincode || ''}`.trim()
-                          : serviceRequest?.serviceAddress}
+                        {typeof serviceRequest.serviceAddress === 'object'
+                          ? `${serviceRequest.serviceAddress?.street || ''}, ${serviceRequest.serviceAddress?.city || ''}, ${serviceRequest.serviceAddress?.state || ''} ${serviceRequest.serviceAddress?.pincode || ''}`.trim()
+                          : serviceRequest.serviceAddress}
                       </p>
                     </div>
                   )}
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {serviceRequest?.schedule?.date && (
-                      <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
-                        <p className="text-sm font-semibold text-blue-900 mb-2 flex items-center gap-2">
-                          <Calendar className="h-4 w-4" />
-                          Service Date
-                        </p>
-                        <p className="text-gray-800 text-sm font-medium">
-                          {new Date(serviceRequest?.schedule?.date).toLocaleDateString('en-IN', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric',
-                          })}
-                        </p>
-                      </div>
-                    )}
-
-                    {(serviceRequest?.schedule?.timeSlot || serviceRequest?.schedule?.preferredTime) && (
-                      <div className="bg-purple-50 rounded-xl p-4 border border-purple-100">
-                        <p className="text-sm font-semibold text-purple-900 mb-2 flex items-center gap-2">
-                          <Clock className="h-4 w-4" />
-                          Preferred Time
-                        </p>
-                        <p className="text-gray-800 text-sm font-medium capitalize">
-                          {serviceRequest?.schedule?.timeSlot || serviceRequest?.schedule?.preferredTime || 'Not specified'}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Payment Method Selection */}
-            <Card className="border-2 border-sky-100 shadow-xl overflow-hidden">
-              <CardContent className="p-0">
-                {/* Card Header */}
-                <div className="bg-linear-to-r from-sky-500 via-blue-500 to-indigo-600 p-6 text-white">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white/20 rounded-xl">
-                      <CreditCard className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-bold">Payment Method</h2>
-                      <p className="text-sky-100 text-sm">Choose your preferred payment option</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Payment Methods */}
-                <div className="p-6 space-y-3">
-                  {/* UPI */}
-                  <button
-                    onClick={() => !processing && setSelectedPaymentMethod('upi')}
-                    disabled={processing}
-                    className={`w-full flex items-center gap-4 p-4 border-2 rounded-xl transition-all disabled:opacity-50 ${
-                      selectedPaymentMethod === 'upi'
-                        ? 'border-sky-500 bg-sky-50 shadow-md'
-                        : 'border-gray-200 hover:border-sky-300 hover:bg-sky-50/50'
-                    }`}
-                  >
-                    <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
-                      selectedPaymentMethod === 'upi' ? 'bg-linear-to-br from-sky-500 to-blue-500' : 'bg-gray-100'
-                    }`}>
-                      <Smartphone className={`h-6 w-6 ${selectedPaymentMethod === 'upi' ? 'text-white' : 'text-gray-500'}`} />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <p className="font-bold text-gray-900">UPI Payment</p>
-                      <p className="text-sm text-gray-600">Google Pay, PhonePe, Paytm</p>
-                    </div>
-                    {selectedPaymentMethod === 'upi' && (
-                      <div className="w-7 h-7 rounded-full bg-sky-500 flex items-center justify-center">
-                        <CheckCircle2 className="h-5 w-5 text-white" />
-                      </div>
-                    )}
-                  </button>
-
-                  {/* Credit/Debit Card */}
-                  <button
-                    onClick={() => !processing && setSelectedPaymentMethod('card')}
-                    disabled={processing}
-                    className={`w-full flex items-center gap-4 p-4 border-2 rounded-xl transition-all disabled:opacity-50 ${
-                      selectedPaymentMethod === 'card'
-                        ? 'border-sky-500 bg-sky-50 shadow-md'
-                        : 'border-gray-200 hover:border-sky-300 hover:bg-sky-50/50'
-                    }`}
-                  >
-                    <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
-                      selectedPaymentMethod === 'card' ? 'bg-linear-to-br from-sky-500 to-blue-500' : 'bg-gray-100'
-                    }`}>
-                      <CreditCard className={`h-6 w-6 ${selectedPaymentMethod === 'card' ? 'text-white' : 'text-gray-500'}`} />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <p className="font-bold text-gray-900">Credit / Debit Card</p>
-                      <p className="text-sm text-gray-600">Visa, Mastercard, RuPay</p>
-                    </div>
-                    {selectedPaymentMethod === 'card' && (
-                      <div className="w-7 h-7 rounded-full bg-sky-500 flex items-center justify-center">
-                        <CheckCircle2 className="h-5 w-5 text-white" />
-                      </div>
-                    )}
-                  </button>
-
-                  {/* Net Banking */}
-                  <button
-                    onClick={() => !processing && setSelectedPaymentMethod('netbanking')}
-                    disabled={processing}
-                    className={`w-full flex items-center gap-4 p-4 border-2 rounded-xl transition-all disabled:opacity-50 ${
-                      selectedPaymentMethod === 'netbanking'
-                        ? 'border-sky-500 bg-sky-50 shadow-md'
-                        : 'border-gray-200 hover:border-sky-300 hover:bg-sky-50/50'
-                    }`}
-                  >
-                    <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
-                      selectedPaymentMethod === 'netbanking' ? 'bg-linear-to-br from-sky-500 to-blue-500' : 'bg-gray-100'
-                    }`}>
-                      <Building2 className={`h-6 w-6 ${selectedPaymentMethod === 'netbanking' ? 'text-white' : 'text-gray-500'}`} />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <p className="font-bold text-gray-900">Net Banking</p>
-                      <p className="text-sm text-gray-600">All major banks supported</p>
-                    </div>
-                    {selectedPaymentMethod === 'netbanking' && (
-                      <div className="w-7 h-7 rounded-full bg-sky-500 flex items-center justify-center">
-                        <CheckCircle2 className="h-5 w-5 text-white" />
-                      </div>
-                    )}
-                  </button>
-
-                  {/* Cash Payment */}
-                  <button
-                    onClick={() => !processing && setSelectedPaymentMethod('cash')}
-                    disabled={processing}
-                    className={`w-full flex items-center gap-4 p-4 border-2 rounded-xl transition-all disabled:opacity-50 ${
-                      selectedPaymentMethod === 'cash'
-                        ? 'border-sky-500 bg-sky-50 shadow-md'
-                        : 'border-gray-200 hover:border-sky-300 hover:bg-sky-50/50'
-                    }`}
-                  >
-                    <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
-                      selectedPaymentMethod === 'cash' ? 'bg-linear-to-br from-emerald-500 to-green-500' : 'bg-gray-100'
-                    }`}>
-                      <Banknote className={`h-6 w-6 ${selectedPaymentMethod === 'cash' ? 'text-white' : 'text-gray-500'}`} />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <p className="font-bold text-gray-900">Cash Payment</p>
-                      <p className="text-sm text-gray-600">Pay directly to service provider</p>
-                    </div>
-                    {selectedPaymentMethod === 'cash' && (
-                      <div className="w-7 h-7 rounded-full bg-emerald-500 flex items-center justify-center">
-                        <CheckCircle2 className="h-5 w-5 text-white" />
-                      </div>
-                    )}
-                  </button>
-                </div>
-
-                {/* Payment Form Fields */}
-                <div className="px-6 pb-6">
-                  {/* UPI Form */}
-                  {selectedPaymentMethod === 'upi' && (
-                    <div className="bg-linear-to-br from-sky-50 to-indigo-50 rounded-2xl p-6 border-2 border-sky-100 animate-in fade-in slide-in-from-top-2 duration-300">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="p-2 bg-linear-to-br from-sky-500 to-blue-500 rounded-lg">
-                          <Smartphone className="h-5 w-5 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-gray-900">UPI Payment Details</h3>
-                          <p className="text-sm text-gray-600">Enter your UPI ID to proceed</p>
-                        </div>
-                      </div>
-
-                      <div>
-                        <Label htmlFor="upiId" className="text-sm font-bold text-gray-800 mb-2">
-                          UPI ID <span className="text-red-500">*</span>
-                        </Label>
-                        <div className="relative">
-                          <Input
-                            id="upiId"
-                            type="text"
-                            placeholder="yourname@upi"
-                            value={upiId}
-                            onChange={(e) => setUpiId(e.target.value)}
-                            className="h-12 border-2 border-gray-200 focus:border-sky-500 text-base rounded-xl"
-                            disabled={processing}
-                          />
-                          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 font-medium">
-                            @upi
-                          </div>
-                        </div>
-                        <p className="text-sm text-gray-600 mt-2 flex items-center gap-1">
-                          <Lock className="h-3 w-3" />
-                          Your UPI ID is secure and encrypted
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Card Form */}
-                  {selectedPaymentMethod === 'card' && (
-                    <div className="bg-linear-to-br from-sky-50 to-indigo-50 rounded-2xl p-6 border-2 border-sky-100 animate-in fade-in slide-in-from-top-2 duration-300">
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="p-2 bg-linear-to-br from-sky-500 to-blue-500 rounded-lg">
-                          <CreditCard className="h-5 w-5 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-gray-900">Card Payment Details</h3>
-                          <p className="text-sm text-gray-600">Enter your card information securely</p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-5">
-                        <div>
-                          <Label htmlFor="cardNumber" className="text-sm font-bold text-gray-800 mb-2">
-                            Card Number <span className="text-red-500">*</span>
-                          </Label>
-                          <div className="relative">
-                            <Input
-                              id="cardNumber"
-                              type="text"
-                              placeholder="1234 5678 9012 3456"
-                              value={cardNumber}
-                              onChange={(e) => {
-                                const value = e.target.value.replace(/\s/g, '').replace(/\D/g, '').substring(0, 16);
-                                const formatted = value.replace(/(\d{4})(?=\d)/g, '$1 ');
-                                setCardNumber(formatted);
-                              }}
-                              className="h-12 pl-12 pr-4 border-2 border-gray-200 focus:border-sky-500 text-base rounded-xl"
-                              disabled={processing}
-                              maxLength={19}
-                            />
-                            <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                          </div>
-                        </div>
-
-                        <div>
-                          <Label htmlFor="cardName" className="text-sm font-bold text-gray-800 mb-2">
-                            Cardholder Name <span className="text-red-500">*</span>
-                          </Label>
-                          <Input
-                            id="cardName"
-                            type="text"
-                            placeholder="Name as shown on card"
-                            value={cardName}
-                            onChange={(e) => setCardName(e.target.value)}
-                            className="h-12 border-2 border-gray-200 focus:border-sky-500 text-base rounded-xl"
-                            disabled={processing}
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="expiry" className="text-sm font-bold text-gray-800 mb-2">
-                              Expiry Date <span className="text-red-500">*</span>
-                            </Label>
-                            <Input
-                              id="expiry"
-                              type="text"
-                              placeholder="MM/YY"
-                              value={expiryDate}
-                              onChange={(e) => {
-                                const value = e.target.value.replace(/\D/g, '').substring(0, 4);
-                                const formatted = value.replace(/(\d{2})(?=\d)/g, '$1/');
-                                setExpiryDate(formatted);
-                              }}
-                              className="h-12 border-2 border-gray-200 focus:border-sky-500 text-base rounded-xl"
-                              disabled={processing}
-                              maxLength={5}
-                            />
-                          </div>
-
-                          <div>
-                            <Label htmlFor="cvv" className="text-sm font-bold text-gray-800 mb-2">
-                              CVV <span className="text-red-500">*</span>
-                            </Label>
-                            <div className="relative">
-                              <Input
-                                id="cvv"
-                                type="password"
-                                placeholder="•••"
-                                value={cvv}
-                                onChange={(e) => setCvv(e.target.value.replace(/\D/g, '').substring(0, 3))}
-                                className="h-12 pr-10 border-2 border-gray-200 focus:border-sky-500 text-base rounded-xl"
-                                disabled={processing}
-                                maxLength={3}
-                              />
-                              <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                                <Lock className="h-4 w-4 text-gray-400" />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex items-start gap-2 pt-2">
-                          <Lock className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                          <p className="text-xs text-gray-600">Your card details are secured with 256-bit SSL encryption</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Net Banking Form */}
-                  {selectedPaymentMethod === 'netbanking' && (
-                    <div className="bg-linear-to-br from-sky-50 to-indigo-50 rounded-2xl p-6 border-2 border-sky-100 animate-in fade-in slide-in-from-top-2 duration-300">
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="p-2 bg-linear-to-br from-sky-500 to-blue-500 rounded-lg">
-                          <Building2 className="h-5 w-5 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-gray-900">Net Banking</h3>
-                          <p className="text-sm text-gray-600">Select your bank to proceed</p>
-                        </div>
-                      </div>
-
-                      <div>
-                        <Label htmlFor="bank" className="text-sm font-bold text-gray-800 mb-2">
-                          Select Bank <span className="text-red-500">*</span>
-                        </Label>
-                        <Select value={selectedBank} onValueChange={setSelectedBank} disabled={processing}>
-                          <SelectTrigger className="h-12 border-2 border-gray-200 focus:border-sky-500 text-base rounded-xl" style={{ backgroundColor: 'white' }}>
-                            <SelectValue placeholder="Choose your bank" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white border border-sky-200 shadow-lg">
-                            <SelectItem value="sbi" className="hover:bg-sky-50 focus:bg-sky-100">State Bank of India</SelectItem>
-                            <SelectItem value="hdfc" className="hover:bg-sky-50 focus:bg-sky-100">HDFC Bank</SelectItem>
-                            <SelectItem value="icici" className="hover:bg-sky-50 focus:bg-sky-100">ICICI Bank</SelectItem>
-                            <SelectItem value="axis" className="hover:bg-sky-50 focus:bg-sky-100">Axis Bank</SelectItem>
-                            <SelectItem value="kotak" className="hover:bg-sky-50 focus:bg-sky-100">Kotak Mahindra Bank</SelectItem>
-                            <SelectItem value="pnb" className="hover:bg-sky-50 focus:bg-sky-100">Punjab National Bank</SelectItem>
-                            <SelectItem value="bob" className="hover:bg-sky-50 focus:bg-sky-100">Bank of Baroda</SelectItem>
-                            <SelectItem value="other" className="hover:bg-sky-50 focus:bg-sky-100">Other Bank</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <p className="text-sm text-gray-600 mt-2 flex items-center gap-1">
-                          <Lock className="h-3 w-3" />
-                          Secure net banking powered by FixBee
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Cash Payment Form */}
-                  {selectedPaymentMethod === 'cash' && (
-                    <div className="bg-linear-to-br from-emerald-50 to-green-50 rounded-2xl p-6 border-2 border-emerald-100 animate-in fade-in slide-in-from-top-2 duration-300">
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="p-2 bg-linear-to-br from-emerald-500 to-green-500 rounded-lg">
-                          <Banknote className="h-5 w-5 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-gray-900">Cash Payment</h3>
-                          <p className="text-sm text-gray-600">Pay directly to service provider</p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
-                        <div className="bg-white rounded-xl p-4 border border-emerald-200">
-                          <p className="text-sm font-semibold text-gray-800 mb-2">Payment Instructions:</p>
-                          <ul className="space-y-2 text-sm text-gray-700">
-                            <li className="flex items-start gap-2">
-                              <span className="text-emerald-600 mt-0.5">✓</span>
-                              <span>Keep exact cash amount ready: <strong>₹{calculatedTotal.toFixed(2)}</strong></span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-emerald-600 mt-0.5">✓</span>
-                              <span>Payment will be collected after service completion</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-emerald-600 mt-0.5">✓</span>
-                              <span>Ask for receipt after payment</span>
-                            </li>
-                          </ul>
-                        </div>
-
-                        <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
-                          <p className="text-sm font-semibold text-amber-900 mb-1">Note:</p>
-                          <p className="text-xs text-amber-800">Provider will verify payment before marking service as complete. Please ensure you have the exact amount.</p>
-                        </div>
-                      </div>
+                  {serviceRequest?.schedule?.date && (
+                    <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                      <p className="text-sm font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                        <Calendar className="h-4 w-4" />
+                        Service Date
+                      </p>
+                      <p className="text-gray-800 text-sm font-medium">
+                        {formatDate(serviceRequest.schedule.date)}
+                      </p>
                     </div>
                   )}
                 </div>
               </CardContent>
             </Card>
-          </div>
 
-          {/* Right Column - Order Summary (Sticky) */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-8">
+            {/* Payment Section */}
+            {creatingIntent ? (
+              <Card className="border-2 border-sky-100 shadow-xl p-8">
+                <div className="flex flex-col items-center justify-center py-8">
+                  <Loader2 className="h-12 w-12 animate-spin text-sky-600 mb-4" />
+                  <p className="text-lg font-semibold text-gray-900">Preparing Payment...</p>
+                  <p className="text-sm text-gray-600 mt-2">Please wait while we set up your secure payment</p>
+                </div>
+              </Card>
+            ) : paymentIntent ? (
               <Card className="border-2 border-sky-100 shadow-xl overflow-hidden">
                 <CardContent className="p-0">
-                  {/* Card Header */}
-                  <div className="bg-linear-to-r from-sky-500 via-blue-500 to-indigo-600 p-6 text-white">
+                  <div className="bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-600 p-6 text-white">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-white/20 rounded-xl">
-                        <Lock className="h-6 w-6" />
+                        <CreditCard className="h-6 w-6" />
                       </div>
                       <div>
-                        <h2 className="text-xl font-bold">Order Summary</h2>
-                        <p className="text-sky-100 text-sm">Secure payment</p>
+                        <h2 className="text-xl font-bold">Secure Payment</h2>
+                        <p className="text-sky-100 text-sm">Powered by Stripe</p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Card Content */}
                   <div className="p-6">
-                    <div className="space-y-4 mb-6">
-                      {/* Service Charge */}
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <p className="text-gray-700 font-medium">Service Charges</p>
-                          <p className="text-xs text-gray-500 mt-1">Professional service fee</p>
-                        </div>
-                        <span className="font-bold text-gray-900 text-lg">₹{serviceCharge.toFixed(2)}</span>
-                      </div>
-
-                      {/* Material Cost */}
-                      {materialCost > 0 && (
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <p className="text-gray-700 font-medium">Material Cost</p>
-                            {materialCostDescription && (
-                              <p className="text-xs text-gray-500 mt-1">{materialCostDescription}</p>
-                            )}
-                          </div>
-                          <span className="font-bold text-gray-900 text-lg">₹{materialCost.toFixed(2)}</span>
-                        </div>
-                      )}
-
-                      {/* Platform Fee */}
-                      {platformFee > 0 && (
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-700 font-medium">Platform Fee</span>
-                          <span className="font-semibold text-gray-900">₹{platformFee.toFixed(2)}</span>
-                        </div>
-                      )}
-
-                      {/* Tax */}
-                      {taxAmount > 0 && (
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-700 font-medium">Tax (18% GST)</span>
-                          <span className="font-semibold text-gray-900">₹{taxAmount.toFixed(2)}</span>
-                        </div>
-                      )}
-
-                      {/* Total */}
-                      <div className="border-t-2 border-gray-200 pt-4">
-                        <div className="flex justify-between items-center">
-                          <span className="font-bold text-gray-900 text-lg">Total Amount</span>
-                          <span className="font-bold text-transparent bg-clip-text bg-linear-to-r from-sky-600 to-indigo-600 text-2xl">
-                            ₹{calculatedTotal.toFixed(2)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3 mb-6 p-4 bg-linear-to-br from-sky-50 to-indigo-50 rounded-xl border border-sky-100">
-                      <div className="flex items-start gap-2 text-sm text-gray-700">
-                        <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
-                        <span>256-bit SSL encryption</span>
-                      </div>
-                      <div className="flex items-start gap-2 text-sm text-gray-700">
-                        <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
-                        <span>100% secure payment</span>
-                      </div>
-                      <div className="flex items-start gap-2 text-sm text-gray-700">
-                        <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
-                        <span>Instant invoice generation</span>
-                      </div>
-                    </div>
-
-                    <Button
-                      onClick={handlePayment}
-                      disabled={processing}
-                      className="w-full bg-linear-to-r from-sky-500 via-blue-500 to-indigo-600 hover:from-sky-600 hover:via-blue-600 hover:to-indigo-700 text-white py-6 text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all"
-                    >
-                      {processing ? (
-                        <>
-                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                          Processing...
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="mr-2 h-5 w-5" />
-                          Pay ₹{calculatedTotal.toFixed(2)}
-                        </>
-                      )}
-                    </Button>
-
-                    <p className="text-xs text-center text-gray-500 mt-4 flex items-center justify-center gap-1">
-                      <Lock className="h-3 w-3" />
-                      Secured by FixBee Payment Gateway
-                    </p>
+                    <StripePaymentForm
+                      clientSecret={paymentIntent.clientSecret}
+                      paymentIntentId={paymentIntent.paymentIntentId}
+                      paymentId={paymentIntent.paymentId}
+                      amount={paymentIntent.amount}
+                      onSuccess={handlePaymentSuccess}
+                      onError={handlePaymentError}
+                      onCancel={handleCancelPayment}
+                    />
                   </div>
                 </CardContent>
               </Card>
-            </div>
+            ) : (
+              <Card className="border-2 border-red-100 shadow-xl p-8">
+                <div className="text-center">
+                  <p className="text-red-600 font-semibold">Failed to initialize payment</p>
+                  <Button
+                    onClick={loadInvoiceAndCreateIntent}
+                    className="mt-4"
+                  >
+                    Try Again
+                  </Button>
+                </div>
+              </Card>
+            )}
+          </div>
+
+          {/* Right Column - Order Summary */}
+          <div className="lg:col-span-1">
+            <Card className="border-2 border-sky-100 shadow-xl sticky top-4">
+              <CardContent className="p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Order Summary</h2>
+
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center pb-3 border-b border-gray-200">
+                    <span className="text-gray-600">Service Charge</span>
+                    <span className="font-semibold text-gray-900">
+                      {formatCurrency(invoice.subtotal || invoice.laborCost || '0')}
+                    </span>
+                  </div>
+
+                  {invoice.materialCost && parseFloat(invoice.materialCost) > 0 && (
+                    <div className="flex justify-between items-center pb-3 border-b border-gray-200">
+                      <span className="text-gray-600">Material Cost</span>
+                      <span className="font-semibold text-gray-900">
+                        {formatCurrency(invoice.materialCost)}
+                      </span>
+                    </div>
+                  )}
+
+                  {invoice.platformFee && parseFloat(invoice.platformFee) > 0 && (
+                    <div className="flex justify-between items-center pb-3 border-b border-gray-200">
+                      <span className="text-gray-600">Platform Fee</span>
+                      <span className="font-semibold text-gray-900">
+                        {formatCurrency(invoice.platformFee)}
+                      </span>
+                    </div>
+                  )}
+
+                  {invoice.taxAmount && parseFloat(invoice.taxAmount) > 0 && (
+                    <div className="flex justify-between items-center pb-3 border-b border-gray-200">
+                      <span className="text-gray-600">Tax</span>
+                      <span className="font-semibold text-gray-900">
+                        {formatCurrency(invoice.taxAmount)}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between items-center pt-3">
+                    <span className="text-lg font-bold text-gray-900">Total</span>
+                    <span className="text-2xl font-bold text-sky-600 flex items-center gap-1">
+                      <IndianRupee className="h-5 w-5" />
+                      {parseFloat(invoice.totalAmount).toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Invoice Number */}
+                <div className="mt-6 pt-4 border-t border-gray-200">
+                  <p className="text-sm text-gray-600">Invoice Number</p>
+                  <p className="font-mono font-semibold text-gray-900">{invoice.invoiceNumber}</p>
+                </div>
+
+                {/* Payment Security Badge */}
+                <div className="mt-6 p-4 bg-sky-50 rounded-xl border border-sky-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <CheckCircle2 className="h-5 w-5 text-sky-600" />
+                    <p className="font-semibold text-sky-900">Secure Payment</p>
+                  </div>
+                  <p className="text-xs text-sky-800">
+                    Your payment is processed securely through Stripe. We do not store your card details.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
@@ -934,55 +453,38 @@ export default function CheckoutPage() {
 
 function LoadingSkeleton() {
   return (
-    <div className="min-h-screen bg-linear-to-br from-sky-50 via-blue-50 to-indigo-50 px-4 py-6">
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-50 px-4 py-6 sm:py-8">
       <div className="max-w-6xl mx-auto">
-        <Skeleton className="h-10 w-32 mb-6" />
-        <Skeleton className="h-14 w-64 mb-2" />
-        <Skeleton className="h-6 w-96 mb-8" />
+        <div className="mb-8">
+          <Skeleton className="h-10 w-48 mb-2" />
+          <Skeleton className="h-6 w-64" />
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <Card className="border-2 border-sky-100">
-              <CardContent className="p-0">
-                <Skeleton className="h-24 w-full" />
-                <div className="p-6 space-y-4">
-                  <Skeleton className="h-6 w-3/4" />
-                  <Skeleton className="h-6 w-1/2" />
-                  <Skeleton className="h-20 w-full" />
-                  <div className="grid grid-cols-2 gap-4">
-                    <Skeleton className="h-20 w-full" />
-                    <Skeleton className="h-20 w-full" />
-                  </div>
-                </div>
-              </CardContent>
+            <Card className="p-6">
+              <Skeleton className="h-8 w-48 mb-4" />
+              <div className="space-y-3">
+                <Skeleton className="h-6 w-full" />
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-32 w-full" />
+              </div>
             </Card>
 
-            <Card className="border-2 border-sky-100">
-              <CardContent className="p-0">
-                <Skeleton className="h-24 w-full" />
-                <div className="p-6 space-y-3">
-                  {[1, 2, 3].map((i) => (
-                    <Skeleton key={i} className="h-20 w-full" />
-                  ))}
-                </div>
-              </CardContent>
+            <Card className="p-6">
+              <Skeleton className="h-8 w-48 mb-4" />
+              <Skeleton className="h-32 w-full" />
             </Card>
           </div>
 
           <div className="lg:col-span-1">
-            <Card className="border-2 border-sky-100">
-              <CardContent className="p-0">
-                <Skeleton className="h-24 w-full" />
-                <div className="p-6">
-                  <div className="space-y-4 mb-6">
-                    <Skeleton className="h-6 w-full" />
-                    <Skeleton className="h-6 w-full" />
-                    <Skeleton className="h-8 w-full" />
-                  </div>
-                  <Skeleton className="h-16 w-full mb-6" />
-                  <Skeleton className="h-14 w-full" />
-                </div>
-              </CardContent>
+            <Card className="p-6 sticky top-4">
+              <Skeleton className="h-8 w-32 mb-4" />
+              <div className="space-y-3">
+                <Skeleton className="h-6 w-full" />
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-8 w-full mt-4" />
+              </div>
             </Card>
           </div>
         </div>

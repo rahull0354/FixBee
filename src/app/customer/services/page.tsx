@@ -13,6 +13,7 @@ import {
   ChevronRight,
   X,
 } from "lucide-react";
+import { IconRenderer } from "@/components/ui/icon-renderer";
 import { toast } from "sonner";
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from "@/components/ui/button";
@@ -211,11 +212,11 @@ export default function BrowseServicesPage() {
             >
               {/* Icon */}
               <div className="w-16 h-16 bg-linear-to-br from-sky-400 via-blue-400 to-indigo-400 rounded-2xl flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform">
-                {category.icon ? (
-                  <span className="text-3xl">{category.icon}</span>
-                ) : (
-                  <Briefcase className="h-8 w-8 text-white" />
-                )}
+                <IconRenderer
+                  iconName={category.icon}
+                  className="h-8 w-8 text-white"
+                  fallback={<Briefcase className="h-8 w-8 text-white" />}
+                />
               </div>
 
               {/* Name */}
