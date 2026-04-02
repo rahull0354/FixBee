@@ -314,8 +314,26 @@ export default function AdminPaymentsPage() {
         setRecentPayments([]);
       }
 
-      // Load pending invoices - skip for now as endpoint doesn't exist
-      setPendingInvoices([]);
+      // Load pending invoices
+      try {
+        const invoicesResponse = await adminApi.getAllInvoices({
+          status: 'pending',
+          limit: 5
+        });
+
+        const invoicesData = (invoicesResponse as any).data?.invoices ||
+                             (invoicesResponse as any).data ||
+                             invoicesResponse;
+
+        const invoicesArray = Array.isArray(invoicesData)
+          ? invoicesData
+          : invoicesData.invoices || [];
+
+        setPendingInvoices(invoicesArray);
+      } catch (invoicesError) {
+        console.warn('Could not load pending invoices:', invoicesError);
+        setPendingInvoices([]);
+      }
     } catch (error: any) {
       console.error("Error loading payment data:", error);
     } finally {
