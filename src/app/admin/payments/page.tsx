@@ -432,9 +432,9 @@ export default function AdminPaymentsPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {/* Total Revenue */}
-        <div className="bg-linear-to-br from-green-50 to-emerald-50 rounded-2xl p-4 sm:p-6 border-2 border-green-200 shadow-lg hover:shadow-xl transition-shadow">
+        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-4 sm:p-6 border-2 border-green-200 shadow-lg hover:shadow-xl transition-shadow">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-linear-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-md">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-md">
               <DollarSign className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
             {stats?.revenueChange && (
@@ -463,9 +463,9 @@ export default function AdminPaymentsPage() {
         </div>
 
         {/* Pending Payments */}
-        <div className="bg-linear-to-br from-yellow-50 to-amber-50 rounded-2xl p-4 sm:p-6 border-2 border-yellow-200 shadow-lg hover:shadow-xl transition-shadow">
+        <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-2xl p-4 sm:p-6 border-2 border-yellow-200 shadow-lg hover:shadow-xl transition-shadow">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-linear-to-br from-yellow-400 to-amber-500 flex items-center justify-center shadow-md">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center shadow-md">
               <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
             <Badge className="bg-yellow-100 text-yellow-800 text-xs font-semibold">
@@ -483,9 +483,9 @@ export default function AdminPaymentsPage() {
         </div>
 
         {/* Platform Fees */}
-        <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-2xl p-4 sm:p-6 border-2 border-blue-200 shadow-lg hover:shadow-xl transition-shadow">
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-4 sm:p-6 border-2 border-blue-200 shadow-lg hover:shadow-xl transition-shadow">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center shadow-md">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center shadow-md">
               <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
           </div>
@@ -498,9 +498,9 @@ export default function AdminPaymentsPage() {
         </div>
 
         {/* Provider Earnings */}
-        <div className="bg-linear-to-br from-purple-50 to-pink-50 rounded-2xl p-4 sm:p-6 border-2 border-purple-200 shadow-lg hover:shadow-xl transition-shadow">
+        <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-4 sm:p-6 border-2 border-purple-200 shadow-lg hover:shadow-xl transition-shadow">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-linear-to-br from-purple-400 to-pink-500 flex items-center justify-center shadow-md">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center shadow-md">
               <Wallet className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
           </div>
@@ -615,7 +615,7 @@ export default function AdminPaymentsPage() {
                     className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-blue-50/50 transition-colors"
                   >
                     <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                      <div className="w-10 h-10 rounded-xl bg-linear-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 flex items-center justify-center shrink-0">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 flex items-center justify-center shrink-0">
                         {getPaymentMethodIcon(payment.paymentMethod)}
                       </div>
                       <div className="min-w-0 flex-1">
@@ -649,7 +649,7 @@ export default function AdminPaymentsPage() {
               })
             ) : (
               <div className="text-center py-8 sm:py-12">
-                <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-linear-to-br from-green-100 to-emerald-100 rounded-full mb-3 sm:mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full mb-3 sm:mb-4">
                   <Wallet className="h-8 w-8 sm:h-10 sm:w-10 text-green-600" />
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2">
@@ -731,7 +731,7 @@ export default function AdminPaymentsPage() {
               ))
             ) : (
               <div className="text-center py-8 sm:py-12">
-                <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-linear-to-br from-blue-100 to-indigo-100 rounded-full mb-3 sm:mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full mb-3 sm:mb-4">
                   <FileText className="h-8 w-8 sm:h-10 sm:w-10 text-blue-600" />
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2">
@@ -757,7 +757,7 @@ export default function AdminPaymentsPage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-linear-to-r from-blue-50 to-indigo-50 rounded-2xl p-4 sm:p-6 border-2 border-blue-200">
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4 sm:p-6 border-2 border-blue-200">
         <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">
           Quick Actions
         </h2>

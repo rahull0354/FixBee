@@ -120,7 +120,7 @@ export const adminApi = {
   // Note: Invoice endpoints
   getAllInvoices: async (params?: { status?: string; page?: number; limit?: number; search?: string }) => {
     const config = params ? { params } : undefined;
-    return apiClient.get('/invoices', config);
+    return apiClient.get('/invoices/all', config);
   },
 
   getInvoice: async (id: string): Promise<Invoice> => {

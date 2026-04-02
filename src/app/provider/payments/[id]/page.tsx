@@ -293,7 +293,7 @@ export default function ProviderPaymentDetailPage() {
                     {payment?.service?.serviceTitle || payment?.serviceRequest?.serviceTitle || payment?.serviceRequest?.title || 'Service Request'}
                   </p>
                   <p className="text-xs text-emerald-700 mt-1 font-medium">
-                    Request ID: {payment?.requestId || 'N/A'}
+                    Request ID: {payment?.serviceRequest?.id || 'N/A'}
                   </p>
                 </div>
 
