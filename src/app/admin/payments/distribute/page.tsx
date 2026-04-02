@@ -702,7 +702,7 @@ export default function ProviderPayoutsPage() {
                         {formatDate(payout.processedAt || payout.requestedAt)}
                       </span>
                       <span className="text-xs text-gray-600 capitalize">
-                        {payout.method.replace("_", " ")}
+                        {payout.method?.replace("_", " ") || "Bank Transfer"}
                       </span>
                     </div>
                   </div>

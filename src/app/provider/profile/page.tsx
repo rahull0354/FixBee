@@ -28,6 +28,7 @@ import {
   Settings,
   AlertTriangle,
   Star,
+  Building2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -49,6 +50,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import Link from 'next/link';
 
 export default function ProviderProfilePage() {
   const { user, logout } = useAuth();
@@ -75,8 +77,7 @@ export default function ProviderProfilePage() {
   const [newArea, setNewArea] = useState('');
 
   // Deactivation dialog state
-  const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false);
-  const [requestingReactivation, setRequestingReactivation] = useState(false);
+const [requestingReactivation, setRequestingReactivation] = useState(false);
 
   // Profile photo dialog state
   const [photoDialogOpen, setPhotoDialogOpen] = useState(false);
@@ -209,20 +210,6 @@ export default function ProviderProfilePage() {
       toast.error(error?.response?.data?.message || 'Failed to update profile photo');
     } finally {
       setUploadingPhoto(false);
-    }
-  };
-
-  const handleDeactivate = async () => {
-    try {
-      await providerApi.deactivateAccount();
-      toast.success('Account deactivated successfully');
-      setDeactivateDialogOpen(false);
-      // Logout and redirect to home
-      await logout();
-      window.location.href = '/';
-    } catch (error: any) {
-      console.error('Error deactivating account:', error);
-      toast.error(error?.response?.data?.message || 'Failed to deactivate account');
     }
   };
 
@@ -1101,137 +1088,39 @@ export default function ProviderProfilePage() {
             </div>
           )}
 
-          {/* Danger Zone */}
-          <div className="bg-white rounded-2xl shadow-lg border border-red-100 overflow-hidden">
-            <div className="bg-linear-to-r from-red-50 to-orange-50 px-6 py-4 border-b border-red-200">
-              <h3 className="text-lg font-bold text-red-800 flex items-center gap-2">
-                <Shield className="h-5 w-5 text-red-600" />
-                Danger Zone
-              </h3>
-            </div>
-
-            <div className="p-4">
-              <div className="p-4 bg-linear-to-r from-red-50 to-orange-50 rounded-xl border border-red-200">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-red-200 rounded-lg">
-                    <Shield className="h-4 w-4 text-red-700" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-bold text-gray-800">Deactivate Account</p>
-                    <p className="text-xs text-gray-600">Permanently delete all data</p>
-                  </div>
+          {/* Quick Actions */}
+          <div className="bg-white rounded-2xl shadow-lg border-2 border-blue-100 p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Link
+                href="/provider/settings"
+                className="flex items-center gap-3 p-4 bg-linear-to-r from-sky-50 to-blue-50 rounded-xl border-2 border-blue-200 hover:border-blue-300 hover:shadow-md transition-all"
+              >
+                <div className="w-10 h-10 rounded-lg bg-linear-to-br from-sky-500 to-blue-600 flex items-center justify-center">
+                  <Building2 className="h-5 w-5 text-white" />
                 </div>
-                <Button
-                  onClick={() => setDeactivateDialogOpen(true)}
-                  className="w-full bg-white text-red-600 hover:bg-red-50 hover:border-red-300 border-red-200 font-semibold text-sm"
-                >
-                  Deactivate Account
-                </Button>
-              </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-900">Settings</p>
+                  <p className="text-xs text-gray-600">Manage account & bank details</p>
+                </div>
+              </Link>
+
+              <Link
+                href="/provider/reviews"
+                className="flex items-center gap-3 p-4 bg-linear-to-r from-purple-50 to-pink-50 rounded-xl border-2 border-purple-200 hover:border-purple-300 hover:shadow-md transition-all"
+              >
+                <div className="w-10 h-10 rounded-lg bg-linear-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+                  <Star className="h-5 w-5 text-white" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-900">Reviews</p>
+                  <p className="text-xs text-gray-600">View your ratings & feedback</p>
+                </div>
+              </Link>
             </div>
           </div>
         </>
       )}
-
-      {/* Deactivate Confirmation Dialog */}
-      <Dialog open={deactivateDialogOpen} onOpenChange={setDeactivateDialogOpen}>
-      <DialogContent className="max-w-[95vw] sm:max-w-xl w-[95vw] sm:w-auto p-0 overflow-hidden bg-white max-h-[90vh] overflow-y-auto">
-        {/* Header with Muted Warning Gradient */}
-        <div className="bg-linear-to-r from-stone-700 via-stone-600 to-stone-800 px-4 sm:px-6 py-3 sm:py-4 text-white">
-          <DialogHeader className="space-y-1">
-            <DialogTitle className="text-xl sm:text-2xl font-bold flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6" />
-              Deactivate Account
-            </DialogTitle>
-            <DialogDescription className="text-stone-300 text-sm sm:text-base">
-              This action is permanent and cannot be undone
-            </DialogDescription>
-          </DialogHeader>
-        </div>
-
-        <div className="px-4 sm:px-6 py-3 sm:py-4 space-y-3 sm:space-y-4">
-          {/* Warning Alert */}
-          <div className="bg-stone-50 border border-stone-200 rounded-xl sm:rounded-2xl p-3 sm:p-4">
-            <div className="flex items-start gap-3 sm:gap-4">
-              <div className="p-2 sm:p-3 bg-stone-200 rounded-lg sm:rounded-xl shrink-0">
-                <AlertCircle className="h-5 w-5 sm:h-6 sm:w-6 text-stone-700" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-base sm:text-lg font-bold text-stone-900 mb-2 sm:mb-3">
-                  Important Notice
-                </p>
-                <p className="text-xs sm:text-sm text-stone-700 mb-3 sm:mb-4">
-                  Once deactivated, your account and all data will be permanently deleted after a 30-day grace period.
-                </p>
-
-                <div className="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 border border-stone-200 w-full shadow">
-                  <p className="text-sm sm:text-base font-bold text-stone-800 mb-2 sm:mb-3">This action will:</p>
-                  <div className="space-y-2 sm:space-y-3">
-                    <div className="flex items-start gap-2 sm:gap-3">
-                      <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-stone-500 shrink-0 mt-0.5" />
-                      <p className="text-xs sm:text-sm text-gray-800 flex-1">Delete your account and all personal information</p>
-                    </div>
-                    <div className="flex items-start gap-2 sm:gap-3">
-                      <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-stone-500 shrink-0 mt-0.5" />
-                      <p className="text-xs sm:text-sm text-gray-800 flex-1">Remove all service history and completed jobs</p>
-                    </div>
-                    <div className="flex items-start gap-2 sm:gap-3">
-                      <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-stone-500 shrink-0 mt-0.5" />
-                      <p className="text-xs sm:text-sm text-gray-800 flex-1">Cancel any pending service requests</p>
-                    </div>
-                    <div className="flex items-start gap-2 sm:gap-3">
-                      <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-stone-500 shrink-0 mt-0.5" />
-                      <p className="text-xs sm:text-sm text-gray-800 flex-1">Delete all your reviews and ratings</p>
-                    </div>
-                    <div className="flex items-start gap-2 sm:gap-3">
-                      <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 shrink-0 mt-0.5" />
-                      <p className="text-xs sm:text-sm text-gray-800 flex-1">30-day grace period before permanent deletion</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Account Info Summary */}
-          {profile && (
-            <div className="bg-stone-50 rounded-xl p-3 sm:p-4 border border-stone-200">
-              <p className="text-xs text-stone-600 mb-2 font-semibold">Account to be deactivated:</p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-linear-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center text-white font-bold text-base sm:text-lg shrink-0">
-                  {profile.name?.charAt(0).toUpperCase() || 'P'}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-gray-800 truncate">{profile?.name || 'Provider'}</p>
-                  <p className="text-xs text-gray-600 truncate">{profile?.email || ''}</p>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Footer Actions */}
-        <div className="bg-stone-50 px-4 sm:px-6 py-3 border-t border-stone-200">
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center">
-            <Button
-              variant="outline"
-              onClick={() => setDeactivateDialogOpen(false)}
-              className="w-full sm:w-auto h-10 sm:h-11 text-sm sm:text-base font-semibold border-2 border-stone-300 text-stone-700 hover:bg-stone-100"
-            >
-              <X className="mr-2 h-4 w-4" />
-              Keep Account
-            </Button>
-            <Button
-              onClick={handleDeactivate}
-              className="w-full sm:w-auto h-10 sm:h-11 text-sm sm:text-base font-semibold bg-linear-to-r from-stone-600 to-stone-700 hover:from-stone-700 hover:to-stone-800 text-white shadow-md hover:shadow-lg transition-all"
-            >
-              <Shield className="mr-2 h-4 w-4" />
-              Deactivate Account
-            </Button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
 
     {/* Update Profile Photo Dialog */}
     <Dialog open={photoDialogOpen} onOpenChange={setPhotoDialogOpen}>

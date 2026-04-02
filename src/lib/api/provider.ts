@@ -177,4 +177,45 @@ export const providerApi = {
   requestPayout: async (amount: number) => {
     return apiClient.post('/invoices/provider/payouts/request', { amount });
   },
+
+  // Bank Accounts
+  getBankAccounts: async () => {
+    return apiClient.get('/providers/bank-accounts');
+  },
+
+  getPrimaryBankAccount: async () => {
+    return apiClient.get('/providers/bank-accounts/primary');
+  },
+
+  getBankAccountById: async (bankAccountId: string) => {
+    return apiClient.get(`/providers/bank-accounts/${bankAccountId}`);
+  },
+
+  addBankAccount: async (data: {
+    accountNumber: string;
+    ifsc: string;
+    accountHolder: string;
+    bankName: string;
+    accountType?: string;
+  }) => {
+    return apiClient.post('/providers/bank-accounts', data);
+  },
+
+  updateBankAccount: async (bankAccountId: string, data: {
+    accountNumber?: string;
+    ifsc?: string;
+    accountHolder?: string;
+    bankName?: string;
+    accountType?: string;
+  }) => {
+    return apiClient.put(`/providers/bank-accounts/${bankAccountId}`, data);
+  },
+
+  deleteBankAccount: async (bankAccountId: string) => {
+    return apiClient.delete(`/providers/bank-accounts/${bankAccountId}`);
+  },
+
+  setPrimaryBankAccount: async (bankAccountId: string) => {
+    return apiClient.patch(`/providers/bank-accounts/${bankAccountId}/set-primary`);
+  },
 };
