@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { customerApi } from '@/lib/api';
+import { useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { customerApi } from "@/lib/api";
 import {
   ArrowLeft,
   FileText,
@@ -19,12 +19,12 @@ import {
   XCircle,
   Loader2,
   MapPin,
-} from 'lucide-react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import Link from 'next/link';
+} from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
 
 interface LineItem {
   id: string;
@@ -39,7 +39,7 @@ interface Invoice {
   id: string;
   invoiceNumber: string;
   totalAmount: string;
-  status: 'pending' | 'paid' | 'overdue' | 'cancelled';
+  status: "pending" | "paid" | "overdue" | "cancelled";
   invoiceDate: string;
   dueDate?: string;
   paidAt?: string;
@@ -77,7 +77,7 @@ export default function InvoiceDetailPage() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push('/login/customer');
+      router.push("/login/customer");
       return;
     }
     if (invoiceId) {
@@ -97,7 +97,9 @@ export default function InvoiceDetailPage() {
       // Load service request details if available
       if (apiData.requestId) {
         try {
-          const requestResponse = await customerApi.getServiceRequest(apiData.requestId);
+          const requestResponse = await customerApi.getServiceRequest(
+            apiData.requestId,
+          );
 
           // The data is nested inside a "request" object
           let requestData = null;
@@ -119,7 +121,9 @@ export default function InvoiceDetailPage() {
           // Fetch provider details if we have the provider ID
           if (finalRequestData?.serviceProviderId) {
             try {
-              const providerResponse = await customerApi.getProvider(finalRequestData.serviceProviderId);
+              const providerResponse = await customerApi.getProvider(
+                finalRequestData.serviceProviderId,
+              );
 
               // Try different possible structures
               let providerData = null;
@@ -143,8 +147,8 @@ export default function InvoiceDetailPage() {
         }
       }
     } catch (error: any) {
-      toast.error('Failed to load invoice');
-      router.push('/customer/payments');
+      toast.error("Failed to load invoice");
+      router.push("/customer/payments");
     } finally {
       setLoading(false);
     }
@@ -152,21 +156,21 @@ export default function InvoiceDetailPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'paid':
+      case "paid":
         return (
           <Badge className="bg-sky-100 text-sky-800 border-sky-200">
             <CheckCircle className="h-3 w-3 mr-1 inline" />
             Paid
           </Badge>
         );
-      case 'pending':
+      case "pending":
         return (
           <Badge className="bg-amber-100 text-amber-800 border-amber-200">
             <Clock className="h-3 w-3 mr-1 inline" />
             Pending
           </Badge>
         );
-      case 'overdue':
+      case "overdue":
         return (
           <Badge className="bg-red-100 text-red-800 border-red-200">
             <XCircle className="h-3 w-3 mr-1 inline" />
@@ -184,10 +188,10 @@ export default function InvoiceDetailPage() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-IN', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
+    return date.toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
     });
   };
 
@@ -198,14 +202,14 @@ export default function InvoiceDetailPage() {
   const handleDownload = async () => {
     try {
       if (!invoice || !serviceRequest) {
-        toast.error('Invoice not loaded');
+        toast.error("Invoice not loaded");
         return;
       }
 
-      toast.info('Generating PDF...', { id: 'pdf-download' });
+      toast.info("Generating PDF...", { id: "pdf-download" });
 
-      const { downloadInvoicePDF } = await import('@/lib/utils/pdf');
-      const { InvoicePDF } = await import('@/components/invoice/InvoicePDF');
+      const { downloadInvoicePDF } = await import("@/lib/utils/pdf");
+      const { InvoicePDF } = await import("@/components/invoice/InvoicePDF");
 
       await downloadInvoicePDF({
         invoice,
@@ -215,10 +219,12 @@ export default function InvoiceDetailPage() {
         InvoicePDFComponent: InvoicePDF,
       });
 
-      toast.success('Invoice downloaded successfully!', { id: 'pdf-download' });
+      toast.success("Invoice downloaded successfully!", { id: "pdf-download" });
     } catch (error) {
-      console.error('PDF download error:', error);
-      toast.error('Failed to download invoice. Please try again.', { id: 'pdf-download' });
+      console.error("PDF download error:", error);
+      toast.error("Failed to download invoice. Please try again.", {
+        id: "pdf-download",
+      });
     }
   };
 
@@ -231,10 +237,10 @@ export default function InvoiceDetailPage() {
           url: window.location.href,
         });
       } else {
-        toast.info('Copy the link to share');
+        toast.info("Copy the link to share");
       }
     } catch (error) {
-      console.error('Error sharing:', error);
+      console.error("Error sharing:", error);
     }
   };
 
@@ -273,7 +279,10 @@ export default function InvoiceDetailPage() {
         </div>
 
         {/* Invoice Card */}
-        <div id="invoice-content" className="bg-white rounded-2xl shadow-xl border border-sky-100 overflow-hidden">
+        <div
+          id="invoice-content"
+          className="bg-white rounded-2xl shadow-xl border border-sky-100 overflow-hidden"
+        >
           {/* Invoice Header */}
           <div className="bg-linear-to-r from-sky-500 via-blue-500 to-indigo-600 p-6 sm:p-8 text-white">
             <div className="flex items-center justify-between">
@@ -288,7 +297,9 @@ export default function InvoiceDetailPage() {
               </div>
               <div className="text-right">
                 <p className="text-xs text-sky-100">Invoice Date</p>
-                <p className="text-lg font-semibold">{formatDate(invoice.invoiceDate)}</p>
+                <p className="text-lg font-semibold">
+                  {formatDate(invoice.invoiceDate)}
+                </p>
               </div>
             </div>
           </div>
@@ -298,13 +309,17 @@ export default function InvoiceDetailPage() {
             {/* Bill To - Customer */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
-                <h3 className="text-sm font-bold text-gray-500 mb-2">Bill To</h3>
-                <p className="font-semibold text-gray-900">{user?.name || 'Customer'}</p>
-                <p className="text-sm text-gray-600">{user?.email || ''}</p>
+                <h3 className="text-sm font-bold text-gray-500 mb-2">
+                  Bill To
+                </h3>
+                <p className="font-semibold text-gray-900">
+                  {user?.name || "Customer"}
+                </p>
+                <p className="text-sm text-gray-600">{user?.email || ""}</p>
                 {serviceRequest?.serviceAddress && (
                   <p className="text-sm text-gray-600 mt-1">
-                    {typeof serviceRequest.serviceAddress === 'object'
-                      ? `${serviceRequest.serviceAddress.street || ''}, ${serviceRequest.serviceAddress.city || ''}, ${serviceRequest.serviceAddress.state || ''}`.trim()
+                    {typeof serviceRequest.serviceAddress === "object"
+                      ? `${serviceRequest.serviceAddress.street || ""}, ${serviceRequest.serviceAddress.city || ""}, ${serviceRequest.serviceAddress.state || ""}`.trim()
                       : serviceRequest.serviceAddress}
                   </p>
                 )}
@@ -312,9 +327,14 @@ export default function InvoiceDetailPage() {
 
               {provider && (
                 <div>
-                  <h3 className="text-sm font-bold text-gray-500 mb-2">Service Provider</h3>
+                  <h3 className="text-sm font-bold text-gray-500 mb-2">
+                    Service Provider
+                  </h3>
                   <p className="font-semibold text-gray-900">
-                    {provider?.name || provider?.businessName || provider?.contactPerson || 'Service Provider'}
+                    {provider?.name ||
+                      provider?.businessName ||
+                      provider?.contactPerson ||
+                      "Service Provider"}
                   </p>
                   {(provider?.businessName || provider?.contactPerson) && (
                     <p className="text-sm text-gray-600">
@@ -335,15 +355,21 @@ export default function InvoiceDetailPage() {
                 <div>
                   <p className="text-xs text-gray-600 mb-1">Service Title</p>
                   <p className="font-semibold text-gray-900">
-                    {serviceRequest?.serviceTitle || invoice.serviceRequest?.title || 'Service Request'}
+                    {serviceRequest?.serviceTitle ||
+                      invoice.serviceRequest?.title ||
+                      "Service Request"}
                   </p>
-                  <p className="text-xs text-sky-700 mt-1 font-medium">Request ID: {serviceRequest?.id || 'N/A'}</p>
+                  <p className="text-xs text-sky-700 mt-1 font-medium">
+                    Request ID: {serviceRequest?.id || "N/A"}
+                  </p>
                 </div>
 
                 <div>
                   <p className="text-xs text-gray-600 mb-1">Service Type</p>
                   <p className="text-sm text-gray-800 capitalize">
-                    {serviceRequest?.serviceType || invoice.serviceRequest?.serviceType || 'N/A'}
+                    {serviceRequest?.serviceType ||
+                      invoice.serviceRequest?.serviceType ||
+                      "N/A"}
                   </p>
                 </div>
 
@@ -362,21 +388,28 @@ export default function InvoiceDetailPage() {
                       <p className="text-xs text-gray-600 mb-1">Service Date</p>
                       <p className="text-sm text-gray-800 flex items-center gap-1">
                         <Calendar className="h-3 w-3 text-sky-600" />
-                        {new Date(serviceRequest?.schedule?.date).toLocaleDateString('en-IN', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric',
+                        {new Date(
+                          serviceRequest?.schedule?.date,
+                        ).toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
                         })}
                       </p>
                     </div>
                   )}
 
-                  {(serviceRequest?.schedule?.timeSlot || serviceRequest?.schedule?.preferredTime) && (
+                  {(serviceRequest?.schedule?.timeSlot ||
+                    serviceRequest?.schedule?.preferredTime) && (
                     <div>
-                      <p className="text-xs text-gray-600 mb-1">Preferred Time</p>
+                      <p className="text-xs text-gray-600 mb-1">
+                        Preferred Time
+                      </p>
                       <p className="text-sm text-gray-800 flex items-center gap-1">
                         <Clock className="h-3 w-3 text-sky-600" />
-                        {serviceRequest?.schedule?.timeSlot || serviceRequest?.schedule?.preferredTime || 'Not specified'}
+                        {serviceRequest?.schedule?.timeSlot ||
+                          serviceRequest?.schedule?.preferredTime ||
+                          "Not specified"}
                       </p>
                     </div>
                   )}
@@ -384,12 +417,14 @@ export default function InvoiceDetailPage() {
 
                 {serviceRequest?.serviceAddress && (
                   <div>
-                    <p className="text-xs text-gray-600 mb-1">Service Address</p>
+                    <p className="text-xs text-gray-600 mb-1">
+                      Service Address
+                    </p>
                     <p className="text-sm text-gray-800 flex items-start gap-1">
                       <MapPin className="h-3 w-3 text-sky-600 mt-1 shrink-0" />
                       <span>
-                        {typeof serviceRequest.serviceAddress === 'object'
-                          ? `${serviceRequest.serviceAddress.street || ''}, ${serviceRequest.serviceAddress.city || ''}, ${serviceRequest.serviceAddress.state || ''} ${serviceRequest.serviceAddress.pincode || ''}`.trim()
+                        {typeof serviceRequest.serviceAddress === "object"
+                          ? `${serviceRequest.serviceAddress.street || ""}, ${serviceRequest.serviceAddress.city || ""}, ${serviceRequest.serviceAddress.state || ""} ${serviceRequest.serviceAddress.pincode || ""}`.trim()
                           : serviceRequest.serviceAddress}
                       </span>
                     </p>
@@ -400,26 +435,42 @@ export default function InvoiceDetailPage() {
 
             {/* Line Items Table */}
             <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Invoice Details</h3>
+              <h3 className="text-lg font-bold text-gray-900 mb-4">
+                Invoice Details
+              </h3>
               <div className="border border-gray-200 rounded-xl overflow-hidden">
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600">Item Ref</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">Description</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600">Unit Price</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600">Amount</th>
+                      <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600">
+                        Item Ref
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">
+                        Description
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600">
+                        Unit Price
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600">
+                        Amount
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {invoice.lineItems?.map((item, index) => (
                       <tr key={item.id}>
                         <td className="px-4 py-3 text-center text-sm text-gray-500 font-mono">
-                          #{String(index + 1).padStart(3, '0')}
+                          #{String(index + 1).padStart(3, "0")}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-900">{item.description}</td>
-                        <td className="px-4 py-3 text-right text-sm text-gray-600">₹{(parseFloat(item.unitPrice) || 0).toFixed(2)}</td>
-                        <td className="px-4 py-3 text-right text-sm font-semibold text-gray-900">₹{(parseFloat(item.total) || 0).toFixed(2)}</td>
+                        <td className="px-4 py-3 text-sm text-gray-900">
+                          {item.description}
+                        </td>
+                        <td className="px-4 py-3 text-right text-sm text-gray-600">
+                          ₹{(parseFloat(item.unitPrice) || 0).toFixed(2)}
+                        </td>
+                        <td className="px-4 py-3 text-right text-sm font-semibold text-gray-900">
+                          ₹{(parseFloat(item.total) || 0).toFixed(2)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -431,18 +482,31 @@ export default function InvoiceDetailPage() {
             <div className="space-y-3">
               {/* Calculate service charge from line items */}
               {(() => {
-                const serviceChargeItem = invoice.lineItems?.find((item: any) => item.itemType === 'service');
-                const materialCostItem = invoice.lineItems?.find((item: any) => item.itemType === 'material');
-                const platformFeeItem = invoice.lineItems?.find((item: any) => item.itemType === 'additional_charge');
+                const serviceChargeItem = invoice.lineItems?.find(
+                  (item: any) => item.itemType === "service",
+                );
+                const materialCostItem = invoice.lineItems?.find(
+                  (item: any) => item.itemType === "material",
+                );
+                const platformFeeItem = invoice.lineItems?.find(
+                  (item: any) => item.itemType === "additional_charge",
+                );
 
-                const serviceCharge = serviceChargeItem ? parseFloat(serviceChargeItem.total) : parseFloat(invoice.laborCost) || 0;
-                const materialCost = materialCostItem ? parseFloat(materialCostItem.total) : parseFloat(invoice.materialCost) || 0;
-                const platformFee = platformFeeItem ? parseFloat(platformFeeItem.total) : parseFloat(invoice.platformFee) || 0;
+                const serviceCharge = serviceChargeItem
+                  ? parseFloat(serviceChargeItem.total)
+                  : parseFloat(invoice.laborCost) || 0;
+                const materialCost = materialCostItem
+                  ? parseFloat(materialCostItem.total)
+                  : parseFloat(invoice.materialCost) || 0;
+                const platformFee = platformFeeItem
+                  ? parseFloat(platformFeeItem.total)
+                  : parseFloat(invoice.platformFee) || 0;
                 const subtotal = serviceCharge + materialCost;
                 const taxAmount = parseFloat(invoice.taxAmount) || 0;
 
                 // Calculate correct total: service charges + material cost + platform fee + tax
-                const calculatedTotal = serviceCharge + materialCost + platformFee + taxAmount;
+                const calculatedTotal =
+                  serviceCharge + materialCost + platformFee + taxAmount;
 
                 return (
                   <>
@@ -451,9 +515,13 @@ export default function InvoiceDetailPage() {
                       <div className="flex justify-between items-start text-sm">
                         <div>
                           <span className="text-gray-600">Service Charges</span>
-                          <p className="text-xs text-gray-500 mt-0.5">Professional service fee</p>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            Professional service fee
+                          </p>
                         </div>
-                        <span className="font-semibold text-gray-900">₹{serviceCharge.toFixed(2)}</span>
+                        <span className="font-semibold text-gray-900">
+                          ₹{serviceCharge.toFixed(2)}
+                        </span>
                       </div>
                     )}
 
@@ -463,10 +531,14 @@ export default function InvoiceDetailPage() {
                         <div>
                           <span className="text-gray-600">Material Cost</span>
                           {materialCostItem?.description && (
-                            <p className="text-xs text-gray-500 mt-0.5">{materialCostItem.description}</p>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                              {materialCostItem.description}
+                            </p>
                           )}
                         </div>
-                        <span className="font-semibold text-gray-900">₹{materialCost.toFixed(2)}</span>
+                        <span className="font-semibold text-gray-900">
+                          ₹{materialCost.toFixed(2)}
+                        </span>
                       </div>
                     )}
 
@@ -475,9 +547,13 @@ export default function InvoiceDetailPage() {
                       <div className="flex justify-between items-start text-sm">
                         <div>
                           <span className="text-gray-600">Service Charges</span>
-                          <p className="text-xs text-gray-500 mt-0.5">(inclusive of material cost)</p>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            (inclusive of material cost)
+                          </p>
                         </div>
-                        <span className="font-semibold text-gray-900">₹{subtotal.toFixed(2)}</span>
+                        <span className="font-semibold text-gray-900">
+                          ₹{subtotal.toFixed(2)}
+                        </span>
                       </div>
                     )}
 
@@ -485,23 +561,33 @@ export default function InvoiceDetailPage() {
                     {platformFee > 0 && (
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Platform Fee</span>
-                        <span className="font-semibold text-gray-900">₹{platformFee.toFixed(2)}</span>
+                        <span className="font-semibold text-gray-900">
+                          ₹{platformFee.toFixed(2)}
+                        </span>
                       </div>
                     )}
 
                     {/* Tax */}
                     {taxAmount > 0 && (
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Tax ({invoice.taxRate || 0}%)</span>
-                        <span className="font-semibold text-gray-900">₹{taxAmount.toFixed(2)}</span>
+                        <span className="text-gray-600">
+                          Tax ({invoice.taxRate || 0}%)
+                        </span>
+                        <span className="font-semibold text-gray-900">
+                          ₹{taxAmount.toFixed(2)}
+                        </span>
                       </div>
                     )}
 
                     {/* Total */}
                     <div className="border-t-2 border-gray-200 pt-3">
                       <div className="flex justify-between text-base">
-                        <span className="font-bold text-gray-900">Total Amount</span>
-                        <span className="font-bold text-sky-600 text-xl">₹{calculatedTotal.toFixed(2)}</span>
+                        <span className="font-bold text-gray-900">
+                          Total Amount
+                        </span>
+                        <span className="font-bold text-sky-600 text-xl">
+                          ₹{calculatedTotal.toFixed(2)}
+                        </span>
                       </div>
                     </div>
                   </>
@@ -510,25 +596,28 @@ export default function InvoiceDetailPage() {
             </div>
 
             {/* Payment Information */}
-            {invoice.status === 'paid' && (
+            {invoice.status === "paid" && (
               <div className="bg-sky-50 rounded-xl p-4 border border-sky-200">
                 <div className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-sky-600 mt-0.5" />
                   <div className="flex-1">
                     <p className="font-bold text-sky-900">Payment Successful</p>
                     <p className="text-sm text-sky-700">
-                      Paid on {invoice.paidAt ? formatDate(invoice.paidAt) : 'N/A'}
+                      Paid on{" "}
+                      {invoice.paidAt ? formatDate(invoice.paidAt) : "N/A"}
                       {invoice.paymentMethod && ` via ${invoice.paymentMethod}`}
                     </p>
                     {invoice.transactionId && (
-                      <p className="text-xs text-sky-600 mt-1">Transaction ID: {invoice.transactionId}</p>
+                      <p className="text-xs text-sky-600 mt-1">
+                        Transaction ID: {invoice.transactionId}
+                      </p>
                     )}
                   </div>
                 </div>
               </div>
             )}
 
-            {invoice.status === 'pending' && (
+            {invoice.status === "pending" && (
               <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
                 <div className="flex items-start gap-3">
                   <Clock className="h-5 w-5 text-amber-600 mt-0.5" />
@@ -570,9 +659,11 @@ export default function InvoiceDetailPage() {
               Share
             </Button>
 
-            {invoice.status === 'pending' && (
+            {invoice.status === "pending" && (
               <Button
-                onClick={() => router.push(`/customer/payments/checkout/${invoice.id}`)}
+                onClick={() =>
+                  router.push(`/customer/payments/checkout/${invoice.id}`)
+                }
                 className="bg-sky-500 hover:bg-sky-600 text-white rounded-xl"
               >
                 Pay Now
