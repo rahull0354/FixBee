@@ -72,10 +72,6 @@ export const adminApi = {
     return apiClient.get('/author/customers', config);
   },
 
-  getCustomer: async (id: string) => {
-    return apiClient.get(`/author/customer/${id}`);
-  },
-
   // Profile
   getProfile: async () => {
     return apiClient.get('/author/profile');
@@ -125,5 +121,48 @@ export const adminApi = {
 
   getInvoice: async (id: string): Promise<Invoice> => {
     return apiClient.get(`/invoices/${id}`);
+  },
+
+  // Provider Payouts
+  getPendingPayouts: async (params?: { providerId?: string; page?: number; limit?: number }) => {
+    const config = params ? { params } : undefined;
+    return apiClient.get('/author/payouts/pending', config);
+  },
+
+  getPayouts: async (params?: { status?: string; providerId?: string; page?: number; limit?: number }) => {
+    const config = params ? { params } : undefined;
+    return apiClient.get('/author/payouts', config);
+  },
+
+  getPayoutById: async (payoutId: string) => {
+    return apiClient.get(`/author/payouts/${payoutId}`);
+  },
+
+  getPayoutStats: async () => {
+    return apiClient.get('/author/payouts/stats');
+  },
+
+  getProviderPayoutSummary: async (providerId: string) => {
+    return apiClient.get(`/author/payouts/provider/${providerId}/summary`);
+  },
+
+  initiatePayout: async (providerId: string, data?: { amount?: number; notes?: string }) => {
+    return apiClient.post(`/author/payouts/initiate/${providerId}`, data);
+  },
+
+  processPayout: async (payoutId: string, data?: { transactionId?: string; notes?: string }) => {
+    return apiClient.post(`/author/payouts/process/${payoutId}`, data);
+  },
+
+  completePayout: async (payoutId: string, data?: { transactionId?: string; notes?: string }) => {
+    return apiClient.post(`/author/payouts/complete/${payoutId}`, data);
+  },
+
+  failPayout: async (payoutId: string, data: { reason: string; notes?: string }) => {
+    return apiClient.post(`/author/payouts/fail/${payoutId}`, data);
+  },
+
+  bulkInitiatePayouts: async (data?: { providerIds?: string[]; amount?: number }) => {
+    return apiClient.post('/author/payouts/bulk-initiate', data);
   },
 };

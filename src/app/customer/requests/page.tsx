@@ -112,6 +112,7 @@ export default function CustomerRequestsPage() {
         afterImages: req.afterImages || [],
         createdAt: req.createdAt,
         updatedAt: req.updatedAt,
+        provider: req.provider || req.serviceProvider,
       }));
 
       setRequests(data);
@@ -384,13 +385,18 @@ export default function CustomerRequestsPage() {
                         <Calendar className="h-4 w-4" />
                         <span>{formatDate(request.scheduledDate)}</span>
                       </div>
-                      {request.status === "assigned" ||
-                      request.status === "in_progress" ||
-                      request.status === "completed" ? (
+                      {request.status === "cancelled" ? (
+                        <div className="flex items-center gap-2 text-gray-400">
+                          <User className="h-4 w-4" />
+                          <span>Request Cancelled</span>
+                        </div>
+                      ) : request.status === "assigned" ||
+                        request.status === "in_progress" ||
+                        request.status === "completed" ? (
                         <div className="flex items-center gap-2 text-gray-600">
                           <User className="h-4 w-4" />
                           <span className="text-sky-600 font-medium">
-                            Provider Assigned
+                            {request.provider?.name || "Provider Assigned"}
                           </span>
                         </div>
                       ) : (

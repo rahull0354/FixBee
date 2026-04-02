@@ -235,6 +235,60 @@ export default function AdminPaymentsHistoryPage() {
     }
   };
 
+  // Mobile-compact version of status badge
+  const getMobileStatusBadge = (status: string) => {
+    switch (status) {
+      case "completed":
+        return (
+          <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-full">
+            <CheckCircle className="h-2.5 w-2.5" />
+            <span className="text-[10px] font-semibold leading-none">Paid</span>
+          </div>
+        );
+      case "pending":
+        return (
+          <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 border border-amber-200 rounded-full">
+            <Clock className="h-2.5 w-2.5" />
+            <span className="text-[10px] font-semibold leading-none">Pending</span>
+          </div>
+        );
+      case "processing":
+        return (
+          <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 border border-amber-200 rounded-full">
+            <Clock className="h-2.5 w-2.5" />
+            <span className="text-[10px] font-semibold leading-none">Processing</span>
+          </div>
+        );
+      case "failed":
+        return (
+          <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 border border-red-200 rounded-full">
+            <XCircle className="h-2.5 w-2.5" />
+            <span className="text-[10px] font-semibold leading-none">Failed</span>
+          </div>
+        );
+      case "refunded":
+        return (
+          <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-700 border border-purple-200 rounded-full">
+            <XCircle className="h-2.5 w-2.5" />
+            <span className="text-[10px] font-semibold leading-none">Refund</span>
+          </div>
+        );
+      case "partially_refunded":
+        return (
+          <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-700 border border-purple-200 rounded-full">
+            <XCircle className="h-2.5 w-2.5" />
+            <span className="text-[10px] font-semibold leading-none">Partial</span>
+          </div>
+        );
+      default:
+        return (
+          <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-700 border border-gray-200 rounded-full">
+            <span className="text-[10px] font-semibold leading-none">{status}</span>
+          </div>
+        );
+    }
+  };
+
   const getPaymentMethodIcon = (method: string) => {
     switch (method) {
       case "card":
@@ -568,22 +622,22 @@ export default function AdminPaymentsHistoryPage() {
             {filteredPayments.map((payment) => (
               <div
                 key={payment.id}
-                className="bg-white rounded-xl shadow-lg border-2 border-blue-100 p-4"
+                className="bg-white rounded-xl shadow-lg border-2 border-blue-100 p-3"
               >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <div className="w-10 h-10 rounded-lg bg-linear-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 flex items-center justify-center shrink-0">
-                      <DollarSign className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-gray-900 text-sm truncate">
-                        {payment.gatewayPaymentId ||
-                          payment.gatewayOrderId ||
-                          payment.id.slice(0, 8)}
-                      </p>
-                    </div>
+                <div className="flex items-start gap-2 mb-2">
+                  <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 flex items-center justify-center shrink-0">
+                    <DollarSign className="h-4 w-4 text-blue-600" />
                   </div>
-                  {getStatusBadge(payment.status)}
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-gray-900 text-xs truncate pr-1">
+                      {payment.gatewayPaymentId ||
+                        payment.gatewayOrderId ||
+                        payment.id.slice(0, 8)}
+                    </p>
+                  </div>
+                  <div className="shrink-0 -mt-1">
+                    {getMobileStatusBadge(payment.status)}
+                  </div>
                 </div>
 
                 <div className="space-y-2 text-sm">

@@ -75,6 +75,31 @@ export default function CheckoutPage() {
           JSON.stringify(apiData, null, 2),
         );
 
+        // Debug tax calculation
+        console.log("=== TAX CALCULATION DEBUG ===");
+        console.log("Service Charge (laborCost):", apiData.laborCost);
+        console.log("Material Cost:", apiData.materialCost);
+        console.log("Platform Fee:", apiData.platformFee);
+        console.log("Tax Rate:", apiData.taxRate);
+        console.log("Tax Amount:", apiData.taxAmount);
+        console.log("Total Amount:", apiData.totalAmount);
+        console.log("Line Items:", JSON.stringify(apiData.lineItems, null, 2));
+
+        // Calculate what tax should be
+        const serviceCharge = parseFloat(apiData.laborCost || "0");
+        const materialCost = parseFloat(apiData.materialCost || "0");
+        const platformFee = parseFloat(apiData.platformFee || "0");
+        const taxRate = parseFloat(apiData.taxRate || "0");
+        const expectedTaxableAmount = serviceCharge + materialCost;
+        const expectedTax = (expectedTaxableAmount * taxRate) / 100;
+        const actualTax = parseFloat(apiData.taxAmount || "0");
+
+        console.log("Expected Taxable Amount (Service + Material):", expectedTaxableAmount);
+        console.log("Expected Tax:", expectedTax);
+        console.log("Actual Tax from Backend:", actualTax);
+        console.log("Difference:", actualTax - expectedTax);
+        console.log("================================");
+
         setInvoice(apiData);
 
         // Check if invoice is already paid
@@ -149,7 +174,15 @@ export default function CheckoutPage() {
               "Invalid payment intent response - missing clientSecret:",
               intentData,
             );
-            toast.error("Invalid payment intent response from server");
+
+            // Check if payment was initiated but Stripe failed
+            if (intentData.paymentId && intentData.status === 'initiated') {
+              toast.error("Payment initialization is in progress. The payment gateway is processing your request. Please wait a moment and refresh the page, or contact support if this persists.");
+            } else if (intentData.paymentId) {
+              toast.error("Payment system encountered an error. Your payment record was created but the payment gateway connection failed. Please try again or contact support with payment ID: " + intentData.paymentId);
+            } else {
+              toast.error("Invalid payment intent response from server. Missing client secret.");
+            }
             return;
           }
 
@@ -427,14 +460,24 @@ export default function CheckoutPage() {
                 </h2>
 
                 <div className="space-y-3">
-                  <div className="flex justify-between items-center pb-3 border-b border-gray-200">
-                    <span className="text-gray-600">Service Charge</span>
-                    <span className="font-semibold text-gray-900">
-                      {formatCurrency(
-                        invoice.subtotal || invoice.laborCost || "0",
-                      )}
-                    </span>
-                  </div>
+                  {(() => {
+                    // Calculate service charge from line items
+                    const serviceChargeItem = invoice.lineItems?.find(
+                      (item: any) => item.itemType === "service",
+                    );
+                    const serviceCharge = serviceChargeItem
+                      ? parseFloat(serviceChargeItem.total)
+                      : parseFloat(invoice.laborCost || "0") || 0;
+
+                    return (
+                      <div className="flex justify-between items-center pb-3 border-b border-gray-200">
+                        <span className="text-gray-600">Service Charge</span>
+                        <span className="font-semibold text-gray-900">
+                          {formatCurrency(serviceCharge)}
+                        </span>
+                      </div>
+                    );
+                  })()}
 
                   {invoice.materialCost &&
                     parseFloat(invoice.materialCost) > 0 && (

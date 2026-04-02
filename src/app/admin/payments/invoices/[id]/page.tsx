@@ -48,6 +48,13 @@ interface Invoice {
     email?: string;
     phone?: string;
   };
+  provider?: {
+    name: string;
+    id: string;
+    email?: string;
+    phone?: string;
+  };
+  providerId?: string;
   customer?: {
     name: string;
     id: string;
@@ -82,6 +89,9 @@ export default function AdminInvoiceDetailPage() {
   const invoiceId = params.id as string;
 
   const [invoice, setInvoice] = useState<Invoice | null>(null);
+  const [serviceRequest, setServiceRequest] = useState<any>(null);
+  const [providerDetails, setProviderDetails] = useState<any>(null);
+  const [customerDetails, setCustomerDetails] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -96,6 +106,40 @@ export default function AdminInvoiceDetailPage() {
       const response = await adminApi.getInvoice(invoiceId);
       const invoiceData = (response as any).data || response;
       setInvoice(invoiceData);
+
+      // Load service request details if available
+      if (invoiceData.requestId) {
+        try {
+          // For now, we'll use the serviceRequest data that comes with the invoice
+          if (invoiceData.serviceRequest) {
+            setServiceRequest(invoiceData.serviceRequest);
+          }
+        } catch (err) {
+          // Continue without service request data
+        }
+      }
+
+      // Fetch provider details separately to get email and phone
+      const providerId =
+        invoiceData.serviceProvider?.id ||
+        invoiceData.provider?.id ||
+        invoiceData.providerId;
+      if (providerId) {
+        try {
+          const providerResponse = await adminApi.getProvider(providerId);
+          const providerData =
+            (providerResponse as any).data || providerResponse;
+          setProviderDetails(providerData);
+        } catch (providerErr) {
+          // Continue without provider details - use serviceProvider data from invoice
+          setProviderDetails(
+            invoiceData.serviceProvider || invoiceData.provider,
+          );
+        }
+      }
+
+      // Use customer data from invoice response (no separate endpoint available)
+      setCustomerDetails(invoiceData.customer);
     } catch (error: any) {
       const message =
         error?.response?.data?.message ||
@@ -107,8 +151,40 @@ export default function AdminInvoiceDetailPage() {
     }
   };
 
-  const handleDownloadPDF = () => {
-    toast.info("PDF download feature coming soon!");
+  const handleDownloadPDF = async () => {
+    try {
+      if (!invoice) {
+        toast.error("Invoice not loaded");
+        return;
+      }
+
+      toast.info("Generating admin PDF...", { id: "pdf-download" });
+
+      const { downloadInvoicePDF } = await import("@/lib/utils/pdf");
+      const { AdminInvoicePDF } =
+        await import("@/components/invoice/AdminInvoicePDF");
+
+      await downloadInvoicePDF({
+        invoice: {
+          ...invoice,
+          laborCost: invoice.laborCost,
+          materialCost: invoice.materialCost,
+          lineItems: invoice.lineItems,
+        },
+        serviceRequest: invoice.serviceRequest,
+        provider: providerDetails || invoice.serviceProvider,
+        customer: customerDetails || invoice.customer,
+        InvoicePDFComponent: AdminInvoicePDF,
+      } as any);
+
+      toast.success("Admin invoice downloaded successfully!", {
+        id: "pdf-download",
+      });
+    } catch (error) {
+      toast.error("Failed to download admin invoice. Please try again.", {
+        id: "pdf-download",
+      });
+    }
   };
 
   const handlePrint = () => {
@@ -201,61 +277,68 @@ export default function AdminInvoiceDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="space-y-3 sm:space-y-4">
+        {/* Navigation */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <Button
             variant="outline"
             size="sm"
             onClick={() => router.push("/admin/payments/invoices")}
-            className="border-blue-200 text-blue-700 hover:bg-blue-50"
+            className="border-blue-200 text-blue-700 hover:bg-blue-50 w-full sm:w-auto"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Invoices
           </Button>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-              {invoice.invoiceNumber}
-            </h1>
-            <p className="text-sm text-gray-600 mt-1">Invoice ID: {invoice.id}</p>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownloadPDF}
+              className="border-blue-200 text-blue-700 hover:bg-blue-50 flex-1 sm:flex-none"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Download PDF
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handlePrint}
+              className="border-blue-200 text-blue-700 hover:bg-blue-50 flex-1 sm:flex-none"
+            >
+              <Printer className="h-4 w-4 mr-2" />
+              Print
+            </Button>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleDownloadPDF}
-            className="border-blue-200 text-blue-700 hover:bg-blue-50"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Download PDF
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handlePrint}
-            className="border-blue-200 text-blue-700 hover:bg-blue-50"
-          >
-            <Printer className="h-4 w-4 mr-2" />
-            Print
-          </Button>
+
+        {/* Page Title */}
+        <div>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+            {invoice.invoiceNumber}
+          </h1>
+          <p className="text-xs sm:text-sm text-gray-600 mt-1">
+            Invoice ID: {invoice.id}
+          </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Main Invoice Details */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6 order-3 lg:order-1">
           {/* Invoice Status Card */}
-          <div className="bg-white rounded-2xl shadow-lg border-2 border-blue-100 overflow-hidden">
-            <div className="bg-linear-to-r from-blue-500 to-indigo-600 p-6 text-white">
-              <div className="flex items-center justify-between">
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-blue-100 overflow-hidden">
+            <div className="bg-linear-to-r from-blue-500 to-indigo-600 p-4 sm:p-6 text-white">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <FileText className="h-6 w-6" />
-                    <h2 className="text-xl font-bold">Invoice Details</h2>
+                  <div className="flex items-center gap-2 mb-1 sm:mb-2">
+                    <FileText className="h-5 w-5 sm:h-6 sm:w-6" />
+                    <h2 className="text-lg sm:text-xl font-bold">
+                      Invoice Details
+                    </h2>
                   </div>
-                  <p className="text-blue-100 text-sm">
+                  <p className="text-blue-100 text-xs sm:text-sm">
                     Track and manage invoice status
                   </p>
                 </div>
@@ -263,40 +346,40 @@ export default function AdminInvoiceDetailPage() {
               </div>
             </div>
 
-            <div className="p-6 space-y-6">
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
               {/* Dates */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border-2 border-blue-200">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl p-3 sm:p-4 border-2 border-blue-200">
                   <div className="flex items-center gap-2 mb-2">
                     <Calendar className="h-4 w-4 text-blue-600" />
-                    <p className="text-xs font-semibold text-blue-800">
+                    <p className="text-[10px] sm:text-xs font-semibold text-blue-800">
                       Invoice Date
                     </p>
                   </div>
-                  <p className="text-sm font-semibold text-gray-900">
+                  <p className="text-xs sm:text-sm font-semibold text-gray-900">
                     {formatDate(invoice.invoiceDate)}
                   </p>
                 </div>
-                <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border-2 border-blue-200">
+                <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl p-3 sm:p-4 border-2 border-blue-200">
                   <div className="flex items-center gap-2 mb-2">
                     <Calendar className="h-4 w-4 text-blue-600" />
-                    <p className="text-xs font-semibold text-blue-800">
+                    <p className="text-[10px] sm:text-xs font-semibold text-blue-800">
                       Due Date
                     </p>
                   </div>
-                  <p className="text-sm font-semibold text-gray-900">
+                  <p className="text-xs sm:text-sm font-semibold text-gray-900">
                     {formatDate(invoice.dueDate)}
                   </p>
                 </div>
                 {invoice.paidAt && (
-                  <div className="bg-linear-to-br from-emerald-50 to-green-50 rounded-xl p-4 border-2 border-emerald-200">
+                  <div className="bg-linear-to-br from-emerald-50 to-green-50 rounded-xl p-3 sm:p-4 border-2 border-emerald-200">
                     <div className="flex items-center gap-2 mb-2">
                       <CheckCircle className="h-4 w-4 text-emerald-600" />
-                      <p className="text-xs font-semibold text-emerald-800">
+                      <p className="text-[10px] sm:text-xs font-semibold text-emerald-800">
                         Paid Date
                       </p>
                     </div>
-                    <p className="text-sm font-semibold text-gray-900">
+                    <p className="text-xs sm:text-sm font-semibold text-gray-900">
                       {formatDate(invoice.paidAt)}
                     </p>
                   </div>
@@ -304,39 +387,49 @@ export default function AdminInvoiceDetailPage() {
               </div>
 
               {/* Customer & Provider */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="border-2 border-gray-200 rounded-xl p-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="border-2 border-gray-200 rounded-xl p-3 sm:p-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <User className="h-5 w-5 text-blue-600" />
-                    <h3 className="font-semibold text-gray-900">Customer</h3>
+                    <User className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                    <h3 className="font-semibold text-gray-900 text-sm">
+                      Customer
+                    </h3>
                   </div>
                   <div className="space-y-2">
                     <div>
-                      <p className="text-xs text-gray-500">Name</p>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-[10px] sm:text-xs text-gray-500">
+                        Name
+                      </p>
+                      <p className="text-xs sm:text-sm font-medium text-gray-900">
                         {invoice.customer?.name || "N/A"}
                       </p>
                     </div>
                     {invoice.customer?.email && (
                       <div>
-                        <p className="text-xs text-gray-500">Email</p>
-                        <p className="text-sm text-gray-700">
+                        <p className="text-[10px] sm:text-xs text-gray-500">
+                          Email
+                        </p>
+                        <p className="text-xs sm:text-sm text-gray-700 break-all">
                           {invoice.customer.email}
                         </p>
                       </div>
                     )}
                     {invoice.customer?.phone && (
                       <div>
-                        <p className="text-xs text-gray-500">Phone</p>
-                        <p className="text-sm text-gray-700">
+                        <p className="text-[10px] sm:text-xs text-gray-500">
+                          Phone
+                        </p>
+                        <p className="text-xs sm:text-sm text-gray-700">
                           {invoice.customer.phone}
                         </p>
                       </div>
                     )}
                     {invoice.customer?.address && (
                       <div>
-                        <p className="text-xs text-gray-500">Service Address</p>
-                        <p className="text-sm text-gray-700">
+                        <p className="text-[10px] sm:text-xs text-gray-500">
+                          Service Address
+                        </p>
+                        <p className="text-xs sm:text-sm text-gray-700">
                           {[
                             invoice.customer.address.street,
                             invoice.customer.address.city,
@@ -351,33 +444,43 @@ export default function AdminInvoiceDetailPage() {
                   </div>
                 </div>
 
-                <div className="border-2 border-gray-200 rounded-xl p-4">
+                <div className="border-2 border-gray-200 rounded-xl p-3 sm:p-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <Briefcase className="h-5 w-5 text-blue-600" />
-                    <h3 className="font-semibold text-gray-900">
+                    <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                    <h3 className="font-semibold text-gray-900 text-sm">
                       Service Provider
                     </h3>
                   </div>
                   <div className="space-y-2">
                     <div>
-                      <p className="text-xs text-gray-500">Name</p>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-[10px] sm:text-xs text-gray-500">
+                        Name
+                      </p>
+                      <p className="text-xs sm:text-sm font-medium text-gray-900">
                         {invoice.serviceProvider?.name || "N/A"}
                       </p>
                     </div>
-                    {invoice.serviceProvider?.email && (
+                    {(providerDetails?.email ||
+                      invoice.serviceProvider?.email) && (
                       <div>
-                        <p className="text-xs text-gray-500">Email</p>
-                        <p className="text-sm text-gray-700">
-                          {invoice.serviceProvider.email}
+                        <p className="text-[10px] sm:text-xs text-gray-500">
+                          Email
+                        </p>
+                        <p className="text-xs sm:text-sm text-gray-700 break-all">
+                          {providerDetails?.email ||
+                            invoice.serviceProvider?.email}
                         </p>
                       </div>
                     )}
-                    {invoice.serviceProvider?.phone && (
+                    {(providerDetails?.phone ||
+                      invoice.serviceProvider?.phone) && (
                       <div>
-                        <p className="text-xs text-gray-500">Phone</p>
-                        <p className="text-sm text-gray-700">
-                          {invoice.serviceProvider.phone}
+                        <p className="text-[10px] sm:text-xs text-gray-500">
+                          Phone
+                        </p>
+                        <p className="text-xs sm:text-sm text-gray-700">
+                          {providerDetails?.phone ||
+                            invoice.serviceProvider?.phone}
                         </p>
                       </div>
                     )}
@@ -387,30 +490,38 @@ export default function AdminInvoiceDetailPage() {
 
               {/* Service Details */}
               {invoice.serviceRequest && (
-                <div className="border-2 border-gray-200 rounded-xl p-4">
+                <div className="border-2 border-gray-200 rounded-xl p-3 sm:p-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <Briefcase className="h-5 w-5 text-blue-600" />
-                    <h3 className="font-semibold text-gray-900">Service Details</h3>
+                    <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                    <h3 className="font-semibold text-gray-900 text-sm">
+                      Service Details
+                    </h3>
                   </div>
                   <div className="space-y-2">
                     <div>
-                      <p className="text-xs text-gray-500">Service Title</p>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-[10px] sm:text-xs text-gray-500">
+                        Service Title
+                      </p>
+                      <p className="text-xs sm:text-sm font-medium text-gray-900">
                         {invoice.serviceRequest.title || "N/A"}
                       </p>
                     </div>
                     {invoice.serviceRequest.serviceType && (
                       <div>
-                        <p className="text-xs text-gray-500">Service Type</p>
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="text-[10px] sm:text-xs text-gray-500">
+                          Service Type
+                        </p>
+                        <p className="text-xs sm:text-sm font-medium text-gray-900">
                           {invoice.serviceRequest.serviceType}
                         </p>
                       </div>
                     )}
                     {invoice.serviceRequest.description && (
                       <div>
-                        <p className="text-xs text-gray-500">Description</p>
-                        <p className="text-sm text-gray-700">
+                        <p className="text-[10px] sm:text-xs text-gray-500">
+                          Description
+                        </p>
+                        <p className="text-xs sm:text-sm text-gray-700">
                           {invoice.serviceRequest.description}
                         </p>
                       </div>
@@ -421,158 +532,386 @@ export default function AdminInvoiceDetailPage() {
             </div>
           </div>
 
-          {/* Line Items / Cost Breakdown */}
-          <div className="bg-white rounded-2xl shadow-lg border-2 border-blue-100 p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <IndianRupee className="h-5 w-5 text-blue-600" />
-              Payment Breakdown
-            </h3>
+          {/* Payment Breakdown - Redesigned */}
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-blue-100 overflow-hidden">
+            {/* Header */}
+            <div className="bg-linear-to-r from-blue-600 to-indigo-600 px-4 sm:px-6 py-3 sm:py-4">
+              <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
+                Earnings Breakdown
+              </h3>
+              <p className="text-xs sm:text-sm text-blue-100 mt-1">
+                Complete payment breakdown
+              </p>
+            </div>
 
-            <div className="space-y-3">
-              {/* Labor/Service Cost */}
-              {invoice.laborCost && (
-                <div className="flex items-center justify-between p-4 bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-linear-to-br from-blue-100 to-indigo-100 flex items-center justify-center">
-                      <Briefcase className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-900">Service Charge</p>
-                      <p className="text-xs text-gray-600">Labor cost for service</p>
-                    </div>
-                  </div>
-                  <p className="text-lg font-bold text-gray-900">
-                    {formatCurrency(invoice.laborCost)}
-                  </p>
-                </div>
-              )}
-
-              {/* Material Cost */}
-              {invoice.materialCost &&
-                parseFloat(invoice.materialCost) > 0 && (
-                  <div className="flex items-center justify-between p-4 bg-linear-to-br from-amber-50 to-yellow-50 rounded-xl border-2 border-amber-200">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-linear-to-br from-amber-100 to-yellow-100 flex items-center justify-center">
-                        <Package className="h-5 w-5 text-amber-600" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-900">
-                          Material Cost
-                        </p>
-                        <p className="text-xs text-gray-600">
-                          Additional materials
-                        </p>
-                      </div>
-                    </div>
-                    <p className="text-lg font-bold text-gray-900">
-                      {formatCurrency(invoice.materialCost)}
+            <div className="p-4 sm:p-6">
+              {/* Bill Header */}
+              <div className="bg-linear-to-r from-gray-50 to-slate-50 rounded-xl border-2 border-gray-200 p-3 sm:p-4 mb-4 sm:mb-6">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wide font-semibold">
+                      Invoice Number
+                    </p>
+                    <p className="text-sm sm:text-lg font-bold text-gray-900 truncate">
+                      {invoice.invoiceNumber}
                     </p>
                   </div>
-                )}
-
-              {/* Tax Amount */}
-              {invoice.taxAmount && parseFloat(invoice.taxAmount) > 0 && (
-                <div className="flex items-center justify-between p-4 bg-linear-to-br from-purple-50 to-pink-50 rounded-xl border-2 border-purple-200">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-linear-to-br from-purple-100 to-pink-100 flex items-center justify-center">
-                      <IndianRupee className="h-5 w-5 text-purple-600" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-900">Tax</p>
-                      <p className="text-xs text-gray-600">
-                        {invoice.taxRate || "N/A"} tax rate
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-lg font-bold text-gray-900">
-                    {formatCurrency(invoice.taxAmount)}
-                  </p>
-                </div>
-              )}
-
-              {/* Platform Fee */}
-              {invoice.platformFee &&
-                parseFloat(invoice.platformFee) > 0 && (
-                  <div className="flex items-center justify-between p-4 bg-linear-to-br from-indigo-50 to-blue-50 rounded-xl border-2 border-indigo-200">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-linear-to-br from-indigo-100 to-blue-100 flex items-center justify-center">
-                        <TrendingUp className="h-5 w-5 text-indigo-600" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-900">
-                          Platform Fee
-                        </p>
-                        <p className="text-xs text-gray-600">Service charge</p>
-                      </div>
-                    </div>
-                    <p className="text-lg font-bold text-gray-900">
-                      {formatCurrency(invoice.platformFee)}
+                  <div className="text-right min-w-0 flex-1">
+                    <p className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wide font-semibold">
+                      Date
                     </p>
-                  </div>
-                )}
-
-              {/* Total */}
-              <div className="flex items-center justify-between p-6 bg-linear-to-r from-blue-600 to-indigo-600 rounded-xl border-2 border-blue-700">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-lg bg-white/20 flex items-center justify-center">
-                    <IndianRupee className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-lg font-bold text-white">Total Amount</p>
-                    <p className="text-sm text-blue-100">
-                      Including all charges
+                    <p className="text-xs sm:text-sm font-semibold text-gray-900">
+                      {formatDate(invoice.invoiceDate)}
                     </p>
                   </div>
                 </div>
-                <p className="text-2xl font-bold text-white">
-                  {formatCurrency(invoice.totalAmount)}
-                </p>
               </div>
 
-              {/* Provider Earning */}
-              {invoice.providerEarning && (
-                <div className="flex items-center justify-between p-4 bg-linear-to-br from-emerald-50 to-green-50 rounded-xl border-2 border-emerald-200">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-linear-to-br from-emerald-100 to-green-100 flex items-center justify-center">
-                      <Wallet className="h-5 w-5 text-emerald-600" />
+              {/* Line Items - Desktop Table */}
+              <div className="hidden sm:block border-2 border-gray-200 rounded-xl overflow-hidden mb-6">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-linear-to-r from-blue-50 to-indigo-50 border-b-2 border-blue-200">
+                      <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wide">
+                        Description
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wide">
+                        Amount
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {/* Labor/Service Cost */}
+                    {(() => {
+                      const serviceChargeItem = invoice.lineItems?.find(
+                        (item: any) => item.itemType === "service",
+                      );
+                      const serviceCharge = serviceChargeItem
+                        ? parseFloat(serviceChargeItem.total)
+                        : parseFloat(invoice.laborCost || "0") || 0;
+
+                      return serviceCharge > 0 ? (
+                        <tr className="hover:bg-blue-50/30 transition-colors">
+                          <td className="px-4 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-100 to-indigo-100 flex items-center justify-center shrink-0">
+                                <Briefcase className="h-4 w-4 text-blue-600" />
+                              </div>
+                              <div>
+                                <p className="font-semibold text-gray-900 text-sm">
+                                  Service Charges
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  Final charge by provider
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-4 text-right">
+                            <p className="font-semibold text-gray-900">
+                              {formatCurrency(serviceCharge)}
+                            </p>
+                          </td>
+                        </tr>
+                      ) : null;
+                    })()}
+
+                    {/* Material Cost */}
+                    {invoice.materialCost &&
+                      parseFloat(invoice.materialCost) > 0 && (
+                        <tr className="hover:bg-blue-50/30 transition-colors">
+                          <td className="px-4 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-100 to-indigo-100 flex items-center justify-center shrink-0">
+                                <Package className="h-4 w-4 text-blue-600" />
+                              </div>
+                              <div>
+                                <p className="font-semibold text-gray-900 text-sm">
+                                  Material Charges
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  Cost of materials used
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-4 text-right">
+                            <p className="font-semibold text-gray-900">
+                              {formatCurrency(invoice.materialCost)}
+                            </p>
+                          </td>
+                        </tr>
+                      )}
+
+                    {/* Subtotal */}
+                    {(invoice.laborCost || invoice.materialCost) && (
+                      <tr className="bg-gray-50/50">
+                        <td className="px-4 py-3">
+                          <p className="font-bold text-gray-700 text-sm">
+                            Subtotal
+                          </p>
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <p className="font-bold text-gray-900">
+                            {formatCurrency(
+                              (() => {
+                                const serviceChargeItem =
+                                  invoice.lineItems?.find(
+                                    (item: any) => item.itemType === "service",
+                                  );
+                                const serviceCharge = serviceChargeItem
+                                  ? parseFloat(serviceChargeItem.total)
+                                  : parseFloat(invoice.laborCost || "0") || 0;
+                                const materialCost =
+                                  parseFloat(invoice.materialCost || "0") || 0;
+                                return (
+                                  serviceCharge + materialCost
+                                ).toString();
+                              })(),
+                            )}
+                          </p>
+                        </td>
+                      </tr>
+                    )}
+
+                    {/* Tax Amount */}
+                    {invoice.taxAmount && parseFloat(invoice.taxAmount) > 0 && (
+                      <tr className="hover:bg-gray-50/50 transition-colors">
+                        <td className="px-4 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-linear-to-br from-gray-200 to-gray-300 flex items-center justify-center shrink-0">
+                              <TrendingUp className="h-4 w-4 text-gray-600" />
+                            </div>
+                            <div>
+                              <p className="font-semibold text-gray-900 text-sm">
+                                Tax
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {invoice.taxRate || "N/A"} applicable on service
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 text-right">
+                          <p className="font-semibold text-gray-900">
+                            {formatCurrency(invoice.taxAmount)}
+                          </p>
+                        </td>
+                      </tr>
+                    )}
+
+                    {/* Platform Fee */}
+                    {invoice.platformFee &&
+                      parseFloat(invoice.platformFee) > 0 && (
+                        <tr className="hover:bg-amber-50/30 transition-colors">
+                          <td className="px-4 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-linear-to-br from-amber-100 to-orange-100 flex items-center justify-center shrink-0">
+                                <Wallet className="h-4 w-4 text-amber-600" />
+                              </div>
+                              <div>
+                                <p className="font-semibold text-gray-900 text-sm">
+                                  Platform Fee
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  Service platform charges
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-4 text-right">
+                            <p className="font-semibold text-gray-900">
+                              {formatCurrency(invoice.platformFee)}
+                            </p>
+                          </td>
+                        </tr>
+                      )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Line Items - Mobile Cards */}
+              <div className="sm:hidden space-y-3 mb-6">
+                {/* Labor/Service Cost */}
+                {(() => {
+                  const serviceChargeItem = invoice.lineItems?.find(
+                    (item: any) => item.itemType === "service",
+                  );
+                  const serviceCharge = serviceChargeItem
+                    ? parseFloat(serviceChargeItem.total)
+                    : parseFloat(invoice.laborCost || "0") || 0;
+
+                  return serviceCharge > 0 ? (
+                    <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-linear-to-br from-blue-100 to-indigo-100 flex items-center justify-center shrink-0">
+                            <Briefcase className="h-5 w-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <p className="font-bold text-gray-900 text-sm">
+                              Service Charges
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              Final charge by provider
+                            </p>
+                          </div>
+                        </div>
+                        <p className="text-lg font-bold text-gray-900">
+                          {formatCurrency(serviceCharge)}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-semibold text-gray-900">
-                        Provider Earning
+                  ) : null;
+                })()}
+
+                {/* Material Cost */}
+                {invoice.materialCost &&
+                  parseFloat(invoice.materialCost) > 0 && (
+                    <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-linear-to-br from-blue-100 to-indigo-100 flex items-center justify-center shrink-0">
+                            <Package className="h-5 w-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <p className="font-bold text-gray-900 text-sm">
+                              Material Charges
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              Cost of materials
+                            </p>
+                          </div>
+                        </div>
+                        <p className="text-lg font-bold text-gray-900">
+                          {formatCurrency(invoice.materialCost)}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                {/* Subtotal */}
+                {(invoice.laborCost || invoice.materialCost) && (
+                  <div className="bg-gray-50 rounded-xl border-2 border-gray-200 p-4">
+                    <div className="flex items-center justify-between">
+                      <p className="font-bold text-gray-700 text-sm">
+                        Subtotal
                       </p>
-                      <p className="text-xs text-gray-600">
-                        After platform fee deduction
+                      <p className="font-bold text-gray-900">
+                        {formatCurrency(
+                          (() => {
+                            const serviceChargeItem = invoice.lineItems?.find(
+                              (item: any) => item.itemType === "service",
+                            );
+                            const serviceCharge = serviceChargeItem
+                              ? parseFloat(serviceChargeItem.total)
+                              : parseFloat(invoice.laborCost || "0") || 0;
+                            const materialCost =
+                              parseFloat(invoice.materialCost || "0") || 0;
+                            return (serviceCharge + materialCost).toString();
+                          })(),
+                        )}
                       </p>
                     </div>
                   </div>
-                  <p className="text-lg font-bold text-emerald-700">
-                    {formatCurrency(invoice.providerEarning)}
-                  </p>
+                )}
+
+                {/* Tax */}
+                {invoice.taxAmount && parseFloat(invoice.taxAmount) > 0 && (
+                  <div className="bg-linear-to-br from-gray-50 to-slate-50 rounded-xl border-2 border-gray-200 p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-linear-to-br from-gray-200 to-gray-300 flex items-center justify-center shrink-0">
+                          <TrendingUp className="h-5 w-5 text-gray-600" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-gray-900 text-sm">Tax</p>
+                          <p className="text-xs text-gray-600">
+                            {invoice.taxRate || "N/A"} applicable
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-lg font-bold text-gray-900">
+                        {formatCurrency(invoice.taxAmount)}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Platform Fee */}
+                {invoice.platformFee && parseFloat(invoice.platformFee) > 0 && (
+                  <div className="bg-linear-to-br from-amber-50 to-orange-50 rounded-xl border-2 border-amber-200 p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-linear-to-br from-amber-100 to-orange-100 flex items-center justify-center shrink-0">
+                          <Wallet className="h-5 w-5 text-amber-600" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-gray-900 text-sm">
+                            Platform Fee
+                          </p>
+                          <p className="text-xs text-gray-600">
+                            Service charges
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-lg font-bold text-gray-900">
+                        {formatCurrency(invoice.platformFee)}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Total Amount - Prominent */}
+              <div className="bg-linear-to-r from-blue-600 to-indigo-600 rounded-xl border-2 border-blue-700 p-4 sm:p-6 shadow-lg">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm shrink-0">
+                      <IndianRupee className="h-5 w-5 sm:h-7 sm:w-7 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-xs sm:text-sm font-medium text-blue-100 uppercase tracking-wide">
+                        Total Amount
+                      </p>
+                      <p className="text-[10px] sm:text-xs text-blue-200">
+                        Including all taxes and charges
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl sm:text-4xl font-bold text-white">
+                      {formatCurrency(invoice.totalAmount)}
+                    </p>
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </div>
 
         {/* Sidebar - Payment Info */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6 order-1 lg:order-2">
           {/* Payment Status Card */}
-          <div className="bg-white rounded-2xl shadow-lg border-2 border-blue-100 p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-blue-600" />
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-blue-100 p-4 sm:p-6 order-1">
+            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+              <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
               Payment Information
             </h3>
 
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-600">Status</p>
+                <p className="text-xs sm:text-sm text-gray-600">Status</p>
                 {getStatusBadge(invoice.status)}
               </div>
 
               {invoice.paymentMethod && (
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-gray-600">Payment Method</p>
-                  <p className="text-sm font-semibold text-gray-900 capitalize">
+                  <p className="text-xs sm:text-sm text-gray-600">
+                    Payment Method
+                  </p>
+                  <p className="text-xs sm:text-sm font-semibold text-gray-900 capitalize">
                     {invoice.paymentMethod}
                   </p>
                 </div>
@@ -580,8 +919,8 @@ export default function AdminInvoiceDetailPage() {
 
               {invoice.paymentId && (
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-gray-600">Payment ID</p>
-                  <p className="text-xs text-gray-700 font-mono">
+                  <p className="text-xs sm:text-sm text-gray-600">Payment ID</p>
+                  <p className="text-[10px] sm:text-xs text-gray-700 font-mono break-all">
                     {invoice.paymentId}
                   </p>
                 </div>
@@ -589,8 +928,8 @@ export default function AdminInvoiceDetailPage() {
 
               {invoice.paidAt && (
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-gray-600">Paid On</p>
-                  <p className="text-sm font-semibold text-gray-900">
+                  <p className="text-xs sm:text-sm text-gray-600">Paid On</p>
+                  <p className="text-xs sm:text-sm font-semibold text-gray-900">
                     {formatDate(invoice.paidAt)}
                   </p>
                 </div>
@@ -599,41 +938,215 @@ export default function AdminInvoiceDetailPage() {
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-2xl shadow-lg border-2 border-blue-200 p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
-            <div className="space-y-3">
+          <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl sm:rounded-2xl shadow-lg border-2 border-blue-200 p-4 sm:p-6 order-2">
+            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">
+              Quick Actions
+            </h3>
+            <div className="space-y-2 sm:space-y-3">
               <Button
                 variant="outline"
-                className="w-full justify-start border-blue-200 text-blue-700 hover:bg-blue-50"
+                className="w-full justify-start border-blue-200 text-blue-700 hover:bg-blue-50 text-xs sm:text-sm"
                 onClick={() =>
                   router.push(`/admin/providers/${invoice.serviceProvider?.id}`)
                 }
               >
-                <Briefcase className="h-4 w-4 mr-2" />
+                <Briefcase className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" />
                 View Provider Profile
               </Button>
               <Button
                 variant="outline"
-                className="w-full justify-start border-blue-200 text-blue-700 hover:bg-blue-50"
+                className="w-full justify-start border-blue-200 text-blue-700 hover:bg-blue-50 text-xs sm:text-sm"
                 onClick={() =>
                   router.push(`/admin/customers/${invoice.customer?.id}`)
                 }
               >
-                <User className="h-4 w-4 mr-2" />
+                <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" />
                 View Customer Profile
               </Button>
               <Button
                 variant="outline"
-                className="w-full justify-start border-blue-200 text-blue-700 hover:bg-blue-50"
+                className="w-full justify-start border-blue-200 text-blue-700 hover:bg-blue-50 text-xs sm:text-sm"
                 onClick={() =>
                   router.push(`/admin/requests/${invoice.requestId}`)
                 }
               >
-                <FileText className="h-4 w-4 mr-2" />
+                <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" />
                 View Service Request
               </Button>
             </div>
           </div>
+
+          {/* Earning Distribution */}
+          {(invoice.providerEarning || invoice.platformFee) && (
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-blue-100 p-4 sm:p-6 order-4">
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                <Wallet className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                Earning Distribution
+              </h3>
+
+              <div className="space-y-3 sm:space-y-4">
+                {/* Provider Share */}
+                {(() => {
+                  const serviceChargeItem = invoice.lineItems?.find(
+                    (item: any) => item.itemType === "service",
+                  );
+                  const serviceCharge = serviceChargeItem
+                    ? parseFloat(serviceChargeItem.total)
+                    : parseFloat(invoice.laborCost || "0") || 0;
+                  const materialCost =
+                    parseFloat(invoice.materialCost || "0") || 0;
+
+                  // Provider earns: Service Charge + Material Cost
+                  const providerEarning = serviceCharge + materialCost;
+
+                  return providerEarning > 0 ? (
+                    <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 p-3 sm:p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center">
+                            <Briefcase className="h-4 w-4 text-white" />
+                          </div>
+                          <p className="font-semibold text-gray-900 text-xs sm:text-sm">
+                            Provider
+                          </p>
+                        </div>
+                        <Badge className="bg-blue-100 text-blue-800 text-[10px] sm:text-xs font-semibold">
+                          {(
+                            (providerEarning /
+                              parseFloat(invoice.totalAmount)) *
+                            100
+                          ).toFixed(1)}
+                          %
+                        </Badge>
+                      </div>
+                      <p className="text-xl sm:text-2xl font-bold text-blue-700">
+                        {formatCurrency(providerEarning.toString())}
+                      </p>
+                      <p className="text-[10px] sm:text-xs text-gray-600 mt-1">
+                        Service + Material charges
+                      </p>
+                    </div>
+                  ) : null;
+                })()}
+
+                {/* Admin Share */}
+                {invoice.platformFee && parseFloat(invoice.platformFee) > 0 && (
+                  <div className="bg-linear-to-br from-amber-50 to-orange-50 rounded-xl border-2 border-amber-200 p-3 sm:p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-linear-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+                          <TrendingUp className="h-4 w-4 text-white" />
+                        </div>
+                        <p className="font-semibold text-gray-900 text-xs sm:text-sm">
+                          Admin
+                        </p>
+                      </div>
+                      <Badge className="bg-amber-100 text-amber-800 text-[10px] sm:text-xs font-semibold">
+                        {(
+                          (parseFloat(invoice.platformFee) /
+                            parseFloat(invoice.totalAmount)) *
+                          100
+                        ).toFixed(1)}
+                        %
+                      </Badge>
+                    </div>
+                    <p className="text-xl sm:text-2xl font-bold text-amber-700">
+                      {formatCurrency(invoice.platformFee)}
+                    </p>
+                    <p className="text-[10px] sm:text-xs text-gray-600 mt-1">
+                      Platform service fee
+                    </p>
+                  </div>
+                )}
+
+                {/* Total Distribution Bar */}
+                <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t-2 border-gray-200">
+                  <div className="flex items-center justify-between text-[10px] sm:text-xs text-gray-600 mb-2">
+                    <span>Service</span>
+                    <span>Tax</span>
+                    <span>Admin</span>
+                  </div>
+                  <div className="h-2 sm:h-3 bg-gray-200 rounded-full overflow-hidden flex">
+                    {(() => {
+                      const serviceChargeItem = invoice.lineItems?.find(
+                        (item: any) => item.itemType === "service",
+                      );
+                      const serviceCharge = serviceChargeItem
+                        ? parseFloat(serviceChargeItem.total)
+                        : parseFloat(invoice.laborCost || "0") || 0;
+                      const materialCost =
+                        parseFloat(invoice.materialCost || "0") || 0;
+                      const serviceCharges = serviceCharge + materialCost;
+                      const tax = parseFloat(invoice.taxAmount || "0");
+                      const platformFee = parseFloat(
+                        invoice.platformFee || "0",
+                      );
+                      const total = parseFloat(invoice.totalAmount);
+
+                      // Calculate percentages
+                      const servicePercent = (serviceCharges / total) * 100;
+                      const taxPercent = (tax / total) * 100;
+                      // Admin gets whatever is remaining to ensure bar is 100%
+                      const adminPercent = 100 - servicePercent - taxPercent;
+
+                      return (
+                        <>
+                          {/* Service Charges */}
+                          {(invoice.laborCost || invoice.materialCost) && (
+                            <div
+                              className="bg-linear-to-r from-blue-400 to-indigo-500 h-full transition-all"
+                              style={{ width: `${servicePercent}%` }}
+                            />
+                          )}
+                          {/* Tax */}
+                          {invoice.taxAmount &&
+                            parseFloat(invoice.taxAmount) > 0 && (
+                              <div
+                                className="bg-linear-to-r from-gray-300 to-gray-400 h-full transition-all"
+                                style={{ width: `${taxPercent}%` }}
+                              />
+                            )}
+                          {/* Admin Fee - fills the remainder */}
+                          {invoice.platformFee &&
+                            parseFloat(invoice.platformFee) > 0 && (
+                              <div
+                                className="bg-linear-to-r from-amber-400 to-orange-500 h-full transition-all"
+                                style={{
+                                  width: `${Math.max(0, adminPercent)}%`,
+                                }}
+                              />
+                            )}
+                        </>
+                      );
+                    })()}
+                  </div>
+                  <div className="flex items-center justify-between text-[10px] sm:text-xs mt-2 gap-2">
+                    {(invoice.laborCost || invoice.materialCost) && (
+                      <div className="flex items-center gap-1">
+                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-linear-to-r from-blue-400 to-indigo-500" />
+                        <span className="text-gray-600">Service</span>
+                      </div>
+                    )}
+                    {invoice.taxAmount && parseFloat(invoice.taxAmount) > 0 && (
+                      <div className="flex items-center gap-1">
+                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-linear-to-r from-gray-300 to-gray-400" />
+                        <span className="text-gray-600">
+                          Tax ({invoice.taxRate})
+                        </span>
+                      </div>
+                    )}
+                    {invoice.platformFee &&
+                      parseFloat(invoice.platformFee) > 0 && (
+                        <div className="flex items-center gap-1">
+                          <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-linear-to-r from-amber-400 to-orange-500" />
+                          <span className="text-gray-600">Admin</span>
+                        </div>
+                      )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
