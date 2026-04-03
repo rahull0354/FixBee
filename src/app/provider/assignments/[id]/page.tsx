@@ -131,6 +131,13 @@ export default function AssignmentDetailsPage() {
         console.log('  - pricingDetails object:', JSON.stringify(requestData.pricingDetails, null, 2));
         console.log('  - All request keys:', Object.keys(requestData));
         console.log('  - Complete request object:', JSON.stringify(requestData, null, 2));
+
+        // Check if this is a completed service missing completion data
+        if (requestData.status === 'completed' && !requestData.materialCost && !requestData.finalPrice) {
+          console.warn('⚠️ Completed service missing completion data in sessionStorage');
+          console.warn('💡 This usually happens if you navigated directly to this page after completion');
+          console.warn('💡 Try going back to assignments and clicking on this request again');
+        }
       } catch (error) {
         console.error('❌ Error parsing stored request data:', error);
         setLoading(false);
@@ -210,15 +217,38 @@ export default function AssignmentDetailsPage() {
       };
 
       console.log('📤 Sending completion data:', JSON.stringify(completionData, null, 2));
+      console.log('📤 Material cost from form:', materialCost);
+      console.log('📤 Material cost value:', completionData.materialCost);
 
       await providerApi.completeService(requestId, completionData);
 
       console.log('✅ Service completion API call successful');
 
-      // Clear the cached sessionStorage data so next load will fetch fresh from DB
+      // Update sessionStorage with completion data so it persists for viewing
       const storageKey = `assignment_${requestId}`;
-      sessionStorage.removeItem(storageKey);
-      console.log('🗑️ Cleared cached data - will fetch fresh from database on next visit');
+      if (request) {
+        const updatedRequest = {
+          ...request,
+          status: 'completed',
+          finalPrice: completionData.finalPrice,
+          materialCost: completionData.materialCost,
+          materialDescription: completionData.materialDescription,
+          afterImages: completionData.afterImages || request.afterImages,
+          completedAt: new Date().toISOString(),
+        };
+
+        console.log('💾 About to store updated request:', JSON.stringify(updatedRequest, null, 2));
+
+        // Store the updated request data with completion information
+        sessionStorage.setItem(storageKey, JSON.stringify({
+          ...updatedRequest,
+          timestamp: Date.now(),
+        }));
+
+        console.log('💾 Successfully stored completion data in sessionStorage');
+        console.log('💾 Material cost stored:', updatedRequest.materialCost);
+        console.log('💾 Material description stored:', updatedRequest.materialDescription);
+      }
 
       toast.success('Service completed successfully!');
       setShowCompleteDialog(false);

@@ -54,6 +54,9 @@ interface Payment {
     serviceTitle: string;
     serviceType: string;
   };
+  subTotal?: string;
+  laborCost?: string;
+  materialCost?: string;
 }
 
 type StatusFilter = 'all' | 'pending' | 'paid' | 'processing';
@@ -104,12 +107,40 @@ export default function ProviderPaymentsPage() {
       // Log each payment to see the structure
       (apiData || []).forEach((payment: any, index: number) => {
         console.log(`\n🔍 Payment #${index + 1}:`, payment.invoiceNumber);
-        console.log('  - requestId:', payment.requestId);
-        console.log('  - service:', payment.service);
         console.log('  - All fields:', Object.keys(payment));
+        console.log('  - subTotal:', payment.subTotal);
+        console.log('  - laborCost:', payment.laborCost);
+        console.log('  - materialCost:', payment.materialCost);
+        console.log('  - providerEarning (backend):', payment.providerEarning);
       });
 
-      setPayments(apiData || []);
+      // Fix providerEarning to be subTotal (service charge + material cost)
+      const correctedPayments = (apiData || []).map((payment: any) => {
+        const subTotal = parseFloat(payment.subTotal || 0);
+        const laborCost = parseFloat(payment.laborCost || 0);
+        const materialCost = parseFloat(payment.materialCost || 0);
+
+        // Provider earning = service charge + material cost
+        // Use subTotal if available, otherwise calculate from laborCost + materialCost
+        let correctProviderEarning;
+        if (subTotal > 0) {
+          correctProviderEarning = subTotal;
+        } else if (laborCost > 0 || materialCost > 0) {
+          correctProviderEarning = laborCost + materialCost;
+        } else {
+          correctProviderEarning = parseFloat(payment.providerEarning || 0);
+        }
+
+        console.log(`  💰 Corrected earning: ${correctProviderEarning}`);
+
+        return {
+          ...payment,
+          providerEarning: correctProviderEarning.toFixed(2),
+        };
+      });
+
+      console.log('✅ Corrected payments:', correctedPayments);
+      setPayments(correctedPayments);
     } catch (error: any) {
       console.error('❌ Error loading payments:', error);
       const message = error?.response?.data?.message || error?.message || 'Failed to load payments';
@@ -190,9 +221,9 @@ export default function ProviderPaymentsPage() {
     });
   };
 
-  // Calculate totals correctly - providerEarning is already calculated by backend
+  // Get provider earning - already corrected in loadPayments
   const getProviderEarning = (payment: Payment) => {
-    // Use providerEarning field from backend (already calculated correctly)
+    // Just use the providerEarning field since we already corrected it
     return parseFloat(payment.providerEarning || '0');
   };
 

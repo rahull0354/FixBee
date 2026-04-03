@@ -125,7 +125,7 @@ export function useToggleReviewVisibility() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => adminApi.toggleReviewVisibility(id),
+    mutationFn: ({ id, isVisible }: { id: string; isVisible: boolean }) => adminApi.toggleReviewVisibility(id, isVisible),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reviews'] });
       toast.success('Review visibility updated');

@@ -123,7 +123,7 @@ export default function AdminPaymentsPage() {
 
         const transformedStats = {
           totalRevenue: completedAmount.toString(),
-          pendingPayments: "0", // Backend doesn't provide this yet
+          pendingPayments: "0", // Will be calculated from pending invoices
           platformFees: platformFees,
           providerEarnings: providerEarnings,
           completedPayments: statsData.completed || 0,
@@ -318,7 +318,7 @@ export default function AdminPaymentsPage() {
       try {
         const invoicesResponse = await adminApi.getAllInvoices({
           status: 'pending',
-          limit: 5
+          limit: 50  // Increased limit to get all pending invoices
         });
 
         const invoicesData = (invoicesResponse as any).data?.invoices ||
@@ -329,7 +329,31 @@ export default function AdminPaymentsPage() {
           ? invoicesData
           : invoicesData.invoices || [];
 
-        setPendingInvoices(invoicesArray);
+        console.log('📋 Pending Invoices Response:', invoicesResponse);
+        console.log('📋 Pending Invoices Array:', invoicesArray);
+        console.log('📋 Pending Invoices Count:', invoicesArray.length);
+
+        // Calculate total pending payments amount
+        const pendingTotal = invoicesArray.reduce((sum: number, invoice: any) => {
+          const amount = parseFloat(invoice.totalAmount || invoice.amount || 0);
+          console.log(`  - Invoice ${invoice.invoiceNumber}: ₹${amount}`);
+          return sum + amount;
+        }, 0);
+
+        console.log('💰 Total Pending Amount:', pendingTotal);
+
+        // Update stats with pending payments total
+        setStats((prevStats) => {
+          if (!prevStats) return prevStats;
+          return {
+            ...prevStats,
+            pendingPayments: pendingTotal.toFixed(2),
+            pendingPaymentsCount: invoicesArray.length, // Update count to match actual invoices
+          };
+        });
+
+        // Show first 5 invoices in the UI
+        setPendingInvoices(invoicesArray.slice(0, 5));
       } catch (invoicesError) {
         console.warn('Could not load pending invoices:', invoicesError);
         setPendingInvoices([]);
