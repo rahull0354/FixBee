@@ -72,6 +72,10 @@ export const adminApi = {
     return apiClient.get('/author/customers', config);
   },
 
+  getCustomer: async (customerId: string) => {
+    return apiClient.get(`/author/customer/${customerId}`);
+  },
+
   // Profile
   getProfile: async () => {
     return apiClient.get('/author/profile');
@@ -154,7 +158,11 @@ export const adminApi = {
     return apiClient.post(`/author/payouts/process/${payoutId}`, data);
   },
 
-  completePayout: async (payoutId: string, data?: { transactionId?: string; notes?: string }) => {
+  preparePayout: async (providerId: string) => {
+    return apiClient.get(`/author/payouts/prepare/${providerId}`);
+  },
+
+  completePayout: async (payoutId: string, data?: { utr?: string; notes?: string }) => {
     return apiClient.post(`/author/payouts/complete/${payoutId}`, data);
   },
 

@@ -40,6 +40,8 @@ interface PaymentDetails {
   paidAt?: string;
   paymentMethod?: string;
   transactionId?: string;
+  finalPrice?: string;
+  materialCost?: string;
   service?: {
     serviceTitle?: string;
     serviceType?: string;
@@ -116,12 +118,20 @@ export default function ProviderPaymentDetailPage() {
       const apiData = (response as any).data || response;
 
       console.log('📦 Payment Detail Response:', apiData);
+      console.log('💰 Original providerEarning:', apiData.providerEarning);
+      console.log('💰 subTotal:', apiData.subTotal);
+      console.log('💰 laborCost:', apiData.laborCost);
+      console.log('💰 materialCost:', apiData.materialCost);
+
+      // Provider Net Earning = subTotal (which is already service charge + material cost)
+      const subTotal = parseFloat(apiData.subTotal || 0);
+
+      console.log('💰 Setting providerEarning to subTotal:', subTotal);
+
+      // Override the backend's incorrect calculation with the correct subtotal
+      apiData.providerEarning = subTotal.toFixed(2);
 
       setPayment(apiData);
-
-      // The new backend structure includes 'service' field with service details
-      // No need to fetch separately anymore
-      console.log('✅ Service details from payment:', apiData.service);
 
       // Load customer details if available
       if (apiData.customer) {
@@ -174,7 +184,8 @@ export default function ProviderPaymentDetailPage() {
     }
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return 'N/A';
     const date = new Date(dateString);
     return date.toLocaleDateString('en-IN', {
       day: 'numeric',
@@ -345,7 +356,9 @@ export default function ProviderPaymentDetailPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {payment.lineItems.map((item, index) => (
+                      {payment.lineItems
+                        .filter(item => !item.description.toLowerCase().includes('platform fee'))
+                        .map((item, index) => (
                         <tr key={item.id}>
                           <td className="px-4 py-3 text-center text-sm text-gray-500 font-mono">
                             #{String(index + 1).padStart(3, '0')}
@@ -400,7 +413,7 @@ export default function ProviderPaymentDetailPage() {
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600 flex items-center gap-1">
                           <Building2 className="h-3 w-3" />
-                          Platform Fee (15%)
+                          Platform Fee
                         </span>
                         <span className="font-semibold text-red-600">
                           -₹{parseFloat(payment.platformFee).toFixed(2)}

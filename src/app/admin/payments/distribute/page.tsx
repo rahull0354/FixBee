@@ -26,6 +26,8 @@ import {
   Eye,
   User,
   RefreshCcw,
+  FileText,
+  Smartphone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -77,14 +79,22 @@ interface Payout {
   providerId: string;
   providerName: string;
   amount: string;
+  totalAmount?: string;
   status: "pending" | "processing" | "completed" | "failed";
   method: string;
   transactionId?: string;
   notes?: string;
   requestedAt: string;
   processedAt?: string;
+  completedAt?: string;
+  initiatedAt?: string;
   failedAt?: string;
   failureReason?: string;
+  provider?: {
+    name: string;
+    email?: string;
+    phone?: string;
+  };
 }
 
 export default function ProviderPayoutsPage() {
@@ -103,13 +113,25 @@ export default function ProviderPayoutsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  // Payout Dialog
+  // Payout Dialog States
   const [selectedProvider, setSelectedProvider] = useState<ProviderEarning | null>(null);
   const [payoutAmount, setPayoutAmount] = useState<string>("");
   const [payoutMethod, setPayoutMethod] = useState<string>("bank_transfer");
   const [payoutNotes, setPayoutNotes] = useState<string>("");
   const [processingPayout, setProcessingPayout] = useState(false);
   const [showPayoutDialog, setShowPayoutDialog] = useState(false);
+
+  // Prepare Payout States
+  const [showPrepareDialog, setShowPrepareDialog] = useState(false);
+  const [prepareData, setPrepareData] = useState<any>(null);
+  const [selectedBankAccount, setSelectedBankAccount] = useState<string>("");
+  const [selectedUpiId, setSelectedUpiId] = useState<string>("");
+  const [loadingPrepare, setLoadingPrepare] = useState(false);
+
+  // Process Payout States
+  const [showProcessDialog, setShowProcessDialog] = useState(false);
+  const [currentPayoutId, setCurrentPayoutId] = useState<string>("");
+  const [processPayoutData, setProcessPayoutData] = useState<any>(null);
 
   // View Details Dialog
   const [viewingProvider, setViewingProvider] = useState<ProviderEarning | null>(null);
@@ -196,6 +218,15 @@ export default function ProviderPayoutsPage() {
           : historyData.payouts || [];
 
         console.log("📜 HISTORY ARRAY:", historyArray);
+        console.log("📜 First payout item:", historyArray[0]);
+        if (historyArray[0]) {
+          console.log("📜 Payout fields:", Object.keys(historyArray[0]));
+          console.log("📜 Payout amount:", historyArray[0].amount);
+          console.log("📜 Payout status:", historyArray[0].status);
+          console.log("📜 Payout processedAt:", historyArray[0].processedAt);
+          console.log("📜 Payout requestedAt:", historyArray[0].requestedAt);
+        }
+
         setPayoutHistory(historyArray);
 
         // Calculate total processed from history
@@ -219,75 +250,242 @@ export default function ProviderPayoutsPage() {
     }
   };
 
-  const handleProcessPayout = async () => {
-    if (!selectedProvider || !payoutAmount) {
-      toast.error("Please provide all required information");
-      return;
-    }
+  // Step 1: Open Prepare Payout Dialog
+  const openPreparePayoutDialog = async (provider: ProviderEarning) => {
+    setSelectedProvider(provider);
+    setPayoutAmount(provider.pendingAmount);
+    setShowPayoutDialog(false); // Close the old dialog
+    setShowPrepareDialog(true);
 
-    const amount = parseFloat(payoutAmount);
-    if (amount <= 0) {
-      toast.error("Amount must be greater than 0");
-      return;
-    }
+    try {
+      setLoadingPrepare(true);
+      const response = await adminApi.preparePayout(provider.providerId);
+      const data = (response as any).data || response;
 
-    if (amount > parseFloat(selectedProvider.pendingAmount)) {
-      toast.error("Amount cannot exceed pending balance");
-      return;
+      console.log('===== PREPARE PAYOUT API RESPONSE =====');
+      console.log('Full Response JSON:', JSON.stringify(data, null, 2));
+      console.log('Response Type:', typeof data);
+      console.log('Is Array?', Array.isArray(data));
+      console.log('Has data property?', 'data' in (response as any));
+      console.log('Top-level keys:', Object.keys(data || {}));
+
+      // Check paymentDetails specifically
+      console.log('\n🔍 Checking paymentDetails:');
+      console.log('data.paymentDetails:', data?.paymentDetails);
+      console.log('data.paymentDetails keys:', data?.paymentDetails ? Object.keys(data.paymentDetails) : 'N/A');
+
+      if (data?.paymentDetails) {
+        console.log('paymentDetails.bankAccounts:', data.paymentDetails.bankAccounts);
+        console.log('paymentDetails.bankDetails:', data.paymentDetails.bankDetails);
+        console.log('paymentDetails.upiIds:', data.paymentDetails.upiIds);
+        console.log('paymentDetails.upiDetails:', data.paymentDetails.upiDetails);
+      }
+
+      console.log('=======================================');
+
+      // Extract bank accounts from paymentDetails
+      let bankAccountsList: any[] = [];
+      let upiIdsList: any[] = [];
+
+      // Try to get from options arrays first
+      if (data?.paymentDetails?.bankTransferOptions && data.paymentDetails.bankTransferOptions.length > 0) {
+        bankAccountsList = data.paymentDetails.bankTransferOptions;
+      }
+
+      if (data?.paymentDetails?.upiOptions && data.paymentDetails.upiOptions.length > 0) {
+        upiIdsList = data.paymentDetails.upiOptions;
+      }
+
+      // If options are empty, use primary accounts
+      if (bankAccountsList.length === 0 && data?.paymentDetails?.primaryBankAccount) {
+        const primaryBank = data.paymentDetails.primaryBankAccount;
+        bankAccountsList = [{
+          id: primaryBank.id,
+          bankAccountId: primaryBank.id,
+          bankName: primaryBank.bankName,
+          accountNumber: `XXXX-XXXX-XXXX-${primaryBank.accountNumberLast4}`,
+          accountNumberLast4: primaryBank.accountNumberLast4,
+          accountNumberMasked: `XXXX-XXXX-XXXX-${primaryBank.accountNumberLast4}`,
+          ifscCode: primaryBank.ifsc,
+          ifsc: primaryBank.ifsc,
+          accountHolder: primaryBank.accountHolder,
+          isPrimary: true,
+        }];
+        console.log('Using primary bank account:', bankAccountsList[0]);
+      }
+
+      if (upiIdsList.length === 0 && data?.paymentDetails?.primaryUpiId) {
+        const primaryUpi = data.paymentDetails.primaryUpiId;
+        upiIdsList = [{
+          id: primaryUpi.id,
+          upiId: primaryUpi.upiId,
+          isPrimary: true,
+        }];
+        console.log('Using primary UPI ID:', upiIdsList[0]);
+      }
+
+      console.log('Final Bank Accounts List:', bankAccountsList);
+      console.log('Final UPI IDs List:', upiIdsList);
+
+      // Check all possible locations for bank accounts
+      console.log('\n🔍 Searching for Bank Accounts:');
+      console.log('data.bankAccounts:', data?.bankAccounts);
+      console.log('data.bankDetails:', data?.bankDetails);
+      console.log('data.provider?.bankAccounts:', data?.provider?.bankAccounts);
+      console.log('data.provider?.bankDetails:', data?.provider?.bankDetails);
+      console.log('data.payout?.bankAccounts:', data?.payout?.bankAccounts);
+      console.log('data.payout?.bankDetails:', data?.payout?.bankDetails);
+      console.log('data.paymentDetails?.bankAccounts:', data?.paymentDetails?.bankAccounts);
+      console.log('data.paymentDetails?.bankDetails:', data?.paymentDetails?.bankDetails);
+
+      // Check all possible locations for UPI IDs
+      console.log('\n🔍 Searching for UPI IDs:');
+      console.log('data.upiIds:', data?.upiIds);
+      console.log('data.upiDetails:', data?.upiDetails);
+      console.log('data.provider?.upiIds:', data?.provider?.upiIds);
+      console.log('data.provider?.upiDetails:', data?.provider?.upiDetails);
+      console.log('data.payout?.upiIds:', data?.payout?.upiIds);
+      console.log('data.payout?.upiDetails:', data?.payout?.upiDetails);
+      console.log('data.paymentDetails?.upiIds:', data?.paymentDetails?.upiIds);
+      console.log('data.paymentDetails?.upiDetails:', data?.paymentDetails?.upiDetails);
+
+      // Extract data from response, handling different possible structures
+      const prepareDataParsed = {
+        totalAmount: data?.totalAmount || data?.payout?.totalAmount || provider.pendingAmount,
+        invoiceCount: data?.invoiceCount || data?.invoices?.length || data?.payout?.invoices?.length || 0,
+        invoices: data?.invoices || data?.payout?.invoices || [],
+        bankAccounts: bankAccountsList,
+        upiIds: upiIdsList,
+        duplicateWarnings: data?.duplicateWarnings || data?.payout?.duplicateWarnings || data?.warnings || [],
+        warnings: data?.warnings || data?.payout?.warnings || [],
+        hasBankAccount: data?.paymentDetails?.hasBankAccount,
+        hasUpiId: data?.paymentDetails?.hasUpiId,
+      };
+
+      console.log('\n✅ Parsed Prepare Data:', prepareDataParsed);
+      console.log('Bank Accounts Count:', prepareDataParsed.bankAccounts.length);
+      console.log('UPI IDs Count:', prepareDataParsed.upiIds.length);
+
+      // Log first invoice structure for debugging
+      if (prepareDataParsed.invoices && prepareDataParsed.invoices.length > 0) {
+        console.log('First Invoice Structure:', prepareDataParsed.invoices[0]);
+      }
+
+      setPrepareData(prepareDataParsed);
+
+      // Auto-select primary bank account
+      if (prepareDataParsed.bankAccounts && prepareDataParsed.bankAccounts.length > 0) {
+        const primaryBank = prepareDataParsed.bankAccounts.find((acc: any) => acc.isPrimary);
+        if (primaryBank) {
+          setSelectedBankAccount(primaryBank.id || primaryBank.bankAccountId);
+        } else {
+          setSelectedBankAccount(prepareDataParsed.bankAccounts[0].id || prepareDataParsed.bankAccounts[0].bankAccountId);
+        }
+      }
+
+      // Auto-select primary UPI ID
+      if (prepareDataParsed.upiIds && prepareDataParsed.upiIds.length > 0) {
+        const primaryUpi = prepareDataParsed.upiIds.find((upi: any) => upi.isPrimary);
+        if (primaryUpi) {
+          setSelectedUpiId(primaryUpi.id || primaryUpi.upiId);
+        } else {
+          setSelectedUpiId(prepareDataParsed.upiIds[0].id || prepareDataParsed.upiIds[0].upiId);
+        }
+      }
+
+      // Show warning if no invoices found
+      if (prepareDataParsed.invoiceCount === 0 && !prepareDataParsed.warnings?.length) {
+        toast.info("No pending invoices found for this provider");
+      }
+    } catch (error: any) {
+      console.error("Error loading prepare data:", error);
+      toast.error(error?.response?.data?.message || "Failed to load payout details");
+      setShowPrepareDialog(false);
+    } finally {
+      setLoadingPrepare(false);
     }
+  };
+
+  // Step 2: Initiate Payout
+  const handleInitiatePayout = async () => {
+    if (!selectedProvider) return;
 
     try {
       setProcessingPayout(true);
 
-      // Step 1: Initiate payout
-      const initiateResponse = await adminApi.initiatePayout(selectedProvider.providerId, {
-        amount,
+      const initiateData: any = {
+        amount: parseFloat(payoutAmount),
         notes: payoutNotes,
-      });
+      };
 
-      const payoutData = (initiateResponse as any).data || initiateResponse;
-      const payoutId = payoutData.id || payoutData.payoutId;
+      // Add bank account if selected
+      if (payoutMethod === "bank_transfer" && selectedBankAccount) {
+        initiateData.bankAccountId = selectedBankAccount;
+      }
+
+      const response = await adminApi.initiatePayout(selectedProvider.providerId, initiateData);
+      const payoutData = (response as any).data || response;
+
+      console.log('Initiate Payout Response:', payoutData);
+
+      // Extract payout ID
+      const payoutId = payoutData?.payout?.id || payoutData?.payoutId || payoutData?.id || payoutData?.payout?.payoutId;
 
       if (!payoutId) {
+        console.error('Full response structure:', JSON.stringify(payoutData, null, 2));
         throw new Error("Payout initiation failed - no payout ID returned");
       }
 
-      // Step 2: Process the payout
-      await adminApi.processPayout(payoutId, {
-        notes: payoutNotes,
+      setCurrentPayoutId(payoutId);
+
+      // Store the complete payout data with payment details
+      setProcessPayoutData({
+        ...payoutData,
+        payout: payoutData.payout || payoutData,
+        amount: payoutData.payout?.amount || payoutData.amount || payoutAmount,
+        provider: selectedProvider,
+        bankAccount: prepareData?.bankAccounts?.find((acc: any) => acc.id === selectedBankAccount),
+        upiId: prepareData?.upiIds?.find((upi: any) => upi.id === selectedUpiId),
       });
 
-      toast.success("Payout initiated successfully! It will be processed shortly.");
-      setShowPayoutDialog(false);
-      setSelectedProvider(null);
-      setPayoutAmount("");
-      setPayoutNotes("");
+      // Close prepare dialog, open process dialog
+      setShowPrepareDialog(false);
+      setShowProcessDialog(true);
 
-      // Reload data
-      await loadPayoutData();
+      toast.success("Payout initiated successfully!");
     } catch (error: any) {
-      console.error("Error processing payout:", error);
-      toast.error(error?.response?.data?.message || "Failed to process payout");
+      console.error("Error initiating payout:", error);
+      toast.error(error?.response?.data?.message || "Failed to initiate payout");
     } finally {
       setProcessingPayout(false);
     }
   };
 
+  // Step 3: Admin has made payment - Show complete dialog
+  const handleMadePayment = () => {
+    setShowProcessDialog(false);
+    // The complete dialog is in the history page, so we redirect there
+    router.push(`/admin/payments/distribute/history`);
+  };
+
   const openPayoutDialog = (provider: ProviderEarning) => {
     setSelectedProvider(provider);
     setPayoutAmount(provider.pendingAmount);
-    setPayoutMethod("bank_transfer");
     setPayoutNotes("");
+    setPayoutMethod("bank_transfer");
     setShowPayoutDialog(true);
   };
+
 
   const openDetailsDialog = (provider: ProviderEarning) => {
     setViewingProvider(provider);
     setShowDetailsDialog(true);
   };
 
-  const formatCurrency = (amount: string | number) => {
+  const formatCurrency = (amount: string | number | undefined | null) => {
+    if (!amount || amount === "undefined" || amount === "null") return "₹0";
     const num = typeof amount === "string" ? parseFloat(amount) : amount;
+    if (isNaN(num)) return "₹0";
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
@@ -296,13 +494,20 @@ export default function ProviderPayoutsPage() {
     }).format(num);
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-IN", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
+  const formatDate = (dateString: string | undefined | null) => {
+    if (!dateString || dateString === "undefined" || dateString === "null") return "N/A";
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime()) || date.getFullYear() < 2000) return "N/A";
+      return date.toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+    } catch (error) {
+      console.warn("Invalid date:", dateString);
+      return "N/A";
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -313,11 +518,43 @@ export default function ProviderPayoutsPage() {
       case "pending":
         return "bg-yellow-100 text-yellow-800 border-yellow-200";
       case "processing":
-        return "bg-green-100 text-green-800 border-green-200";
+        return "bg-blue-100 text-blue-800 border-blue-200";
       case "failed":
         return "bg-red-100 text-red-800 border-red-200";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "completed":
+      case "paid":
+        return <CheckCircle className="h-5 w-5 text-green-600" />;
+      case "pending":
+        return <Clock className="h-5 w-5 text-yellow-600" />;
+      case "processing":
+        return <Clock className="h-5 w-5 text-blue-600" />;
+      case "failed":
+        return <XCircle className="h-5 w-5 text-red-600" />;
+      default:
+        return <Clock className="h-5 w-5 text-gray-600" />;
+    }
+  };
+
+  const getStatusIconBg = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "completed":
+      case "paid":
+        return "bg-green-100";
+      case "pending":
+        return "bg-yellow-100";
+      case "processing":
+        return "bg-blue-100";
+      case "failed":
+        return "bg-red-100";
+      default:
+        return "bg-gray-100";
     }
   };
 
@@ -627,11 +864,11 @@ export default function ProviderPayoutsPage() {
                       {hasPending && (
                         <Button
                           size="sm"
-                          onClick={() => openPayoutDialog(earning)}
-                          className="bg-linear-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white"
+                          onClick={() => openPreparePayoutDialog(earning)}
+                          className="bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white"
                         >
                           <Send className="h-4 w-4 mr-2" />
-                          Process Payout
+                          Prepare Payout
                         </Button>
                       )}
 
@@ -677,7 +914,7 @@ export default function ProviderPayoutsPage() {
               variant="outline"
               size="sm"
               onClick={() => router.push("/admin/payments/distribute/history")}
-              className="border-green-200 text-green-700 hover:bg-blue-50"
+              className="border-blue-200 text-blue-700 hover:bg-blue-50"
             >
               View All
             </Button>
@@ -687,29 +924,29 @@ export default function ProviderPayoutsPage() {
             {payoutHistory.slice(0, 5).map((payout) => (
               <div
                 key={payout.id}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200"
+                className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-blue-50/30 transition-colors"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-                    <CheckCircle className="h-5 w-5 text-green-600" />
+                  <div className={`w-12 h-12 rounded-lg ${getStatusIconBg(payout.status)} flex items-center justify-center border-2 border-gray-200`}>
+                    {getStatusIcon(payout.status)}
                   </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">
-                      {payout.providerName}
+                  <div className="min-w-0">
+                    <p className="font-semibold text-gray-900 truncate">
+                      {payout.provider?.name || payout.providerName || "Unknown Provider"}
                     </p>
                     <div className="flex items-center gap-3 mt-1">
                       <span className="text-xs text-gray-600">
-                        {formatDate(payout.processedAt || payout.requestedAt)}
+                        {formatDate(payout.processedAt || payout.completedAt || payout.initiatedAt)}
                       </span>
                       <span className="text-xs text-gray-600 capitalize">
-                        {payout.method?.replace("_", " ") || "Bank Transfer"}
+                        Bank Transfer
                       </span>
                     </div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-gray-900">
-                    {formatCurrency(payout.amount)}
+                  <p className="font-bold text-gray-900 text-base">
+                    {formatCurrency(payout.totalAmount)}
                   </p>
                   <Badge className={`text-xs ${getStatusColor(payout.status)}`}>
                     {payout.status}
@@ -721,110 +958,347 @@ export default function ProviderPayoutsPage() {
         </div>
       )}
 
-      {/* Process Payout Dialog */}
-      <Dialog open={showPayoutDialog} onOpenChange={setShowPayoutDialog}>
-        <DialogContent className="sm:max-w-md bg-white">
+      {/* Prepare Payout Dialog */}
+      <Dialog open={showPrepareDialog} onOpenChange={setShowPrepareDialog}>
+        <DialogContent className="sm:max-w-2xl bg-white border-2 border-blue-200 max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-xl">Process Payout</DialogTitle>
-            <DialogDescription>
-              Send payment to {selectedProvider?.providerName}
+            <DialogTitle className="text-xl text-gray-900">Prepare Payout</DialogTitle>
+            <DialogDescription className="text-gray-600">
+              Review payout details for {selectedProvider?.providerName}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
-            <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-blue-900">
-                    Available Balance
-                  </p>
-                  <p className="text-2xl font-bold text-blue-900 flex items-center gap-1">
-                    <IndianRupee className="h-5 w-5" />
-                    {selectedProvider && parseFloat(selectedProvider.pendingAmount).toLocaleString("en-IN")}
-                  </p>
-                </div>
-                <AlertCircle className="h-8 w-8 text-blue-600" />
-              </div>
+          {loadingPrepare ? (
+            <div className="py-8 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="amount">Payout Amount (₹)</Label>
-              <Input
-                id="amount"
-                type="number"
-                value={payoutAmount}
-                onChange={(e) => setPayoutAmount(e.target.value)}
-                max={selectedProvider?.pendingAmount}
-                className="border-blue-200"
-                placeholder="Enter amount"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="method">Payment Method</Label>
-              <Select value={payoutMethod} onValueChange={setPayoutMethod}>
-                <SelectTrigger id="method" className="border-blue-200">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-white border border-blue-200 shadow-lg">
-                  <SelectItem value="bank_transfer" className="focus:bg-blue-50 focus:text-blue-900 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-blue-500 hover:data-[state=checked]:text-white">Bank Transfer</SelectItem>
-                  <SelectItem value="upi" className="focus:bg-blue-50 focus:text-blue-900 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-blue-500 hover:data-[state=checked]:text-white">UPI</SelectItem>
-                  <SelectItem value="cheque" className="focus:bg-blue-50 focus:text-blue-900 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-blue-500 hover:data-[state=checked]:text-white">Cheque</SelectItem>
-                  <SelectItem value="cash" className="focus:bg-blue-50 focus:text-blue-900 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-blue-500 hover:data-[state=checked]:text-white">Cash</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="notes">Notes (Optional)</Label>
-              <Input
-                id="notes"
-                value={payoutNotes}
-                onChange={(e) => setPayoutNotes(e.target.value)}
-                className="border-blue-200"
-                placeholder="Add any notes..."
-              />
-            </div>
-
-            {selectedProvider?.bankDetails && (
-              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                <p className="text-sm font-semibold text-gray-900 mb-2">
-                  Bank Details
-                </p>
-                <div className="space-y-1 text-sm text-gray-700">
-                  <p><span className="font-medium">Account:</span> {selectedProvider.bankDetails.accountName}</p>
-                  <p><span className="font-medium">Bank:</span> {selectedProvider.bankDetails.bankName}</p>
-                  <p><span className="font-medium">A/C:</span> {selectedProvider.bankDetails.accountNumber}</p>
-                  <p><span className="font-medium">IFSC:</span> {selectedProvider.bankDetails.ifscCode}</p>
+          ) : prepareData ? (
+            <div className="space-y-4 py-4">
+              {/* Amount Summary */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-blue-900">Total Amount to Pay</p>
+                    <p className="text-3xl font-bold text-blue-900 flex items-center gap-1">
+                      <IndianRupee className="h-6 w-6" />
+                      {formatCurrency(prepareData.totalAmount || payoutAmount)}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-blue-700">{prepareData.invoiceCount || 0} Invoices</p>
+                  </div>
                 </div>
               </div>
-            )}
-          </div>
 
-          <DialogFooter>
+              {/* Invoices List */}
+              {prepareData.invoices && prepareData.invoices.length > 0 ? (
+                <div className="bg-white rounded-xl p-4 border border-gray-200">
+                  <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-blue-600" />
+                    Invoices Included ({prepareData.invoices.length})
+                  </h3>
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {prepareData.invoices.map((invoice: any, idx: number) => {
+                      // Try multiple possible amount fields - backend returns 'providerEarning'
+                      const invoiceAmount = invoice.providerEarning || invoice.amount || invoice.totalAmount || invoice.serviceCharge || invoice.laborCost || invoice.materialCost || 0;
+
+                      return (
+                        <div
+                          key={invoice.id || invoice.invoiceId || idx}
+                          className={`flex items-center justify-between p-2 rounded-lg border ${
+                            invoice.isDuplicate
+                              ? 'bg-amber-50 border-amber-300'
+                              : 'bg-gray-50 border-gray-200'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            {invoice.isDuplicate && (
+                              <AlertCircle className="h-4 w-4 text-amber-600" />
+                            )}
+                            <div className="flex flex-col">
+                              <span className="text-sm font-medium text-gray-900">
+                                Invoice #{idx + 1}
+                              </span>
+                              {invoice.paidAt && (
+                                <span className="text-xs text-gray-500">
+                                  {formatDate(invoice.paidAt)}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <span className="text-sm font-bold text-gray-900">
+                            {formatCurrency(invoiceAmount)}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {prepareData.duplicateWarnings && prepareData.duplicateWarnings.length > 0 && (
+                    <div className="mt-3 bg-amber-50 rounded-lg p-3 border border-amber-300">
+                      <p className="text-xs font-semibold text-amber-900 mb-1">⚠️ Duplicate Warnings</p>
+                      <ul className="text-xs text-amber-800 space-y-1">
+                        {prepareData.duplicateWarnings.map((warning: string, idx: number) => (
+                          <li key={idx}>• {warning}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+                  <div className="flex items-center gap-3">
+                    <FileText className="h-5 w-5 text-blue-600" />
+                    <div>
+                      <p className="text-sm font-semibold text-blue-900">No Invoices Found</p>
+                      <p className="text-xs text-blue-700">This payout will be created without associated invoices</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Payment Method Selection */}
+              <div className="space-y-3">
+                {/* No payment methods warning */}
+                {(!prepareData.bankAccounts || prepareData.bankAccounts.length === 0) &&
+                 (!prepareData.upiIds || prepareData.upiIds.length === 0) && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                    <div className="flex items-center gap-2">
+                      <AlertCircle className="h-4 w-4 text-amber-600 flex-shrink-0" />
+                      <p className="text-xs text-amber-900 font-medium">No payment methods available</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Payment Options */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Bank Accounts */}
+                  {prepareData.bankAccounts && prepareData.bankAccounts.length > 0 && (
+                    <div className="space-y-2">
+                      <Label className="text-xs font-medium text-gray-700">Bank Account</Label>
+                      <div className="space-y-1.5">
+                        {prepareData.bankAccounts.map((account: any, idx: number) => (
+                          <label
+                            key={account.id || account.bankAccountId || idx}
+                            className={`flex items-start gap-2 p-2.5 rounded-lg border-2 cursor-pointer transition-all ${
+                              selectedBankAccount === (account.id || account.bankAccountId) && payoutMethod === "bank_transfer"
+                                ? 'border-blue-500 bg-blue-50'
+                                : 'border-gray-200 hover:border-blue-300 bg-white'
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              name="payment-method"
+                              checked={selectedBankAccount === (account.id || account.bankAccountId) && payoutMethod === "bank_transfer"}
+                              onChange={() => {
+                                setSelectedBankAccount(account.id || account.bankAccountId);
+                                setPayoutMethod("bank_transfer");
+                              }}
+                              className="w-4 h-4 text-blue-600 accent-blue-600 mt-0.5 flex-shrink-0"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-xs font-semibold text-gray-900">
+                                  {account.bankName || account.bank}
+                                </span>
+                                {account.isPrimary && (
+                                  <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-medium">
+                                    Primary
+                                  </span>
+                                )}
+                              </div>
+                              <div className="space-y-0.5">
+                                <p className="text-xs text-gray-600">
+                                  <span className="text-gray-500">A/C:</span>{" "}
+                                  <span className="font-mono font-medium text-gray-800">
+                                    {account.accountNumber || account.accountNumberMasked}
+                                  </span>
+                                </p>
+                                <p className="text-xs text-gray-600">
+                                  <span className="text-gray-500">IFSC:</span>{" "}
+                                  <span className="font-mono font-medium text-gray-800">
+                                    {account.ifscCode || account.ifsc}
+                                  </span>
+                                </p>
+                              </div>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* UPI IDs */}
+                  {prepareData.upiIds && prepareData.upiIds.length > 0 && (
+                    <div className="space-y-2">
+                      <Label className="text-xs font-medium text-gray-700">UPI ID</Label>
+                      <div className="space-y-1.5">
+                        {prepareData.upiIds.map((upi: any) => (
+                          <label
+                            key={upi.id || upi.upiId}
+                            className={`flex items-center gap-2 p-2.5 rounded-lg border-2 cursor-pointer transition-all ${
+                              selectedUpiId === (upi.id || upi.upiId) && payoutMethod === "upi"
+                                ? 'border-blue-500 bg-blue-50'
+                                : 'border-gray-200 hover:border-blue-300 bg-white'
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              name="payment-method"
+                              checked={selectedUpiId === (upi.id || upi.upiId) && payoutMethod === "upi"}
+                              onChange={() => {
+                                setSelectedUpiId(upi.id || upi.upiId);
+                                setPayoutMethod("upi");
+                              }}
+                              className="w-4 h-4 text-blue-600 accent-blue-600 mt-0.5 flex-shrink-0"
+                            />
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-xs font-semibold text-gray-900 font-mono">
+                                  {upi.upiId}
+                                </span>
+                                {upi.isPrimary && (
+                                  <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-medium">
+                                    Primary
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs text-gray-500">
+                                Pay via GPay, PhonePe, Paytm
+                              </p>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div className="space-y-2">
+                <Label htmlFor="payout-notes">Notes (Optional)</Label>
+                <textarea
+                  id="payout-notes"
+                  value={payoutNotes}
+                  onChange={(e) => setPayoutNotes(e.target.value)}
+                  placeholder="Add any notes about this payout..."
+                  className="w-full min-h-20 px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white"
+                />
+              </div>
+            </div>
+          ) : null}
+
+          <DialogFooter className="gap-2">
             <Button
               variant="outline"
-              onClick={() => setShowPayoutDialog(false)}
+              onClick={() => setShowPrepareDialog(false)}
               disabled={processingPayout}
+              className="border-blue-200 hover:bg-blue-50"
             >
               Cancel
             </Button>
             <Button
-              onClick={handleProcessPayout}
-              disabled={processingPayout}
-              className="bg-linear-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700"
+              onClick={handleInitiatePayout}
+              disabled={processingPayout || loadingPrepare}
+              className="bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white"
             >
               {processingPayout ? (
                 <>
-                  <div className="animate-spin text-white rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                  Processing...
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Initiating...
                 </>
               ) : (
                 <>
-                  <Send className="h-4 text-white w-4 mr-2" />
-                  <p className="text-white">Send Payout</p>
+                  <Send className="h-4 w-4 mr-2" />
+                  Initiate Payout
                 </>
               )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Process Payment Dialog */}
+      <Dialog open={showProcessDialog} onOpenChange={setShowProcessDialog}>
+        <DialogContent className="sm:max-w-md bg-white border-2 border-blue-200">
+          <DialogHeader>
+            <DialogTitle className="text-xl text-gray-900">Process Payment</DialogTitle>
+            <DialogDescription className="text-gray-600">
+              Complete the payment transfer for {selectedProvider?.providerName}
+            </DialogDescription>
+          </DialogHeader>
+
+          {processPayoutData && (
+            <div className="space-y-4 py-4">
+              {/* Amount */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+                <p className="text-sm font-semibold text-blue-900 mb-1">Amount to Transfer</p>
+                <p className="text-3xl font-bold text-blue-900">
+                  {formatCurrency(processPayoutData.amount || processPayoutData.payout?.amount || payoutAmount)}
+                </p>
+              </div>
+
+              {/* Payment Instructions */}
+              <div className="bg-white rounded-xl p-4 border border-gray-200">
+                <h3 className="text-sm font-bold text-gray-900 mb-3">Payment Details</h3>
+
+                {payoutMethod === "bank_transfer" && processPayoutData.bankAccount && (
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Bank</span>
+                        <span className="font-semibold text-gray-900">{processPayoutData.bankAccount.bankName}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Account Number</span>
+                        <span className="font-mono font-semibold text-gray-900">{processPayoutData.bankAccount.accountNumber}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">IFSC Code</span>
+                        <span className="font-mono font-semibold text-gray-900">{processPayoutData.bankAccount.ifscCode}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Account Holder</span>
+                        <span className="font-semibold text-gray-900">{processPayoutData.bankAccount.accountHolder}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {payoutMethod === "upi" && processPayoutData.upiId && (
+                  <div className="space-y-2">
+                    <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                      <p className="text-sm text-gray-600 mb-1">UPI ID</p>
+                      <p className="font-mono text-xl font-bold text-blue-900">{processPayoutData.upiId.upiId}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Instructions */}
+              <div className="bg-amber-50 rounded-xl p-4 border border-amber-200">
+                <h3 className="text-sm font-bold text-amber-900 mb-2">Instructions</h3>
+                <ol className="text-sm text-amber-800 space-y-1 list-decimal list-inside">
+                  <li>Copy the payment details above</li>
+                  <li>Open your banking app or UPI app</li>
+                  <li>Transfer the amount shown above</li>
+                  <li>Come back and click "I've Made the Payment"</li>
+                  <li>Enter the UTR/reference number to complete</li>
+                </ol>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowProcessDialog(false);
+                handleMadePayment();
+              }}
+              className="border-blue-200 hover:bg-blue-50"
+            >
+              I've Made the Payment
             </Button>
           </DialogFooter>
         </DialogContent>
