@@ -6,7 +6,7 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { providerApi } from '@/lib/api';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
-import { Menu, Bell, LogOut, User, ChevronDown, Check, Loader2, Briefcase, Star, Tag, Info, Wrench } from 'lucide-react';
+import { Menu, Bell, LogOut, User, ChevronDown, Check, Loader2, Briefcase, Star, Tag, Info, Wrench, Settings as SettingsIcon } from 'lucide-react';
 import type { Notification } from '@/types';
 
 interface ProviderHeaderProps {
@@ -145,6 +145,11 @@ export function ProviderHeader({ user, onMenuClick }: ProviderHeaderProps) {
   const handleProfileClick = () => {
     setShowDropdown(false);
     router.push('/provider/profile');
+  };
+
+  const handleSettingsClick = () => {
+    setShowDropdown(false);
+    router.push('/provider/settings');
   };
 
   const handleMarkAsRead = async (id: string) => {
@@ -447,6 +452,15 @@ export function ProviderHeader({ user, onMenuClick }: ProviderHeaderProps) {
                   >
                     <User className="h-4 w-4" />
                     <span className="text-sm font-medium">Profile</span>
+                  </button>
+
+                  {/* Settings Button */}
+                  <button
+                    onClick={handleSettingsClick}
+                    className="flex items-center gap-3 w-full px-4 py-3 text-gray-700 hover:bg-emerald-50 transition-colors"
+                  >
+                    <SettingsIcon className="h-4 w-4" />
+                    <span className="text-sm font-medium">Settings</span>
                   </button>
 
                   <div className="border-t border-emerald-100 my-1" />

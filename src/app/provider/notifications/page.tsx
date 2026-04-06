@@ -45,9 +45,18 @@ export default function ProviderNotificationsPage() {
   const [savingPreferences, setSavingPreferences] = useState(false);
   const [markingAll, setMarkingAll] = useState(false);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+
   useEffect(() => {
     loadNotifications();
     loadPreferences();
+  }, [filter]);
+
+  // Reset to page 1 when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
   }, [filter]);
 
   const loadNotifications = async () => {
@@ -55,9 +64,13 @@ export default function ProviderNotificationsPage() {
       const response = await providerApi.getNotifications({
         unreadOnly: filter === "unread",
       });
+
       const data = (response as any).data || response;
-      setNotifications(data.notifications || []);
-      setUnreadCount(data.unreadCount || 0);
+      const notificationsList = data.notifications || data || [];
+      const unreadCountValue = data.unreadCount || data.unreadCount || 0;
+
+      setNotifications(notificationsList);
+      setUnreadCount(unreadCountValue);
     } catch (error: any) {
       console.error("Error loading notifications:", error);
       const message =
@@ -200,6 +213,41 @@ export default function ProviderNotificationsPage() {
     });
   };
 
+  // Calculate paginated items
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentNotifications = notifications.slice(
+    indexOfFirstItem,
+    indexOfLastItem,
+  );
+
+  // Calculate total pages
+  const totalPages = Math.ceil(notifications.length / itemsPerPage);
+
+  // Pagination controls
+  const hasNextPage = currentPage < totalPages;
+  const hasPrevPage = currentPage > 1;
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      // Scroll to top of list
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (hasPrevPage) {
+      handlePageChange(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (hasNextPage) {
+      handlePageChange(currentPage + 1);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -325,8 +373,9 @@ export default function ProviderNotificationsPage() {
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {notifications.map((notification) => {
+        <>
+          <div className="space-y-4">
+            {currentNotifications.map((notification) => {
             const Icon = getNotificationIcon(notification.type);
             const colorClass = getNotificationColor(
               notification.type,
@@ -398,13 +447,107 @@ export default function ProviderNotificationsPage() {
             );
           })}
         </div>
+
+        {/* Pagination */}
+        {notifications.length > itemsPerPage && (
+          <div className="bg-white rounded-2xl shadow-lg border-2 border-emerald-100 p-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              {/* Page Info */}
+              <div className="text-sm text-gray-600 text-center sm:text-left">
+                Showing{" "}
+                <span className="font-semibold text-emerald-700">
+                  {indexOfFirstItem + 1}
+                </span>{" "}
+                to{" "}
+                <span className="font-semibold text-emerald-700">
+                  {Math.min(indexOfLastItem, notifications.length)}
+                </span>{" "}
+                of{" "}
+                <span className="font-semibold text-emerald-700">
+                  {notifications.length}
+                </span>{" "}
+                notifications
+              </div>
+
+              {/* Pagination Controls */}
+              <div className="flex items-center justify-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handlePrevPage}
+                  disabled={!hasPrevPage}
+                  className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 disabled:opacity-50"
+                >
+                  Previous
+                </Button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => {
+                    // Show first page, last page, current page, and adjacent pages
+                    const showPage =
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 1 && page <= currentPage + 1);
+
+                    if (!showPage) {
+                      // Show ellipsis for gaps
+                      const prevPage = page - 1;
+                      const nextPage = page + 1;
+                      if (
+                        (prevPage === currentPage - 2 && prevPage > 1) ||
+                        (nextPage === currentPage + 2 && nextPage < totalPages)
+                      ) {
+                        return (
+                          <span
+                            key={page}
+                            className="px-2 py-1 text-gray-400 text-sm"
+                          >
+                            ...
+                          </span>
+                        );
+                      }
+                      return null;
+                    }
+
+                    return (
+                      <Button
+                        key={page}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handlePageChange(page)}
+                        className={
+                          currentPage === page
+                            ? "h-8 w-8 p-0 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-semibold"
+                            : "h-8 w-8 p-0 border-emerald-200 text-emerald-700 hover:bg-emerald-50 text-sm font-semibold"
+                        }
+                      >
+                        {page}
+                      </Button>
+                    );
+                  }
+                )}
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleNextPage}
+                  disabled={!hasNextPage}
+                  className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 disabled:opacity-50"
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+        </>
       )}
 
       {/* Preferences Dialog */}
       <Dialog open={preferencesDialogOpen} onOpenChange={setPreferencesDialogOpen}>
         <DialogContent className="sm:max-w-2xl w-[95vw] max-w-[95vw] p-0 overflow-hidden bg-white">
           {/* Header */}
-          <div className="bg-linear-to-r from-emerald-50 via-teal-50 to-cyan-50 px-6 py-4 border-b border-emerald-100">
+          <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 px-6 py-4 border-b border-emerald-100">
             <DialogHeader className="space-y-1">
               <DialogTitle className="text-2xl font-bold flex items-center gap-2">
                 <Settings className="h-6 w-6 text-emerald-600" />
@@ -551,7 +694,7 @@ export default function ProviderNotificationsPage() {
               <Button
                 onClick={handleSavePreferences}
                 disabled={savingPreferences}
-                className="bg-linear-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:from-emerald-500 hover:via-teal-500 hover:to-cyan-500 text-white"
+                className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:from-emerald-500 hover:via-teal-500 hover:to-cyan-500 text-white"
               >
                 {savingPreferences ? (
                   <>

@@ -166,7 +166,7 @@ export const adminApi = {
     return apiClient.post(`/author/payouts/complete/${payoutId}`, data);
   },
 
-  failPayout: async (payoutId: string, data: { reason: string; notes?: string }) => {
+  failPayout: async (payoutId: string, data: { failureReason: string; notes?: string }) => {
     return apiClient.post(`/author/payouts/fail/${payoutId}`, data);
   },
 

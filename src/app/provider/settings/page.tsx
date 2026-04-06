@@ -17,6 +17,7 @@ import {
   Star,
   Shield,
   Settings as SettingsIcon,
+  Smartphone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,9 +48,17 @@ interface BankAccount {
   accountHolderName?: string;
   accountHolder?: string;
   accountNumber: string;
-  ifscCode: string;
+  ifsc: string;
   bankName: string;
   accountType: string;
+  isPrimary: boolean;
+  createdAt: string;
+}
+
+interface UpiId {
+  id: string;
+  bankAccountId?: string;
+  upiId: string;
   isPrimary: boolean;
   createdAt: string;
 }
@@ -62,25 +71,35 @@ export default function ProviderSettingsPage() {
   const [primaryAccount, setPrimaryAccount] = useState<BankAccount | null>(
     null,
   );
+  const [upiIds, setUpiIds] = useState<UpiId[]>([]);
+  const [primaryUpiId, setPrimaryUpiId] = useState<UpiId | null>(null);
 
   // Dialog states
   const [addAccountDialogOpen, setAddAccountDialogOpen] = useState(false);
   const [editAccountDialogOpen, setEditAccountDialogOpen] = useState(false);
   const [deleteAccountDialogOpen, setDeleteAccountDialogOpen] = useState(false);
   const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false);
+  const [addUpiDialogOpen, setAddUpiDialogOpen] = useState(false);
+  const [editUpiDialogOpen, setEditUpiDialogOpen] = useState(false);
+  const [deleteUpiDialogOpen, setDeleteUpiDialogOpen] = useState(false);
 
   // Form states
   const [formData, setFormData] = useState({
     accountName: "",
     accountNumber: "",
-    ifscCode: "",
+    ifsc: "",
     bankName: "",
     accountType: "savings",
+  });
+
+  const [upiFormData, setUpiFormData] = useState({
+    upiId: "",
   });
 
   const [selectedAccount, setSelectedAccount] = useState<BankAccount | null>(
     null,
   );
+  const [selectedUpiId, setSelectedUpiId] = useState<UpiId | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -95,8 +114,11 @@ export default function ProviderSettingsPage() {
     try {
       setLoading(true);
 
-      // Load bank accounts
+      // Load bank accounts (includes UPI IDs in the response)
       const accountsResponse = await providerApi.getBankAccounts();
+
+      console.log('Full Bank Accounts Response:', accountsResponse);
+
       const accountsData =
         (accountsResponse as any).data?.accounts ||
         (accountsResponse as any).data ||
@@ -116,6 +138,28 @@ export default function ProviderSettingsPage() {
         // No primary account set
         setPrimaryAccount(null);
       }
+
+      // Extract UPI IDs from bank accounts array
+      // UPI IDs are stored as 'upiId' field within each bank account
+      const upiArray: UpiId[] = accountsArray
+        .filter((account: any) => account.upiId && account.upiId.trim() !== '')
+        .map((account: any) => ({
+          id: account.id,
+          bankAccountId: account.id,
+          upiId: account.upiId,
+          isPrimary: account.isPrimary || false,
+          createdAt: account.createdAt || new Date().toISOString(),
+        }));
+
+      console.log('Extracted UPI IDs from Bank Accounts:', upiArray);
+
+      setUpiIds(upiArray);
+
+      // Extract primary UPI ID
+      const primaryUpi = upiArray.find((upi: UpiId) => upi.isPrimary) || null;
+      setPrimaryUpiId(primaryUpi);
+
+      console.log('Primary UPI ID:', primaryUpi);
     } catch (error: any) {
       console.error("Error loading settings:", error);
       toast.error("Failed to load settings");
@@ -128,7 +172,7 @@ export default function ProviderSettingsPage() {
     if (
       !formData.accountName ||
       !formData.accountNumber ||
-      !formData.ifscCode ||
+      !formData.ifsc ||
       !formData.bankName
     ) {
       toast.error("Please fill all required fields");
@@ -140,7 +184,7 @@ export default function ProviderSettingsPage() {
       // Transform field names to match backend expectations
       const requestData = {
         accountNumber: formData.accountNumber,
-        ifsc: formData.ifscCode,
+        ifsc: formData.ifsc,
         accountHolder: formData.accountName,
         bankName: formData.bankName,
         accountType: formData.accountType,
@@ -169,7 +213,7 @@ export default function ProviderSettingsPage() {
       // Transform field names to match backend expectations
       const requestData = {
         accountNumber: formData.accountNumber,
-        ifsc: formData.ifscCode,
+        ifsc: formData.ifsc,
         accountHolder: formData.accountName,
         bankName: formData.bankName,
         accountType: formData.accountType,
@@ -227,6 +271,94 @@ export default function ProviderSettingsPage() {
     }
   };
 
+  // UPI ID handlers
+  const handleAddUpiId = async () => {
+    if (!upiFormData.upiId) {
+      toast.error("Please enter UPI ID");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      await providerApi.addUpiId({ upiId: upiFormData.upiId });
+      toast.success("UPI ID added successfully!");
+      setAddUpiDialogOpen(false);
+      resetUpiForm();
+      await loadSettings();
+    } catch (error: any) {
+      console.error("Error adding UPI ID:", error);
+      toast.error(error?.response?.data?.message || "Failed to add UPI ID");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleUpdateUpiId = async () => {
+    if (!selectedUpiId) return;
+
+    try {
+      setSubmitting(true);
+      await providerApi.updateUpiId(selectedUpiId.id, { upiId: upiFormData.upiId });
+      toast.success("UPI ID updated successfully!");
+      setEditUpiDialogOpen(false);
+      resetUpiForm();
+      setSelectedUpiId(null);
+      await loadSettings();
+    } catch (error: any) {
+      console.error("Error updating UPI ID:", error);
+      toast.error(error?.response?.data?.message || "Failed to update UPI ID");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDeleteUpiId = async () => {
+    if (!selectedUpiId) return;
+
+    try {
+      setSubmitting(true);
+      await providerApi.deleteUpiId(selectedUpiId.id);
+      toast.success("UPI ID deleted successfully!");
+      setDeleteUpiDialogOpen(false);
+      setSelectedUpiId(null);
+      await loadSettings();
+    } catch (error: any) {
+      console.error("Error deleting UPI ID:", error);
+      toast.error(error?.response?.data?.message || "Failed to delete UPI ID");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSetPrimaryUpiId = async (bankAccountId: string) => {
+    try {
+      setSubmitting(true);
+      await providerApi.setPrimaryBankAccount(bankAccountId);
+      toast.success("Primary UPI ID updated!");
+      await loadSettings();
+    } catch (error: any) {
+      console.error("Error setting primary UPI ID:", error);
+      toast.error(error?.response?.data?.message || "Failed to set primary UPI ID");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const openEditUpiDialog = (upi: UpiId) => {
+    setSelectedUpiId(upi);
+    setUpiFormData({ upiId: upi.upiId });
+    setEditUpiDialogOpen(true);
+  };
+
+  const openDeleteUpiDialog = (upi: UpiId) => {
+    setSelectedUpiId(upi);
+    setDeleteUpiDialogOpen(true);
+  };
+
+  const resetUpiForm = () => {
+    setUpiFormData({ upiId: "" });
+  };
+
   const handleDeactivateAccount = async () => {
     try {
       setSubmitting(true);
@@ -250,7 +382,7 @@ export default function ProviderSettingsPage() {
     setFormData({
       accountName: (account as any).accountHolder || (account as any).accountHolderName || account.accountName || '',
       accountNumber: account.accountNumber,
-      ifscCode: account.ifscCode,
+      ifsc: (account as any).ifscCode || account.ifsc || '',
       bankName: account.bankName,
       accountType: account.accountType,
     });
@@ -266,7 +398,7 @@ export default function ProviderSettingsPage() {
     setFormData({
       accountName: "",
       accountNumber: "",
-      ifscCode: "",
+      ifsc: "",
       bankName: "",
       accountType: "savings",
     });
@@ -344,12 +476,18 @@ export default function ProviderSettingsPage() {
           <div className="flex-1 w-full">
             <h2 className="text-lg sm:text-xl font-bold mb-1">Account Settings</h2>
             <p className="text-white/90 text-xs sm:text-sm">
-              Manage your bank accounts and account preferences
+              Manage your bank accounts, UPI IDs, and account preferences
             </p>
           </div>
-          <div className="text-left sm:text-right w-full sm:w-auto">
-            <p className="text-2xl sm:text-3xl font-bold">{bankAccounts.length}</p>
-            <p className="text-white/90 text-xs sm:text-sm">Bank Accounts</p>
+          <div className="flex gap-4 sm:gap-6 text-left sm:text-right w-full sm:w-auto">
+            <div>
+              <p className="text-2xl sm:text-3xl font-bold">{bankAccounts.length}</p>
+              <p className="text-white/90 text-xs sm:text-sm">Bank Accounts</p>
+            </div>
+            <div>
+              <p className="text-2xl sm:text-3xl font-bold">{upiIds.length}</p>
+              <p className="text-white/90 text-xs sm:text-sm">UPI IDs</p>
+            </div>
           </div>
         </div>
       </div>
@@ -423,7 +561,7 @@ export default function ProviderSettingsPage() {
                           <div>
                             <p className="text-gray-600">IFSC Code</p>
                             <p className="font-mono font-semibold text-gray-900">
-                              {account.ifscCode}
+                              {account.ifsc}
                             </p>
                           </div>
                           <div>
@@ -491,6 +629,137 @@ export default function ProviderSettingsPage() {
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Your First Account
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* UPI IDs Section */}
+      <Card className="border-emerald-100 shadow-lg">
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 sm:p-3 bg-emerald-100 rounded-xl">
+                <Smartphone className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600" />
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900">
+                  UPI IDs
+                </h2>
+                <p className="text-xs sm:text-sm text-gray-600">
+                  Manage your UPI payment addresses
+                </p>
+              </div>
+            </div>
+            <Button
+              onClick={() => {
+                resetUpiForm();
+                setAddUpiDialogOpen(true);
+              }}
+              className="bg-linear-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:from-emerald-500 hover:via-teal-500 hover:to-cyan-500 text-white w-full sm:w-auto"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add UPI ID
+            </Button>
+          </div>
+
+          {upiIds.length > 0 ? (
+            <div className="space-y-4">
+              {upiIds.map((upi) => (
+                <div
+                  key={upi.id}
+                  className="border-2 border-emerald-100 rounded-xl p-3 sm:p-4 hover:border-emerald-200 transition-all bg-white"
+                >
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-start gap-3 sm:gap-4">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-linear-to-br from-emerald-400 to-teal-400 flex items-center justify-center shadow-md shrink-0">
+                        <Smartphone className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
+                          <h3 className="font-bold text-gray-900 text-sm sm:text-base">
+                            UPI Payment
+                          </h3>
+                          {upi.isPrimary && (
+                            <Badge className="bg-linear-to-r from-emerald-400 to-teal-400 text-white border-0 text-xs font-semibold shadow-md">
+                              <Star className="h-3 w-3 mr-1" />
+                              Primary
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-xs sm:text-sm">
+                          <div>
+                            <p className="text-gray-600">UPI ID</p>
+                            <p className="font-mono font-semibold text-gray-900 truncate">
+                              {upi.upiId}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-gray-600">Status</p>
+                            <p className="font-semibold text-gray-900 capitalize">
+                              {upi.isPrimary ? 'Primary' : 'Active'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-gray-100">
+                      {!upi.isPrimary && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSetPrimaryUpiId(upi.bankAccountId || upi.id)}
+                          disabled={submitting}
+                          className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 text-xs flex-1 sm:flex-none justify-center"
+                        >
+                          <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                          Set Primary
+                        </Button>
+                      )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => openEditUpiDialog(upi)}
+                        className="border-teal-200 text-teal-700 hover:bg-teal-50 text-xs flex-1 sm:flex-none justify-center"
+                      >
+                        <Edit className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => openDeleteUpiDialog(upi)}
+                        className="border-red-200 text-red-700 hover:bg-red-50 text-xs flex-1 sm:flex-none justify-center"
+                        disabled={upi.isPrimary}
+                      >
+                        <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-linear-to-br from-emerald-50 to-teal-50 rounded-xl border-2 border-dashed border-emerald-200">
+              <Smartphone className="h-12 w-12 text-emerald-400 mx-auto mb-3" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">
+                No UPI IDs
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Add a UPI ID to receive instant payouts
+              </p>
+              <Button
+                onClick={() => {
+                  resetUpiForm();
+                  setAddUpiDialogOpen(true);
+                }}
+                className="bg-linear-to-r from-emerald-500 via-teal-400 to-cyan-500 hover:from-emerald-600 hover:via-teal-500 hover:to-cyan-600 text-white font-semibold shadow-lg"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Your First UPI ID
               </Button>
             </div>
           )}
@@ -605,14 +874,14 @@ export default function ProviderSettingsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="ifscCode">IFSC Code *</Label>
+              <Label htmlFor="ifsc">IFSC Code *</Label>
               <Input
-                id="ifscCode"
-                value={formData.ifscCode}
+                id="ifsc"
+                value={formData.ifsc}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    ifscCode: e.target.value.toUpperCase(),
+                    ifsc: e.target.value.toUpperCase(),
                   })
                 }
                 placeholder="e.g., SBIN0001234"
@@ -736,14 +1005,14 @@ export default function ProviderSettingsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-ifscCode">IFSC Code *</Label>
+              <Label htmlFor="edit-ifsc">IFSC Code *</Label>
               <Input
-                id="edit-ifscCode"
-                value={formData.ifscCode}
+                id="edit-ifsc"
+                value={formData.ifsc}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    ifscCode: e.target.value.toUpperCase(),
+                    ifsc: e.target.value.toUpperCase(),
                   })
                 }
                 placeholder="e.g., SBIN0001234"
@@ -964,6 +1233,228 @@ export default function ProviderSettingsPage() {
                 <>
                   <AlertTriangle className="h-4 w-4 mr-2" />
                   Deactivate Account
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add UPI ID Dialog */}
+      <Dialog
+        open={addUpiDialogOpen}
+        onOpenChange={setAddUpiDialogOpen}
+      >
+        <DialogContent className="sm:max-w-md w-[95vw] max-h-[90vh] overflow-y-auto bg-linear-to-br from-emerald-50 to-teal-50 border-emerald-200">
+          <DialogHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-lg bg-linear-to-r from-emerald-500 via-teal-400 to-cyan-500 flex items-center justify-center shrink-0">
+                <Smartphone className="h-5 w-5 text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <DialogTitle className="text-xl text-gray-900">
+                  Add UPI ID
+                </DialogTitle>
+              </div>
+            </div>
+            <DialogDescription className="text-gray-600 pl-13">
+              Add a new UPI ID for receiving instant payouts
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="upiId">UPI ID *</Label>
+              <Input
+                id="upiId"
+                value={upiFormData.upiId}
+                onChange={(e) =>
+                  setUpiFormData({ ...upiFormData, upiId: e.target.value.toLowerCase() })
+                }
+                placeholder="e.g., merchant@paytm"
+                className="border-emerald-200 focus:border-emerald-400 lowercase"
+              />
+              <p className="text-xs text-gray-600">
+                Enter your UPI ID (e.g., name@upi, mobile@paytm)
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setAddUpiDialogOpen(false);
+                resetUpiForm();
+              }}
+              disabled={submitting}
+              className="border-emerald-200 w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddUpiId}
+              disabled={submitting}
+              className="bg-linear-to-r from-emerald-500 via-teal-400 to-cyan-500 hover:from-emerald-600 hover:via-teal-500 hover:to-cyan-600 text-white w-full sm:w-auto"
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Adding...
+                </>
+              ) : (
+                <>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add UPI ID
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit UPI ID Dialog */}
+      <Dialog
+        open={editUpiDialogOpen}
+        onOpenChange={setEditUpiDialogOpen}
+      >
+        <DialogContent className="sm:max-w-md w-[95vw] max-h-[90vh] overflow-y-auto bg-linear-to-br from-emerald-50 to-teal-50 border-emerald-200">
+          <DialogHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-lg bg-linear-to-r from-emerald-500 via-teal-400 to-cyan-500 flex items-center justify-center shrink-0">
+                <Edit className="h-5 w-5 text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <DialogTitle className="text-xl text-gray-900">
+                  Edit UPI ID
+                </DialogTitle>
+              </div>
+            </div>
+            <DialogDescription className="text-gray-600 pl-13">
+              Update your UPI ID details
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-upiId">UPI ID *</Label>
+              <Input
+                id="edit-upiId"
+                value={upiFormData.upiId}
+                onChange={(e) =>
+                  setUpiFormData({ ...upiFormData, upiId: e.target.value.toLowerCase() })
+                }
+                placeholder="e.g., merchant@paytm"
+                className="border-emerald-200 focus:border-emerald-400 lowercase"
+              />
+              <p className="text-xs text-gray-600">
+                Enter your UPI ID (e.g., name@upi, mobile@paytm)
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setEditUpiDialogOpen(false);
+                resetUpiForm();
+                setSelectedUpiId(null);
+              }}
+              disabled={submitting}
+              className="border-emerald-200 w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleUpdateUpiId}
+              disabled={submitting}
+              className="bg-linear-to-r from-emerald-500 via-teal-400 to-cyan-500 hover:from-emerald-600 hover:via-teal-500 hover:to-cyan-600 text-white w-full sm:w-auto"
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Updating...
+                </>
+              ) : (
+                <>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Update UPI ID
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete UPI ID Dialog */}
+      <Dialog
+        open={deleteUpiDialogOpen}
+        onOpenChange={setDeleteUpiDialogOpen}
+      >
+        <DialogContent className="sm:max-w-md w-[95vw] max-h-[90vh] overflow-y-auto bg-linear-to-br from-red-50 to-orange-50 border-red-200">
+          <DialogHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-lg bg-linear-to-br from-red-400 to-red-500 flex items-center justify-center shrink-0">
+                <Trash2 className="h-5 w-5 text-white" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <DialogTitle className="text-xl text-gray-900">
+                  Delete UPI ID
+                </DialogTitle>
+              </div>
+            </div>
+            <DialogDescription className="text-gray-600 pl-13">
+              Are you sure you want to delete this UPI ID?
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedUpiId && (
+            <div className="py-4">
+              <div className="bg-linear-to-br from-red-50 to-orange-50 rounded-xl p-4 border-2 border-red-200">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="font-mono font-semibold text-red-900 mb-1">
+                      {selectedUpiId.upiId}
+                    </p>
+                    <p className="text-sm text-red-800">
+                      This action cannot be undone. Please confirm that you want
+                      to delete this UPI ID.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDeleteUpiDialogOpen(false);
+                setSelectedUpiId(null);
+              }}
+              disabled={submitting}
+              className="border-emerald-200 w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDeleteUpiId}
+              disabled={submitting}
+              variant="destructive"
+              className="w-full sm:w-auto"
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete UPI ID
                 </>
               )}
             </Button>

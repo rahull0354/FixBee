@@ -24,6 +24,7 @@ const navigation = [
   { name: 'Available Requests', href: '/provider/requests/available', icon: Briefcase },
   { name: 'My Assignments', href: '/provider/assignments', icon: FileText },
   { name: 'Earnings', href: '/provider/payments', icon: Wallet },
+  { name: 'Payouts', href: '/provider/payouts', icon: User },
   { name: 'Reviews', href: '/provider/reviews', icon: MessageCircle },
 ];
 
