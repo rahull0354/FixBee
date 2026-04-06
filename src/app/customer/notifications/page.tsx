@@ -49,9 +49,18 @@ export default function CustomerNotificationsPage() {
   const [savingPreferences, setSavingPreferences] = useState(false);
   const [markingAll, setMarkingAll] = useState(false);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+
   useEffect(() => {
     loadNotifications();
     loadPreferences();
+  }, [filter]);
+
+  // Reset to page 1 when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
   }, [filter]);
 
   const loadNotifications = async () => {
@@ -197,6 +206,41 @@ export default function CustomerNotificationsPage() {
       month: "short",
       day: "numeric",
     });
+  };
+
+  // Calculate paginated items
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentNotifications = notifications.slice(
+    indexOfFirstItem,
+    indexOfLastItem,
+  );
+
+  // Calculate total pages
+  const totalPages = Math.ceil(notifications.length / itemsPerPage);
+
+  // Pagination controls
+  const hasNextPage = currentPage < totalPages;
+  const hasPrevPage = currentPage > 1;
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      // Scroll to top of list
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (hasPrevPage) {
+      handlePageChange(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (hasNextPage) {
+      handlePageChange(currentPage + 1);
+    }
   };
 
   // Skeleton loading state
@@ -357,8 +401,9 @@ export default function CustomerNotificationsPage() {
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {notifications.map((notification) => {
+        <>
+          <div className="space-y-4">
+            {currentNotifications.map((notification) => {
             const Icon = getNotificationIcon(notification.type);
             const colorClass = getNotificationColor(
               notification.type,
@@ -430,13 +475,107 @@ export default function CustomerNotificationsPage() {
             );
           })}
         </div>
+
+        {/* Pagination */}
+        {notifications.length > itemsPerPage && (
+          <div className="bg-white rounded-2xl shadow-lg border-2 border-sky-100 p-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              {/* Page Info */}
+              <div className="text-sm text-gray-600 text-center sm:text-left">
+                Showing{" "}
+                <span className="font-semibold text-sky-700">
+                  {indexOfFirstItem + 1}
+                </span>{" "}
+                to{" "}
+                <span className="font-semibold text-sky-700">
+                  {Math.min(indexOfLastItem, notifications.length)}
+                </span>{" "}
+                of{" "}
+                <span className="font-semibold text-sky-700">
+                  {notifications.length}
+                </span>{" "}
+                notifications
+              </div>
+
+              {/* Pagination Controls */}
+              <div className="flex items-center justify-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handlePrevPage}
+                  disabled={!hasPrevPage}
+                  className="border-sky-200 text-sky-700 hover:bg-sky-50 disabled:opacity-50"
+                >
+                  Previous
+                </Button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => {
+                    // Show first page, last page, current page, and adjacent pages
+                    const showPage =
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 1 && page <= currentPage + 1);
+
+                    if (!showPage) {
+                      // Show ellipsis for gaps
+                      const prevPage = page - 1;
+                      const nextPage = page + 1;
+                      if (
+                        (prevPage === currentPage - 2 && prevPage > 1) ||
+                        (nextPage === currentPage + 2 && nextPage < totalPages)
+                      ) {
+                        return (
+                          <span
+                            key={page}
+                            className="px-2 py-1 text-gray-400 text-sm"
+                          >
+                            ...
+                          </span>
+                        );
+                      }
+                      return null;
+                    }
+
+                    return (
+                      <Button
+                        key={page}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handlePageChange(page)}
+                        className={
+                          currentPage === page
+                            ? "h-8 w-8 p-0 bg-gradient-to-r from-sky-500 to-blue-600 text-white text-sm font-semibold"
+                            : "h-8 w-8 p-0 border-sky-200 text-sky-700 hover:bg-sky-50 text-sm font-semibold"
+                        }
+                      >
+                        {page}
+                      </Button>
+                    );
+                  }
+                )}
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleNextPage}
+                  disabled={!hasNextPage}
+                  className="border-sky-200 text-sky-700 hover:bg-sky-50 disabled:opacity-50"
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+        </>
       )}
 
       {/* Preferences Dialog */}
       <Dialog open={preferencesDialogOpen} onOpenChange={setPreferencesDialogOpen}>
         <DialogContent className="sm:max-w-2xl w-[95vw] max-w-[95vw] p-0 overflow-hidden bg-white">
           {/* Header */}
-          <div className="bg-linear-to-r from-sky-50 via-blue-50 to-indigo-50 px-6 py-4 border-b border-sky-100">
+          <div className="bg-gradient-to-r from-sky-50 via-blue-50 to-indigo-50 px-6 py-4 border-b border-sky-100">
             <DialogHeader className="space-y-1">
               <DialogTitle className="text-2xl font-bold flex items-center gap-2">
                 <Settings className="h-6 w-6 text-sky-600" />
@@ -583,7 +722,7 @@ export default function CustomerNotificationsPage() {
               <Button
                 onClick={handleSavePreferences}
                 disabled={savingPreferences}
-                className="bg-linear-to-r from-sky-400 via-blue-400 to-indigo-400 hover:from-sky-500 hover:via-blue-500 hover:to-indigo-500 text-white"
+                className="bg-gradient-to-r from-sky-400 via-blue-400 to-indigo-400 hover:from-sky-500 hover:via-blue-500 hover:to-indigo-500 text-white"
               >
                 {savingPreferences ? (
                   <>

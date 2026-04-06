@@ -178,6 +178,85 @@ export const providerApi = {
     return apiClient.post('/invoices/provider/payouts/request', { amount });
   },
 
+  // Payouts
+  getPayouts: async (params?: { status?: string; page?: number; limit?: number }): Promise<Array<{
+    id: string;
+    amount: number;
+    status: 'pending' | 'processing' | 'completed' | 'failed';
+    requestedAt: string;
+    processedAt?: string;
+    transactionId?: string;
+    utr?: string;
+    notes?: string;
+    failureReason?: string;
+  }>> => {
+    const config = params ? { params } : undefined;
+    return apiClient.get('/providers/payouts', config) as any;
+  },
+
+  getPayoutSummary: async (): Promise<{
+    totalEarnings: number;
+    pendingAmount: number;
+    paidAmount: number;
+    processingAmount: number;
+    failedAmount: number;
+    totalPayouts: number;
+    pendingPayouts: number;
+    completedPayouts: number;
+  }> => {
+    return apiClient.get('/providers/payouts/summary') as any;
+  },
+
+  getPendingInvoices: async (params?: { page?: number; limit?: number }): Promise<Array<{
+    id: string;
+    invoiceNumber: string;
+    requestId: string;
+    totalAmount: number;
+    providerEarning: number;
+    platformFee: number;
+    status: 'pending';
+    invoiceDate: string;
+    customer?: {
+      name: string;
+    };
+    serviceRequest?: {
+      title: string;
+      serviceType: string;
+    };
+  }>> => {
+    const config = params ? { params } : undefined;
+    return apiClient.get('/providers/payouts/pending', config);
+  },
+
+  getPayoutById: async (payoutId: string): Promise<{
+    id: string;
+    amount: number;
+    status: 'pending' | 'processing' | 'completed' | 'failed';
+    requestedAt: string;
+    processedAt?: string;
+    transactionId?: string;
+    utr?: string;
+    notes?: string;
+    failureReason?: string;
+    provider?: {
+      id: string;
+      name: string;
+      email: string;
+    };
+    bankAccount?: {
+      bankName: string;
+      accountNumber: string;
+      ifsc: string;
+    };
+    invoices?: Array<{
+      id: string;
+      invoiceNumber: string;
+      amount: number;
+    }>;
+  }> => {
+    return apiClient.get(`/providers/payouts/${payoutId}`);
+  },
+
   // Bank Accounts
   getBankAccounts: async () => {
     return apiClient.get('/providers/bank-accounts');
@@ -217,5 +296,27 @@ export const providerApi = {
 
   setPrimaryBankAccount: async (bankAccountId: string) => {
     return apiClient.patch(`/providers/bank-accounts/${bankAccountId}/set-primary`);
+  },
+
+  // UPI ID methods (UPI IDs are managed within bank accounts)
+  addUpiId: async (data: {
+    upiId: string;
+  }) => {
+    return apiClient.post('/providers/bank-accounts', {
+      ...data,
+      accountType: 'upi',
+    });
+  },
+
+  updateUpiId: async (bankAccountId: string, data: {
+    upiId: string;
+  }) => {
+    return apiClient.put(`/providers/bank-accounts/${bankAccountId}`, {
+      upiId: data.upiId,
+    });
+  },
+
+  deleteUpiId: async (bankAccountId: string) => {
+    return apiClient.delete(`/providers/bank-accounts/${bankAccountId}`);
   },
 };

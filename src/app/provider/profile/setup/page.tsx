@@ -588,7 +588,7 @@ export default function ProviderProfileSetupPage() {
                       key={skill}
                       className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 bg-linear-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-full text-emerald-700 font-medium text-xs sm:text-sm"
                     >
-                      <span className="truncate max-w-[120px] sm:max-w-none">{skill}</span>
+                      <span className="truncate max-w-30 sm:max-w-none">{skill}</span>
                       <button
                         type="button"
                         onClick={() => removeSkill(skill)}
@@ -872,7 +872,7 @@ export default function ProviderProfileSetupPage() {
                             key={area}
                             className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 bg-white border border-emerald-200 rounded-full text-xs sm:text-sm text-emerald-700"
                           >
-                            <span className="truncate max-w-[100px] sm:max-w-none">{area}</span>
+                            <span className="truncate max-w-25 sm:max-w-none">{area}</span>
                             <button
                               type="button"
                               onClick={() => removeAreaFromServiceArea(area)}
@@ -1114,9 +1114,9 @@ export default function ProviderProfileSetupPage() {
 
                 {/* Bank Account Preview */}
                 {formData.bankAccount && (
-                  <div className="mt-4 sm:mt-6 p-4 sm:p-6 bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-lg sm:rounded-xl">
+                  <div className="mt-4 sm:mt-6 p-4 sm:p-6 bg-linear-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-lg sm:rounded-xl">
                     <div className="flex items-start gap-3 sm:gap-4">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-emerald-400 to-teal-400 flex items-center justify-center shadow-md shrink-0">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-linear-to-br from-emerald-400 to-teal-400 flex items-center justify-center shadow-md shrink-0">
                         <CreditCard className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                       </div>
                       <div className="flex-1 min-w-0">

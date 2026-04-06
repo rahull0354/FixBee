@@ -19,6 +19,7 @@ import {
   RefreshCcw,
   MoreVertical,
   Play,
+  AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -90,9 +91,17 @@ interface Payout {
 export default function PayoutHistoryPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [processingPayout, setProcessingPayout] = useState<string | null>(null);
+  const [completingPayout, setCompletingPayout] = useState<string | null>(null);
+  const [failingPayout, setFailingPayout] = useState<string | null>(null);
   const [payouts, setPayouts] = useState<Payout[]>([]);
   const [selectedPayout, setSelectedPayout] = useState<Payout | null>(null);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const itemsPerPage = 10;
 
   // Action modals
   const [showProcessDialog, setShowProcessDialog] = useState(false);
@@ -111,14 +120,14 @@ export default function PayoutHistoryPage() {
 
   useEffect(() => {
     loadPayoutHistory();
-  }, []);
+  }, [currentPage]);
 
   const loadPayoutHistory = async () => {
     try {
       setLoading(true);
 
       const response = await adminApi.getPayouts({
-        limit: 100,
+        limit: 1000, // Fetch all data at once
       });
 
       const data =
@@ -127,10 +136,12 @@ export default function PayoutHistoryPage() {
       const payoutsArray = Array.isArray(data) ? data : data.payouts || [];
 
       setPayouts(payoutsArray);
+      setTotalItems(payoutsArray.length);
     } catch (error: any) {
       console.error("Error loading payout history:", error);
       toast.error("Failed to load payout history");
       setPayouts([]);
+      setTotalItems(0);
     } finally {
       setLoading(false);
     }
@@ -199,12 +210,14 @@ export default function PayoutHistoryPage() {
     return method.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
   };
 
+  // Filter payouts based on search and filters
   const filteredPayouts = payouts.filter((payout) => {
     const providerName = payout.provider?.name || payout.providerName || "";
     const providerEmail = payout.provider?.email || payout.providerEmail || "";
     const transactionId = payout.transactionId || "";
 
     const matchesSearch =
+      searchQuery === "" ||
       providerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       providerEmail.toLowerCase().includes(searchQuery.toLowerCase()) ||
       transactionId.toLowerCase().includes(searchQuery.toLowerCase());
@@ -216,6 +229,46 @@ export default function PayoutHistoryPage() {
 
     return matchesSearch && matchesStatus && matchesMethod;
   });
+
+  // Calculate paginated items
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentPayouts = filteredPayouts.slice(
+    indexOfFirstItem,
+    indexOfLastItem,
+  );
+
+  // Calculate total pages based on filtered results
+  const totalPages = Math.ceil(filteredPayouts.length / itemsPerPage);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, methodFilter]);
+
+  // Calculate pagination values (must come after totalPages is calculated)
+  const hasNextPage = currentPage < totalPages;
+  const hasPrevPage = currentPage > 1;
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      // Scroll to top of list
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (hasPrevPage) {
+      handlePageChange(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (hasNextPage) {
+      handlePageChange(currentPage + 1);
+    }
+  };
 
   const exportToCSV = () => {
     const headers = [
@@ -271,6 +324,7 @@ export default function PayoutHistoryPage() {
     }
 
     try {
+      setCompletingPayout(selectedPayout.id);
       await adminApi.completePayout(selectedPayout.id, {
         utr: completeTransactionId,
         notes: completeNotes || "Completed by admin",
@@ -284,6 +338,8 @@ export default function PayoutHistoryPage() {
       toast.error(
         error?.response?.data?.message || "Failed to complete payout",
       );
+    } finally {
+      setCompletingPayout(null);
     }
   };
 
@@ -297,16 +353,19 @@ export default function PayoutHistoryPage() {
   const confirmFailPayout = async () => {
     if (!selectedPayout) return;
 
-    if (!failReason.trim()) {
+    if (!failReason || !failReason.trim()) {
       toast.error("Failure reason is required");
       return;
     }
 
     try {
-      await adminApi.failPayout(selectedPayout.id, {
-        reason: failReason,
-        notes: failNotes || "Failed by admin",
-      });
+      setFailingPayout(selectedPayout.id);
+      const payload = {
+        failureReason: failReason.trim(),
+        notes: failNotes?.trim() || "Failed by admin",
+      };
+
+      const response = await adminApi.failPayout(selectedPayout.id, payload);
 
       toast.success("Payout marked as failed");
       setShowFailDialog(false);
@@ -314,8 +373,12 @@ export default function PayoutHistoryPage() {
     } catch (error: any) {
       console.error("Error failing payout:", error);
       toast.error(
-        error?.response?.data?.message || "Failed to mark payout as failed",
+        error?.response?.data?.message ||
+          error?.message ||
+          "Failed to mark payout as failed",
       );
+    } finally {
+      setFailingPayout(null);
     }
   };
 
@@ -329,6 +392,7 @@ export default function PayoutHistoryPage() {
     if (!selectedPayout) return;
 
     try {
+      setProcessingPayout(selectedPayout.id);
       await adminApi.processPayout(selectedPayout.id, {
         notes: processNotes || "Processing initiated by admin",
       });
@@ -339,6 +403,8 @@ export default function PayoutHistoryPage() {
     } catch (error: any) {
       console.error("Error processing payout:", error);
       toast.error(error?.response?.data?.message || "Failed to process payout");
+    } finally {
+      setProcessingPayout(null);
     }
   };
 
@@ -366,10 +432,10 @@ export default function PayoutHistoryPage() {
               Complete record of all provider payouts
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
             <Button
               variant="outline"
-              className="border-blue-200 text-blue-700 hover:bg-blue-50"
+              className="border-blue-200 text-blue-700 hover:bg-blue-50 w-full sm:w-auto justify-center"
               onClick={exportToCSV}
               disabled={filteredPayouts.length === 0}
             >
@@ -377,7 +443,7 @@ export default function PayoutHistoryPage() {
               Export CSV
             </Button>
             <Button
-              className="bg-linear-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white"
+              className="bg-linear-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white w-full sm:w-auto justify-center"
               onClick={loadPayoutHistory}
             >
               <RefreshCcw className="h-4 w-4 mr-2" />
@@ -539,153 +605,307 @@ export default function PayoutHistoryPage() {
 
       {/* Payout List */}
       <div className="bg-white rounded-2xl shadow-lg border-2 border-blue-100 overflow-hidden">
-        {filteredPayouts.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead className="bg-linear-to-r from-blue-50 to-indigo-50 border-b-2 border-blue-200">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Provider
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Amount
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Method
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider hidden md:table-cell">
-                    Transaction ID
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider hidden lg:table-cell">
-                    Requested Date
-                  </th>
-                  <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {filteredPayouts.map((payout) => (
-                  <tr
-                    key={payout.id}
-                    className="hover:bg-blue-50/30 transition-colors"
-                  >
-                    <td className="px-6 py-4 align-middle">
-                      <div className="flex items-center gap-3 min-w-50">
-                        <div className="w-12 h-12 rounded-lg bg-linear-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 flex items-center justify-center shrink-0">
-                          <Building className="h-6 w-6 text-blue-600" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-semibold text-gray-900 text-sm truncate">
-                            {payout.provider?.name || payout.providerName || 'Provider'}
-                          </p>
-                          {payout.provider?.email || payout.providerEmail ? (
-                            <p className="text-xs text-gray-600 truncate">
-                              {payout.provider?.email || payout.providerEmail}
+        {currentPayouts.length > 0 ? (
+          <>
+            {/* Desktop Table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead className="bg-linear-to-r from-blue-50 to-indigo-50 border-b-2 border-blue-200">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      Provider
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      Amount
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      Method
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider hidden lg:table-cell">
+                      Transaction ID
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider hidden lg:table-cell">
+                      Requested Date
+                    </th>
+                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {currentPayouts.map((payout) => (
+                    <tr
+                      key={payout.id}
+                      className="hover:bg-blue-50/30 transition-colors"
+                    >
+                      <td className="px-6 py-4 align-middle">
+                        <div className="flex items-center gap-3 min-w-50">
+                          <div className="w-12 h-12 rounded-lg bg-linear-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 flex items-center justify-center shrink-0">
+                            <Building className="h-6 w-6 text-blue-600" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-semibold text-gray-900 text-sm truncate">
+                              {payout.provider?.name ||
+                                payout.providerName ||
+                                "Provider"}
                             </p>
-                          ) : null}
+                            {payout.provider?.email || payout.providerEmail ? (
+                              <p className="text-xs text-gray-600 truncate">
+                                {payout.provider?.email || payout.providerEmail}
+                              </p>
+                            ) : null}
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 align-middle">
-                      <p className="font-bold text-gray-900 text-base">
+                      </td>
+                      <td className="px-6 py-4 align-middle">
+                        <p className="font-bold text-gray-900 text-base">
+                          {formatCurrency(payout.totalAmount || payout.amount)}
+                        </p>
+                      </td>
+                      <td className="px-6 py-4 align-middle">
+                        <div className="flex items-center gap-2">
+                          {getStatusIcon(payout.status)}
+                          <Badge
+                            className={`${getStatusColor(payout.status)} text-xs font-semibold`}
+                          >
+                            {payout.status}
+                          </Badge>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 align-middle">
+                        <p className="text-sm text-gray-700 capitalize">
+                          {getMethodLabel(payout.method)}
+                        </p>
+                      </td>
+                      <td className="px-6 py-4 align-middle hidden lg:table-cell">
+                        <p className="text-sm font-mono text-gray-700 bg-gray-50 px-2 py-1 rounded inline-block">
+                          {payout.transactionId || "N/A"}
+                        </p>
+                      </td>
+                      <td className="px-6 py-4 align-middle hidden lg:table-cell">
+                        <p className="text-sm text-gray-700 font-medium">
+                          {formatDate(payout.requestedAt)}
+                        </p>
+                      </td>
+                      <td className="px-6 py-4 align-middle">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedPayout(payout);
+                              setShowDetailsDialog(true);
+                            }}
+                            className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300"
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            View
+                          </Button>
+
+                          {payout.status === "pending" && (
+                            <Button
+                              size="sm"
+                              onClick={() => handleProcessPayout(payout)}
+                              disabled={processingPayout === payout.id}
+                              className="bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white shadow-sm"
+                            >
+                              {processingPayout === payout.id ? (
+                                <>
+                                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
+                                  Processing
+                                </>
+                              ) : (
+                                <>
+                                  <Play className="h-4 w-4 mr-1" />
+                                  Process
+                                </>
+                              )}
+                            </Button>
+                          )}
+
+                          {payout.status === "processing" && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="border-blue-200 hover:bg-blue-50 h-8 w-8 p-0"
+                                >
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent
+                                align="end"
+                                className="w-48 bg-white border-2 border-blue-200 shadow-lg"
+                              >
+                                <DropdownMenuItem
+                                  onClick={() => handleCompletePayout(payout)}
+                                  disabled={completingPayout === payout.id || failingPayout === payout.id}
+                                  className="text-gray-700 focus:text-blue-700 focus:bg-blue-50 cursor-pointer"
+                                >
+                                  <Check className="h-4 w-4 mr-2 text-blue-600" />
+                                  {completingPayout === payout.id ? "Completing..." : "Mark as Complete"}
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator className="bg-blue-100" />
+                                <DropdownMenuItem
+                                  onClick={() => handleFailPayout(payout)}
+                                  disabled={failingPayout === payout.id || completingPayout === payout.id}
+                                  className="text-gray-700 focus:text-red-700 focus:bg-red-50 cursor-pointer"
+                                >
+                                  <X className="h-4 w-4 mr-2 text-red-600" />
+                                  {failingPayout === payout.id ? "Failing..." : "Mark as Failed"}
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card Layout */}
+            <div className="md:hidden space-y-4 p-4">
+              {currentPayouts.map((payout) => (
+                <div
+                  key={payout.id}
+                  className="bg-white border-2 border-blue-100 rounded-xl p-4 space-y-3"
+                >
+                  {/* Provider Header */}
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-linear-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 flex items-center justify-center shrink-0">
+                      <Building className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-gray-900 text-sm truncate">
+                        {payout.provider?.name ||
+                          payout.providerName ||
+                          "Provider"}
+                      </p>
+                      {payout.provider?.email || payout.providerEmail ? (
+                        <p className="text-xs text-gray-600 truncate">
+                          {payout.provider?.email || payout.providerEmail}
+                        </p>
+                      ) : null}
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      {getStatusIcon(payout.status)}
+                      <Badge
+                        className={`${getStatusColor(payout.status)} text-xs font-semibold`}
+                      >
+                        {payout.status}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {/* Amount and Date */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-gray-600 font-medium">
+                        Amount
+                      </p>
+                      <p className="font-bold text-lg text-gray-900">
                         {formatCurrency(payout.totalAmount || payout.amount)}
                       </p>
-                    </td>
-                    <td className="px-6 py-4 align-middle">
-                      <div className="flex items-center gap-2">
-                        {getStatusIcon(payout.status)}
-                        <Badge
-                          className={`${getStatusColor(payout.status)} text-xs font-semibold`}
-                        >
-                          {payout.status}
-                        </Badge>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 align-middle">
-                      <p className="text-sm text-gray-700 capitalize">
-                        {getMethodLabel(payout.method)}
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-gray-600 font-medium">
+                        Requested
                       </p>
-                    </td>
-                    <td className="px-6 py-4 align-middle hidden md:table-cell">
-                      <p className="text-sm font-mono text-gray-700 bg-gray-50 px-2 py-1 rounded inline-block">
-                        {payout.transactionId || "N/A"}
-                      </p>
-                    </td>
-                    <td className="px-6 py-4 align-middle hidden lg:table-cell">
-                      <p className="text-sm text-gray-700 font-medium">
+                      <p className="text-xs text-gray-700">
                         {formatDate(payout.requestedAt)}
                       </p>
-                    </td>
-                    <td className="px-6 py-4 align-middle">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedPayout(payout);
-                            setShowDetailsDialog(true);
-                          }}
-                          className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300"
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          <span className="hidden sm:inline">View</span>
-                        </Button>
+                    </div>
+                  </div>
 
-                        {payout.status === "pending" && (
-                          <Button
-                            size="sm"
-                            onClick={() => handleProcessPayout(payout)}
-                            className="bg-linear-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white shadow-sm"
-                          >
-                            <Play className="h-4 w-4 mr-1" />
-                            <span className="hidden sm:inline">Process</span>
-                          </Button>
-                        )}
-
-                        {payout.status === "processing" && (
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="border-blue-200 hover:bg-blue-50 h-8 w-8 p-0"
-                              >
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent
-                              align="end"
-                              className="w-48 bg-white border-2 border-blue-200 shadow-lg"
-                            >
-                              <DropdownMenuItem
-                                onClick={() => handleCompletePayout(payout)}
-                                className="text-gray-700 focus:text-blue-700 focus:bg-blue-50 cursor-pointer"
-                              >
-                                <Check className="h-4 w-4 mr-2 text-blue-600" />
-                                Mark as Complete
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator className="bg-blue-100" />
-                              <DropdownMenuItem
-                                onClick={() => handleFailPayout(payout)}
-                                className="text-gray-700 focus:text-red-700 focus:bg-red-50 cursor-pointer"
-                              >
-                                <X className="h-4 w-4 mr-2 text-red-600" />
-                                Mark as Failed
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        )}
+                  {/* Method and Transaction */}
+                  <div className="flex items-center justify-between text-sm">
+                    <div>
+                      <p className="text-xs text-gray-600">Method</p>
+                      <p className="text-gray-900 capitalize">
+                        {getMethodLabel(payout.method)}
+                      </p>
+                    </div>
+                    {payout.transactionId && (
+                      <div className="text-right">
+                        <p className="text-xs text-gray-600">Transaction</p>
+                        <p className="text-xs font-mono text-gray-700 bg-gray-50 px-2 py-1 rounded inline-block">
+                          {payout.transactionId}
+                        </p>
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    )}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 pt-2 border-t border-gray-200">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedPayout(payout);
+                        setShowDetailsDialog(true);
+                      }}
+                      className="flex-1 border-blue-200 text-blue-700 hover:bg-blue-50"
+                    >
+                      <Eye className="h-4 w-4 mr-1" />
+                      View
+                    </Button>
+
+                    {payout.status === "pending" && (
+                      <Button
+                        size="sm"
+                        onClick={() => handleProcessPayout(payout)}
+                        className="flex-1 bg-linear-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white"
+                      >
+                        <Play className="h-4 w-4 mr-1" />
+                        Process
+                      </Button>
+                    )}
+
+                    {payout.status === "processing" && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 border-blue-200 text-blue-700 hover:bg-blue-50"
+                          >
+                            Actions
+                            <MoreVertical className="h-4 w-4 ml-1" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                          align="end"
+                          className="w-48 bg-white border-2 border-blue-200 shadow-lg"
+                        >
+                          <DropdownMenuItem
+                            onClick={() => handleCompletePayout(payout)}
+                            className="text-gray-700 focus:text-blue-700 focus:bg-blue-50 cursor-pointer"
+                          >
+                            <Check className="h-4 w-4 mr-2 text-blue-600" />
+                            Mark as Complete
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator className="bg-blue-100" />
+                          <DropdownMenuItem
+                            onClick={() => handleFailPayout(payout)}
+                            className="text-gray-700 focus:text-red-700 focus:bg-red-50 cursor-pointer"
+                          >
+                            <X className="h-4 w-4 mr-2 text-red-600" />
+                            Mark as Failed
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         ) : (
           <div className="text-center py-12">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-linear-to-br from-gray-100 to-gray-200 rounded-full mb-4">
@@ -702,6 +922,101 @@ export default function PayoutHistoryPage() {
           </div>
         )}
       </div>
+
+      {/* Pagination */}
+      {filteredPayouts.length > itemsPerPage && (
+        <div className="bg-white rounded-2xl shadow-lg border-2 border-blue-100 p-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            {/* Page Info */}
+            <div className="text-sm text-gray-600 text-center sm:text-left">
+              Showing{" "}
+              <span className="font-semibold text-gray-900">
+                {indexOfFirstItem + 1}
+              </span>{" "}
+              to{" "}
+              <span className="font-semibold text-gray-900">
+                {Math.min(indexOfLastItem, filteredPayouts.length)}
+              </span>{" "}
+              of{" "}
+              <span className="font-semibold text-gray-900">
+                {filteredPayouts.length}
+              </span>{" "}
+              payouts
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePrevPage}
+                disabled={!hasPrevPage}
+                className="border-blue-200 text-blue-700 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => {
+                    // Show first page, last page, current page, and adjacent pages
+                    const showPage =
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 1 && page <= currentPage + 1);
+
+                    if (!showPage) {
+                      // Show ellipsis for gaps
+                      const prevPage = page - 1;
+                      const nextPage = page + 1;
+                      if (
+                        (prevPage === currentPage - 2 && prevPage > 1) ||
+                        (nextPage === currentPage + 2 && nextPage < totalPages)
+                      ) {
+                        return (
+                          <span
+                            key={page}
+                            className="px-2 py-1 text-gray-400 text-sm"
+                          >
+                            ...
+                          </span>
+                        );
+                      }
+                      return null;
+                    }
+
+                    return (
+                      <Button
+                        key={page}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handlePageChange(page)}
+                        className={
+                          currentPage === page
+                            ? "h-8 w-8 p-0 bg-linear-to-r from-sky-500 to-blue-600 text-white text-sm font-semibold"
+                            : "h-8 w-8 p-0 border-blue-200 text-blue-700 hover:bg-blue-50 text-sm font-semibold"
+                        }
+                      >
+                        {page}
+                      </Button>
+                    );
+                  },
+                )}
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleNextPage}
+                disabled={!hasNextPage}
+                className="border-blue-200 text-blue-700 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ArrowLeft className="h-4 w-4 rotate-180" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Details Dialog */}
       <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
@@ -873,7 +1188,7 @@ export default function PayoutHistoryPage() {
               )}
 
               {/* Status Progress Indicator */}
-              <div className="bg-linear-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
                 <p className="text-xs font-semibold text-blue-900 uppercase mb-3">
                   Payout Progress
                 </p>
@@ -949,10 +1264,20 @@ export default function PayoutHistoryPage() {
                     setShowDetailsDialog(false);
                     handleProcessPayout(selectedPayout);
                   }}
-                  className="bg-linear-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white w-full sm:w-auto shadow-md"
+                  disabled={processingPayout === selectedPayout.id}
+                  className="bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white w-full sm:w-auto shadow-md"
                 >
-                  <Play className="h-4 w-4 mr-2" />
-                  Start Processing
+                  {processingPayout === selectedPayout.id ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <Play className="h-4 w-4 mr-2" />
+                      Start Processing
+                    </>
+                  )}
                 </Button>
               )}
               {selectedPayout?.status === "processing" && (
@@ -962,21 +1287,41 @@ export default function PayoutHistoryPage() {
                       setShowDetailsDialog(false);
                       handleCompletePayout(selectedPayout);
                     }}
+                    disabled={completingPayout === selectedPayout.id}
                     className="bg-linear-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white w-full sm:w-auto shadow-md"
                   >
-                    <Check className="h-4 w-4 mr-2" />
-                    Mark Complete
+                    {completingPayout === selectedPayout.id ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Completing...
+                      </>
+                    ) : (
+                      <>
+                        <Check className="h-4 w-4 mr-2" />
+                        Mark Complete
+                      </>
+                    )}
                   </Button>
                   <Button
                     onClick={() => {
                       setShowDetailsDialog(false);
                       handleFailPayout(selectedPayout);
                     }}
+                    disabled={failingPayout === selectedPayout.id}
                     variant="destructive"
                     className="w-full sm:w-auto shadow-md"
                   >
-                    <X className="h-4 w-4 mr-2" />
-                    Mark Failed
+                    {failingPayout === selectedPayout.id ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Failing...
+                      </>
+                    ) : (
+                      <>
+                        <X className="h-4 w-4 mr-2" />
+                        Mark Failed
+                      </>
+                    )}
                   </Button>
                 </>
               )}
@@ -1068,10 +1413,20 @@ export default function PayoutHistoryPage() {
             </Button>
             <Button
               onClick={confirmProcessPayout}
-              className="flex-1 bg-linear-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white"
+              disabled={processingPayout === selectedPayout?.id}
+              className="flex-1 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white"
             >
-              <Play className="h-4 w-4 mr-2" />
-              Start Processing
+              {processingPayout === selectedPayout?.id ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Play className="h-4 w-4 mr-2" />
+                  Start Processing
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1130,8 +1485,7 @@ export default function PayoutHistoryPage() {
                 htmlFor="transaction-id"
                 className="text-sm font-semibold text-gray-700"
               >
-                Transaction ID / UTR{" "}
-                <span className="text-red-500">*</span>
+                Transaction ID / UTR <span className="text-red-500">*</span>
               </label>
               <Input
                 id="transaction-id"
@@ -1170,10 +1524,20 @@ export default function PayoutHistoryPage() {
             </Button>
             <Button
               onClick={confirmCompletePayout}
-              className="flex-1 bg-linear-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white"
+              disabled={completingPayout === selectedPayout?.id}
+              className="flex-1 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white"
             >
-              <Check className="h-4 w-4 mr-2" />
-              Mark Complete
+              {completingPayout === selectedPayout?.id ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Completing...
+                </>
+              ) : (
+                <>
+                  <Check className="h-4 w-4 mr-2" />
+                  Mark Complete
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1181,103 +1545,147 @@ export default function PayoutHistoryPage() {
 
       {/* Fail Payout Dialog */}
       <Dialog open={showFailDialog} onOpenChange={setShowFailDialog}>
-        <DialogContent className="sm:max-w-md bg-white border-2 border-blue-200">
-          <DialogHeader>
-            <DialogTitle className="text-xl text-gray-900">
-              Fail Payout
-            </DialogTitle>
-            <DialogDescription className="text-gray-600">
-              Mark payout for{" "}
-              <span className="font-bold text-blue-600">
-                {selectedPayout?.providerName || "Provider"}
-              </span>{" "}
-              as failed
-            </DialogDescription>
+        <DialogContent className="sm:max-w-md bg-white border-2 border-red-200 w-[95vw]">
+          <DialogHeader className="pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center border-2 border-red-200">
+                <XCircle className="h-6 w-6 text-red-600" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl text-gray-900">
+                  Fail Payout
+                </DialogTitle>
+                <DialogDescription className="text-gray-600 text-sm">
+                  Confirm payout failure for{" "}
+                  <span className="font-bold text-red-600">
+                    {selectedPayout?.provider?.name ||
+                      selectedPayout?.providerName ||
+                      "Provider"}
+                  </span>
+                </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
+          <div className="space-y-4 py-2">
             {/* Payout Summary */}
-            <div className="bg-blue-50 rounded-xl p-4 border border-blue-200 space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Payout Amount</span>
-                <span className="font-bold text-lg text-blue-700">
+            <div className="bg-blue-50 rounded-xl p-4 border border-blue-200 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-blue-900">
+                  Payout Amount
+                </span>
+                <span className="font-bold text-xl text-blue-700">
                   {formatCurrency(
                     selectedPayout?.totalAmount || selectedPayout?.amount,
                   )}
                 </span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Requested On</span>
-                <span className="font-semibold text-gray-900">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-blue-900">
+                  Requested On
+                </span>
+                <span className="font-semibold text-blue-700">
                   {formatDate(selectedPayout?.requestedAt)}
                 </span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Status</span>
-                <Badge className="bg-blue-100 text-blue-800 border-blue-200 text-xs font-semibold">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-blue-900">Current Status</span>
+                <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-xs font-semibold">
                   {selectedPayout?.status}
                 </Badge>
               </div>
             </div>
 
-            <div className="bg-red-50 rounded-xl p-4 border border-red-200">
-              <p className="text-sm text-red-900">
-                This will mark the payout as{" "}
-                <span className="font-bold">"Failed"</span>. The provider will
-                need to request a new payout.
-              </p>
+            {/* Warning Alert */}
+            <div className="bg-yellow-50 border-l-4 border-yellow-500 rounded-r-lg p-4">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-yellow-500 shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-yellow-900 mb-1">
+                    Important Warning
+                  </p>
+                  <p className="text-xs text-yellow-800 leading-relaxed">
+                    This action will mark the payout as{" "}
+                    <span className="font-bold">"Failed"</span>. The provider
+                    will need to request a new payout and this action cannot be
+                    undone.
+                  </p>
+                </div>
+              </div>
             </div>
 
+            {/* Failure Reason */}
             <div className="space-y-2">
               <label
                 htmlFor="fail-reason"
-                className="text-sm font-semibold text-gray-700"
+                className="text-sm font-semibold text-gray-700 flex items-center gap-2"
               >
-                Failure Reason <span className="text-red-500">*</span>
+                <span>Failure Reason</span>
+                <span className="text-red-500">*</span>
               </label>
               <textarea
                 id="fail-reason"
                 value={failReason}
-                onChange={(e) => setFailReason(e.target.value)}
-                placeholder="Explain why this payout failed..."
+                onChange={(e) => {
+                  setFailReason(e.target.value);
+                }}
+                placeholder="Explain why this payout failed (e.g., insufficient funds, incorrect bank details, payment rejected...)"
                 required
-                className="w-full min-h-25 px-3 py-2 border border-red-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none bg-white"
+                className="w-full min-h-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-red-400 resize-none bg-white text-sm placeholder:text-gray-400 transition-all"
               />
+              <p className="text-xs text-gray-500">
+                Please provide a clear reason for the payout failure
+              </p>
             </div>
 
+            {/* Additional Notes */}
             <div className="space-y-2">
               <label
                 htmlFor="fail-notes"
-                className="text-sm font-semibold text-gray-700"
+                className="text-sm font-semibold text-gray-700 flex items-center gap-2"
               >
-                Additional Notes{" "}
-                <span className="text-gray-400">(Optional)</span>
+                <span>Additional Notes</span>
+                <span className="text-gray-400 text-xs font-normal">
+                  (Optional)
+                </span>
               </label>
               <textarea
                 id="fail-notes"
                 value={failNotes}
-                onChange={(e) => setFailNotes(e.target.value)}
-                placeholder="Add any additional notes..."
-                className="w-full min-h-20 px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white"
+                onChange={(e) => {
+                  setFailNotes(e.target.value);
+                }}
+                placeholder="Add any additional notes or context..."
+                className="w-full min-h-20 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none bg-white text-sm placeholder:text-gray-400 transition-all"
               />
             </div>
           </div>
 
-          <DialogFooter className="gap-2">
+          <DialogFooter className="gap-3 pt-4 border-t border-gray-100">
             <Button
               variant="outline"
               onClick={() => setShowFailDialog(false)}
-              className="flex-1 border-blue-200 hover:bg-blue-50"
+              className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 h-11 font-semibold"
             >
+              <X className="h-4 w-4 mr-2" />
               Cancel
             </Button>
             <Button
               onClick={confirmFailPayout}
-              variant="destructive"
-              className="flex-1"
+              disabled={failingPayout === selectedPayout?.id}
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white h-11 font-semibold shadow-md hover:shadow-lg transition-all"
             >
-              <X className="h-4 w-4 mr-2" />
-              Mark Failed
+              {failingPayout === selectedPayout?.id ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Failing...
+                </>
+              ) : (
+                <>
+                  <XCircle className="h-4 w-4 mr-2" />
+                  Confirm Failure
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
