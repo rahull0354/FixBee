@@ -558,7 +558,7 @@ function LoadingSkeleton() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <Card className="p-6">
+            <Card className="p-6 border-sky-100/50 shadow-lg">
               <Skeleton className="h-8 w-48 mb-4" />
               <div className="space-y-3">
                 <Skeleton className="h-6 w-full" />
@@ -567,14 +567,14 @@ function LoadingSkeleton() {
               </div>
             </Card>
 
-            <Card className="p-6">
+            <Card className="p-6 border-sky-100/50 shadow-lg">
               <Skeleton className="h-8 w-48 mb-4" />
               <Skeleton className="h-32 w-full" />
             </Card>
           </div>
 
           <div className="lg:col-span-1">
-            <Card className="p-6 sticky top-4">
+            <Card className="p-6 sticky top-4 border-sky-100/50 shadow-lg">
               <Skeleton className="h-8 w-32 mb-4" />
               <div className="space-y-3">
                 <Skeleton className="h-6 w-full" />

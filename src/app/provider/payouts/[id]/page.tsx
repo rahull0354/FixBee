@@ -319,23 +319,45 @@ export default function PayoutDetailsPage() {
               </div>
               <div className="space-y-3">
                 {payout.invoices.map((invoice, index) => (
-                  <div
+                  <Link
                     key={invoice.id}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                    href={`/provider/payments/${invoice.id}`}
+                    className="block"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-emerald-100 rounded-lg">
-                        <FileText className="h-4 w-4 text-emerald-600" />
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-emerald-50 transition-colors cursor-pointer group">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-emerald-100 rounded-lg group-hover:bg-emerald-200 transition-colors">
+                          <FileText className="h-4 w-4 text-emerald-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900 group-hover:text-emerald-700 transition-colors">
+                            {invoice.invoiceNumber}
+                          </p>
+                          <p className="text-xs text-gray-600">Invoice ID: {invoice.id.slice(-8)}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">{invoice.invoiceNumber}</p>
-                        <p className="text-xs text-gray-600">Invoice ID: {invoice.id.slice(-8)}</p>
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          <span className="text-xs font-medium text-gray-500">#{index + 1}</span>
+                        </div>
+                        <div className="text-emerald-600 group-hover:text-emerald-700 transition-colors">
+                          <svg
+                            className="h-4 w-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 5l7 7-7 7"
+                            />
+                          </svg>
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <span className="text-xs font-medium text-gray-500">#{index + 1}</span>
-                    </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>
