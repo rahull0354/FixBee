@@ -477,22 +477,11 @@ const ProviderReceiptPDF = ({
           </View>
 
           {/* Deductions */}
-          {(taxAmount > 0 || platformFee > 0) && (
+          {platformFee > 0 && (
             <View style={styles.deductionBox}>
               <Text style={{ fontSize: 7, fontWeight: 'bold', color: '#991B1B', marginBottom: 6 }}>
                 Deductions from Total Amount
               </Text>
-
-              {taxAmount > 0 && (
-                <View style={styles.deductionRow}>
-                  <Text style={{ fontSize: 6, color: '#7C2D12', flex: 1 }}>
-                    Tax (GST {payment.taxRate || '0'}%)
-                  </Text>
-                  <Text style={{ fontSize: 7, fontWeight: '600', color: '#DC2626' }}>
-                    - {formatCurrency(taxAmount)}
-                  </Text>
-                </View>
-              )}
 
               {platformFee > 0 && (
                 <View style={styles.deductionRow}>
@@ -538,11 +527,13 @@ const ProviderReceiptPDF = ({
 
               {/* Table Body */}
               {payment.lineItems
-                .filter(item => !item.description.toLowerCase().includes('platform fee'))
+                .filter(item =>
+                  !item.description.toLowerCase().includes('platform fee') &&
+                  !item.description.toLowerCase().includes('gst') &&
+                  !item.description.toLowerCase().includes('tax')
+                )
                 .map((item, index) => {
                   const itemTotal = parseFloat(item.total);
-                  // Assuming provider gets a percentage, for now showing full amount
-                  // In real scenario, this would be calculated based on provider's rate
                   const providerShare = itemTotal;
 
                   return (

@@ -170,22 +170,57 @@ export default function ProviderPayoutsPage() {
           : pendingData.payouts || [];
 
         // Transform pending payouts to provider earnings format
-        const transformedEarnings = pendingArray.map((payout: any) => ({
-          providerId: payout.providerId || "",
-          providerName: payout.provider?.name || "Unknown Provider",
-          providerEmail: payout.provider?.email || "",
-          providerPhone: payout.provider?.phone || "",
-          totalEarnings: payout.totalAmount || "0",
-          paidAmount: "0", // These are pending payouts, so paid amount is 0
-          pendingAmount: payout.totalAmount || "0",
-          completedInvoices: payout.invoiceCount || 0,
-          pendingInvoices: payout.invoiceCount || 0,
-          lastPayoutDate: undefined,
-          bankDetails: undefined,
-          payoutId: undefined,
-          invoiceIds: payout.invoiceIds || [],
-          invoices: payout.invoices || [],
-        }));
+        const transformedEarnings = await Promise.all(
+          pendingArray.map(async (payout: any) => {
+            // Calculate paid amount from provider's completed payout history
+            let paidAmount = "0";
+
+            try {
+              const historyResponse = await adminApi.getPayouts({
+                providerId: payout.providerId,
+                status: 'completed',
+                limit: 100,
+              });
+
+              const historyData =
+                (historyResponse as any).data?.payouts ||
+                (historyResponse as any).data ||
+                historyResponse;
+
+              const historyArray = Array.isArray(historyData)
+                ? historyData
+                : historyData.payouts || [];
+
+              // Sum up all completed payouts for this provider
+              paidAmount = historyArray
+                .filter((p: any) => p.status === 'completed')
+                .reduce((sum: number, p: any) => {
+                  return sum + parseFloat(p.amount || p.totalAmount || "0");
+                }, 0)
+                .toFixed(2);
+            } catch (error) {
+              console.error(`Error fetching paid amount for provider ${payout.providerId}:`, error);
+              paidAmount = "0";
+            }
+
+            return {
+              providerId: payout.providerId || "",
+              providerName: payout.provider?.name || "Unknown Provider",
+              providerEmail: payout.provider?.email || "",
+              providerPhone: payout.provider?.phone || "",
+              totalEarnings: payout.totalAmount || "0",
+              paidAmount: paidAmount, // Use actual paid amount from history
+              pendingAmount: payout.totalAmount || "0",
+              completedInvoices: payout.invoiceCount || 0,
+              pendingInvoices: payout.invoiceCount || 0,
+              lastPayoutDate: undefined,
+              bankDetails: undefined,
+              payoutId: undefined,
+              invoiceIds: payout.invoiceIds || [],
+              invoices: payout.invoices || [],
+            };
+          })
+        );
 
         setProviderEarnings(transformedEarnings);
 

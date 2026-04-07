@@ -52,60 +52,48 @@ export default function AvailableRequestsPage() {
       const response = await providerApi.getAvailableRequests();
       const data = (response as any).data || response;
 
-      console.log('🔍 Available Requests Response:', response);
-      console.log('📦 Data:', data);
-
       const requestsArray = Array.isArray(data) ? data : [];
 
-      console.log(`📋 Found ${requestsArray.length} requests`);
-
       // Transform backend data to match frontend expectations
-      const transformedRequests = requestsArray.map((req: any) => {
-        console.log('🔄 Transforming request:', req);
-        return {
-          id: req.id,
-          customerId: req.customerId?.id || req.customerId,
-          providerId: req.serviceProviderId,
-          categoryId: req.serviceCategoryId?.id || req.serviceCategoryId,
-          serviceType: req.serviceCategoryId?.name || req.serviceType || '',
-          title: req.serviceTitle || req.title || '',
-          description: req.serviceDescription || req.description || '',
-          address: req.serviceAddress || req.address || {},
-          scheduledDate: req.schedule?.date || req.scheduledDate || '',
-          scheduledTimeSlot: req.schedule?.timeSlot || req.scheduledTimeSlot || '',
-          status: req.status,
-          estimatedPrice: req.estimatedPrice ? parseFloat(req.estimatedPrice) : undefined,
-          finalPrice: req.finalPrice ? parseFloat(req.finalPrice) : undefined,
-          beforeImages: req.beforeImages || [],
-          afterImages: req.afterImages || [],
-          additionalNotes: req.additionalNotes || '',
-          createdAt: req.createdAt,
-          updatedAt: req.updatedAt,
-          customer: req.customerId && typeof req.customerId === 'object' ? {
-            id: req.customerId.id,
-            name: req.customerId.name,
-            email: req.customerId.email,
-            phone: req.customerId.phone,
-          } : undefined,
-          category: req.serviceCategoryId && typeof req.serviceCategoryId === 'object' ? {
-            id: req.serviceCategoryId.id,
-            name: req.serviceCategoryId.name,
-            slug: req.serviceCategoryId.slug,
-          } : undefined,
-        };
-      });
-
-      console.log(`✅ Transformed ${transformedRequests.length} requests`);
-      console.log('📝 Transformed data:', transformedRequests);
+      const transformedRequests = requestsArray.map((req: any) => ({
+        id: req.id,
+        customerId: req.customerId?.id || req.customerId,
+        providerId: req.serviceProviderId,
+        categoryId: req.serviceCategoryId?.id || req.serviceCategoryId,
+        serviceType: req.serviceCategoryId?.name || req.serviceType || '',
+        title: req.serviceTitle || req.title || '',
+        description: req.serviceDescription || req.description || '',
+        address: req.serviceAddress || req.address || {},
+        scheduledDate: req.schedule?.date || req.scheduledDate || '',
+        scheduledTimeSlot: req.schedule?.timeSlot || req.scheduledTimeSlot || '',
+        status: req.status,
+        estimatedPrice: req.estimatedPrice ? parseFloat(req.estimatedPrice) : undefined,
+        finalPrice: req.finalPrice ? parseFloat(req.finalPrice) : undefined,
+        beforeImages: req.beforeImages || [],
+        afterImages: req.afterImages || [],
+        additionalNotes: req.additionalNotes || '',
+        createdAt: req.createdAt,
+        updatedAt: req.updatedAt,
+        customer: req.customerId && typeof req.customerId === 'object' ? {
+          id: req.customerId.id,
+          name: req.customerId.name,
+          email: req.customerId.email,
+          phone: req.customerId.phone,
+        } : undefined,
+        category: req.serviceCategoryId && typeof req.serviceCategoryId === 'object' ? {
+          id: req.serviceCategoryId.id,
+          name: req.serviceCategoryId.name,
+          slug: req.serviceCategoryId.slug,
+        } : undefined,
+      }));
 
       setRequests(transformedRequests);
     } catch (error: any) {
-      console.error('❌ Error loading available requests:', error);
+      console.error('Error loading available requests:', error);
 
       // If error is "No available requests found", just show empty state
       const errorMessage = error?.response?.data?.message;
       if (errorMessage && errorMessage.toLowerCase().includes('no available requests')) {
-        console.log('ℹ️ No available requests found (expected behavior)');
         setRequests([]);
       } else {
         toast.error(errorMessage || 'Failed to load available requests');
@@ -435,13 +423,10 @@ export default function AvailableRequestsPage() {
                     onClick={() => {
                       // Store request data in sessionStorage for details page
                       const storageKey = `request_${request.id}`;
-                      console.log('💾 Storing request data in sessionStorage:', storageKey);
-                      console.log('📦 Request data:', request);
                       sessionStorage.setItem(storageKey, JSON.stringify({
                         ...request,
                         timestamp: Date.now(), // Add timestamp for cleanup
                       }));
-                      console.log('✅ Data stored, navigating to:', `/provider/requests/available/${request.id}`);
                       window.location.href = `/provider/requests/available/${request.id}`;
                     }}
                     className="flex-1 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
