@@ -556,37 +556,41 @@ export default function MyAssignmentsPage() {
                   </Button>
 
                   {request.status === 'assigned' && (
-                    <Button
-                      className="flex-1 bg-linear-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:from-emerald-500 hover:via-teal-500 hover:to-cyan-500 text-white"
-                      onClick={() => {
-                        const storageKey = `assignment_${request.id}`;
-                        sessionStorage.setItem(storageKey, JSON.stringify({
-                          ...request,
-                          timestamp: Date.now(),
-                        }));
-                        window.location.href = `/provider/assignments/${request.id}`;
-                      }}
-                    >
-                      <PlayCircle className="h-4 w-4 mr-2" />
-                      Start Service
-                    </Button>
+                    <>
+                      <Button
+                        className="flex-1 bg-linear-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:from-emerald-500 hover:via-teal-500 hover:to-cyan-500 text-white"
+                        onClick={() => {
+                          const storageKey = `assignment_${request.id}`;
+                          sessionStorage.setItem(storageKey, JSON.stringify({
+                            ...request,
+                            timestamp: Date.now(),
+                          }));
+                          window.location.href = `/provider/assignments/${request.id}`;
+                        }}
+                      >
+                        <PlayCircle className="h-4 w-4 mr-2" />
+                        Start Service
+                      </Button>
+                    </>
                   )}
 
                   {request.status === 'in_progress' && (
-                    <Button
-                      className="flex-1 bg-linear-to-r from-green-400 via-emerald-400 to-teal-400 hover:from-green-500 hover:via-emerald-500 hover:to-teal-500 text-white"
-                      onClick={() => {
-                        const storageKey = `assignment_${request.id}`;
-                        sessionStorage.setItem(storageKey, JSON.stringify({
-                          ...request,
-                          timestamp: Date.now(),
-                        }));
-                        window.location.href = `/provider/assignments/${request.id}`;
-                      }}
-                    >
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Complete Service
-                    </Button>
+                    <>
+                      <Button
+                        className="flex-1 bg-linear-to-r from-green-400 via-emerald-400 to-teal-400 hover:from-green-500 hover:via-emerald-500 hover:to-teal-500 text-white"
+                        onClick={() => {
+                          const storageKey = `assignment_${request.id}`;
+                          sessionStorage.setItem(storageKey, JSON.stringify({
+                            ...request,
+                            timestamp: Date.now(),
+                          }));
+                          window.location.href = `/provider/assignments/${request.id}`;
+                        }}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Complete Service
+                      </Button>
+                    </>
                   )}
                 </div>
               </CardContent>

@@ -64,8 +64,8 @@ export const providerApi = {
     return apiClient.get<ServiceRequest[]>('/request/my-assigned-requests', config);
   },
 
-  getRequestDetails: async (id: string): Promise<ServiceRequest> => {
-    return apiClient.get<ServiceRequest>(`/serviceRequest/provider/service-request/${id}`);
+  getRequestDetails: async (requestId: string): Promise<ServiceRequest> => {
+    return apiClient.get<ServiceRequest>(`/request/provider/service-request/${requestId}`);
   },
 
   getCustomerById: async (customerId: string) => {
@@ -83,6 +83,19 @@ export const providerApi = {
     materialDescription?: string;
   }): Promise<ServiceRequest> => {
     return apiClient.patch<ServiceRequest>(`/request/complete/${id}`, data);
+  },
+
+  rescheduleService: async (requestId: string, data: {
+    schedule: {
+      date: string;
+      timeSlot: 'morning' | 'afternoon' | 'evening';
+      preferredTime?: string;
+    };
+    reason: string;
+    reasonCode: 'cannot_reach_location' | 'traffic_emergency' | 'personal_emergency' | 'customer_unavailable' | 'weather_conditions' | 'other';
+    proof?: string;
+  }): Promise<any> => {
+    return apiClient.post(`/request/provider/reschedule/${requestId}`, data);
   },
 
   // Reviews

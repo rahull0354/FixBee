@@ -447,7 +447,7 @@ export default function InvoiceDetailPage() {
               </h3>
               <div className="border border-gray-200 rounded-lg sm:rounded-xl overflow-hidden">
                 <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                  <table className="w-full min-w-[500px] sm:min-w-0">
+                  <table className="w-full min-w-125 sm:min-w-0">
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-3 sm:px-4 py-2 sm:py-3 text-center text-[10px] sm:text-xs font-semibold text-gray-600 whitespace-nowrap">
@@ -470,7 +470,7 @@ export default function InvoiceDetailPage() {
                           <td className="px-3 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm text-gray-500 font-mono whitespace-nowrap">
                             #{String(index + 1).padStart(3, "0")}
                           </td>
-                          <td className="px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-gray-900 max-w-[150px] sm:max-w-none">
+                          <td className="px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-gray-900 max-w-37.5 sm:max-w-none">
                             <span className="block truncate">{item.description}</span>
                           </td>
                           <td className="px-3 sm:px-4 py-2 sm:py-3 text-right text-xs sm:text-sm text-gray-600 whitespace-nowrap">

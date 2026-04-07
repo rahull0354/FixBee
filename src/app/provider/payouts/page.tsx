@@ -291,6 +291,12 @@ export default function ProviderPayoutsPage() {
               View your payout history and summary
             </p>
           </div>
+          <Link href="/provider/payouts/pending">
+            <Button className="bg-linear-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600 text-white font-medium shadow-lg hover:shadow-xl transition-all text-sm sm:text-base">
+              <Clock className="h-4 w-4 mr-2" />
+              View Pending Payouts
+            </Button>
+          </Link>
         </div>
       </div>
 

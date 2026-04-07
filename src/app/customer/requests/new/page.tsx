@@ -43,12 +43,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
+import { TimePicker } from "@/components/customer/TimePicker";
 
 // Time slots
 const timeSlots = [
-  { value: "morning", label: "Morning (8AM - 12PM)", icon: "Sunrise" },
+  { value: "morning", label: "Morning (6AM - 12PM)", icon: "Sunrise" },
   { value: "afternoon", label: "Afternoon (12PM - 5PM)", icon: "Sun" },
-  { value: "evening", label: "Evening (5PM - 8PM)", icon: "Sunset" },
+  { value: "evening", label: "Evening (5PM - 9PM)", icon: "Sunset" },
 ];
 
 // Payment methods
@@ -127,6 +128,7 @@ export default function NewServiceRequestPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const categoriesPerPage = 9;
+  const [preferredTime, setPreferredTime] = useState("");
 
   // Tab state
   const [activeTab, setActiveTab] = useState(1);
@@ -416,6 +418,7 @@ export default function NewServiceRequestPage() {
         schedule: {
           date: String(data.scheduledDate),
           timeSlot: String(data.scheduledTimeSlot),
+          preferredTime: preferredTime || undefined,
         },
         serviceAddress: {
           street: String(data.address.street),
@@ -442,6 +445,44 @@ export default function NewServiceRequestPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Check if a time slot is disabled based on current time
+  const isTimeSlotDisabled = (slotValue: string): boolean => {
+    const selectedDate = watch("scheduledDate");
+    if (!selectedDate) return false;
+
+    const scheduleDate = new Date(selectedDate);
+    const now = new Date();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Only check time slots for today
+    const isToday = scheduleDate.toDateString() === today.toDateString();
+
+    if (!isToday) {
+      return false; // All slots available for future dates
+    }
+
+    const getSlotTimes = (timeSlot: string): { startHour: number; endHour: number } => {
+      switch (timeSlot) {
+        case 'morning': return { startHour: 6, endHour: 12 }; // 6 AM - 12 PM
+        case 'afternoon': return { startHour: 12, endHour: 17 }; // 12 PM - 5 PM
+        case 'evening': return { startHour: 17, endHour: 21 }; // 5 PM - 9 PM
+        default: return { startHour: 12, endHour: 17 };
+      }
+    };
+
+    const slotTimes = getSlotTimes(slotValue);
+    const slotEndTime = new Date(scheduleDate);
+    slotEndTime.setHours(slotTimes.endHour, 0, 0, 0);
+
+    // Time remaining until slot ends (in milliseconds)
+    const timeRemaining = slotEndTime.getTime() - now.getTime();
+    const oneHourInMs = 60 * 60 * 1000;
+
+    // Disable slot if less than 1 hour remaining
+    return timeRemaining < oneHourInMs;
   };
 
   const today = new Date().toISOString().split("T")[0];
@@ -747,53 +788,85 @@ export default function NewServiceRequestPage() {
                   Preferred Time Slot <span className="text-red-500">*</span>
                 </Label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  {timeSlots.map((slot) => (
-                    <div
-                      key={slot.value}
-                      onClick={() => setValue("scheduledTimeSlot", slot.value)}
-                      className={`cursor-pointer rounded-xl p-4 border-2 transition-all hover:-translate-y-1 hover:shadow-2xl ${
-                        watch("scheduledTimeSlot") === slot.value
-                          ? "border-sky-500 bg-sky-50 shadow-xl"
-                          : "border-sky-100 bg-white hover:border-sky-300 shadow-lg"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        value={slot.value}
-                        {...register("scheduledTimeSlot")}
-                        className="sr-only"
-                      />
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`p-2 rounded-lg ${
-                            watch("scheduledTimeSlot") === slot.value
-                              ? "bg-linear-to-br from-sky-400 to-blue-500"
-                              : "bg-sky-100"
-                          }`}
-                        >
-                          <IconRenderer
-                            iconName={slot.icon}
-                            className={`h-5 w-5 ${
+                  {timeSlots.map((slot) => {
+                    const isSlotDisabled = isTimeSlotDisabled(slot.value);
+
+                    return (
+                      <div
+                        key={slot.value}
+                        onClick={() => !isSlotDisabled && setValue("scheduledTimeSlot", slot.value)}
+                        className={`cursor-pointer rounded-xl p-4 border-2 transition-all ${
+                          isSlotDisabled
+                            ? "border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed"
+                            : "hover:-translate-y-1 hover:shadow-2xl"
+                        } ${
+                          watch("scheduledTimeSlot") === slot.value
+                            ? "border-sky-500 bg-sky-50 shadow-xl"
+                            : !isSlotDisabled
+                            ? "border-sky-100 bg-white hover:border-sky-300 shadow-lg"
+                            : ""
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          value={slot.value}
+                          {...register("scheduledTimeSlot")}
+                          className="sr-only"
+                          disabled={isSlotDisabled}
+                        />
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`p-2 rounded-lg ${
                               watch("scheduledTimeSlot") === slot.value
-                                ? "text-white"
-                                : "text-sky-600"
+                                ? "bg-linear-to-br from-sky-400 to-blue-500"
+                                : isSlotDisabled
+                                ? "bg-gray-200"
+                                : "bg-sky-100"
                             }`}
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-semibold text-gray-900 text-sm">
-                            {slot.label}
-                          </p>
+                          >
+                            <IconRenderer
+                              iconName={slot.icon}
+                              className={`h-5 w-5 ${
+                                watch("scheduledTimeSlot") === slot.value
+                                  ? "text-white"
+                                  : isSlotDisabled
+                                  ? "text-gray-400"
+                                  : "text-sky-600"
+                              }`}
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-semibold text-gray-900 text-sm">
+                              {slot.label}
+                              {isSlotDisabled && " (Unavailable)"}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
                 {errors.scheduledTimeSlot && (
                   <p className="text-red-600 text-sm mt-2">
                     {errors.scheduledTimeSlot.message}
                   </p>
                 )}
+              </div>
+
+              {/* Preferred Time */}
+              <div>
+                <Label className="text-base font-semibold text-gray-900 mb-4 block">
+                  Preferred Time <span className="text-gray-400">(Optional)</span>
+                </Label>
+                <TimePicker
+                  value={preferredTime}
+                  onChange={setPreferredTime}
+                  placeholder="Select preferred time"
+                  timeSlot={watch("scheduledTimeSlot") as 'morning' | 'afternoon' | 'evening'}
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  Select a specific time within your chosen time slot
+                </p>
               </div>
             </div>
           )}
