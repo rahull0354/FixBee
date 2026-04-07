@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Clock, ChevronUp, ChevronDown } from 'lucide-react';
@@ -55,7 +55,7 @@ export function TimePicker({ value, onChange, placeholder = 'Select time', timeS
   };
 
   // Get default time based on time slot
-  const getDefaultTime = () => {
+  const getDefaultTime = (): { hour: number; minute: number; period: 'AM' | 'PM' } => {
     switch (timeSlot) {
       case 'morning': return { hour: 9, minute: 0, period: 'AM' as 'AM' | 'PM' };
       case 'afternoon': return { hour: 3, minute: 0, period: 'PM' as 'AM' | 'PM' };
@@ -65,17 +65,69 @@ export function TimePicker({ value, onChange, placeholder = 'Select time', timeS
   };
 
   // Parse current value or default to slot's default time
-  const parseTime = (timeStr: string) => {
+  const parseTime = (timeStr: string): { hour: number; minute: number; period: 'AM' | 'PM' } => {
     if (!timeStr) return getDefaultTime();
     const [hourStr, minuteStr] = timeStr.split(':');
     let hour = parseInt(hourStr, 10);
     const minute = parseInt(minuteStr, 10);
-    const period = hour >= 12 ? 'PM' : 'AM';
+    const period: 'AM' | 'PM' = hour >= 12 ? 'PM' : 'AM';
     hour = hour % 12 || 12;
     return { hour, minute, period };
   };
 
   const { hour, minute, period } = parseTime(value);
+
+  // Validate and adjust time when timeSlot changes or value changes
+  useEffect(() => {
+    if (value && validHours) {
+      const parsed = parseTime(value);
+
+      // Check if current period is valid
+      const isPeriodValid = parsed.period === 'AM'
+        ? validHours.canUseAM
+        : validHours.canUsePM;
+
+      // Check if current hour is valid for the period
+      const isCurrentHourValid = isHourValid(parsed.hour, parsed.period);
+
+      if (!isPeriodValid || !isCurrentHourValid) {
+        // Find a valid time in the current slot
+        let validHour = parsed.hour;
+        let validPeriod = parsed.period;
+
+        // Try to find a valid hour in the current period
+        if (!isCurrentHourValid) {
+          const validHoursInPeriod = parsed.period === 'AM' ? validHours.validAM : validHours.validPM;
+          if (validHoursInPeriod.length > 0) {
+            validHour = validHoursInPeriod[0];
+          } else {
+            // Switch to the other period if current period has no valid hours
+            if (parsed.period === 'AM' && validHours.canUsePM) {
+              validPeriod = 'PM';
+              validHour = validHours.validPM[0];
+            } else if (parsed.period === 'PM' && validHours.canUseAM) {
+              validPeriod = 'AM';
+              validHour = validHours.validAM[0];
+            }
+          }
+        } else if (!isPeriodValid) {
+          // Switch to the other period
+          if (parsed.period === 'AM' && validHours.canUsePM) {
+            validPeriod = 'PM';
+            validHour = validHours.validPM[0] || parsed.hour;
+          } else if (parsed.period === 'PM' && validHours.canUseAM) {
+            validPeriod = 'AM';
+            validHour = validHours.validAM[0] || parsed.hour;
+          }
+        }
+
+        // Update the value if we had to adjust it
+        if (validHour !== parsed.hour || validPeriod !== parsed.period) {
+          onChange(formatTime(validHour, parsed.minute, validPeriod));
+        }
+      }
+    }
+  }, [timeSlot, value]);
 
   const formatTime = (h: number, m: number, p: 'AM' | 'PM') => {
     let hour24 = h;
@@ -113,7 +165,24 @@ export function TimePicker({ value, onChange, placeholder = 'Select time', timeS
 
   const handlePeriodToggle = () => {
     const newPeriod = period === 'AM' ? 'PM' : 'AM';
-    onChange(formatTime(hour, minute, newPeriod));
+
+    // Check if we can use the new period
+    if (validHours) {
+      if (newPeriod === 'AM' && !validHours.canUseAM) return;
+      if (newPeriod === 'PM' && !validHours.canUsePM) return;
+    }
+
+    // Find a valid hour in the new period
+    let newHour = hour;
+    if (validHours) {
+      const validHoursInPeriod = newPeriod === 'AM' ? validHours.validAM : validHours.validPM;
+      if (!validHoursInPeriod.includes(hour)) {
+        // Use the first valid hour in the new period
+        newHour = validHoursInPeriod.length > 0 ? validHoursInPeriod[0] : hour;
+      }
+    }
+
+    onChange(formatTime(newHour, minute, newPeriod));
   };
 
   const handleQuickSelect = (h: number, m: number, p: 'AM' | 'PM') => {
@@ -247,7 +316,7 @@ export function TimePicker({ value, onChange, placeholder = 'Select time', timeS
             <button
               type="button"
               onClick={handlePeriodToggle}
-              disabled={validHours && (!validHours.canUseAM || !validHours.canUsePM)}
+              disabled={validHours ? (!validHours.canUseAM || !validHours.canUsePM) : undefined}
               className={cn(
                 "w-12 sm:w-14 md:w-16 h-9 sm:h-10 md:h-12 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm md:text-base transition-all duration-200 ml-1 sm:ml-2 shadow-md",
                 period === 'AM'

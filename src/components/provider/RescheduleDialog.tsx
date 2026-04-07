@@ -226,7 +226,20 @@ export function RescheduleDialog({
       setLoading(true);
 
       const { providerApi } = await import('@/lib/api/provider');
-      const response = await providerApi.rescheduleService(requestId, formData) as any;
+
+      // Type cast the formData to match API expectations
+      const rescheduleData = {
+        schedule: {
+          date: formData.schedule.date,
+          timeSlot: formData.schedule.timeSlot as 'morning' | 'afternoon' | 'evening',
+          preferredTime: formData.schedule.preferredTime || undefined,
+        },
+        reason: formData.reason,
+        reasonCode: formData.reasonCode as 'cannot_reach_location' | 'traffic_emergency' | 'personal_emergency' | 'customer_unavailable' | 'weather_conditions' | 'other',
+        proof: formData.proof || undefined,
+      };
+
+      const response = await providerApi.rescheduleService(requestId, rescheduleData) as any;
 
       // Handle different response structures
       const responseData = response?.data || response;
