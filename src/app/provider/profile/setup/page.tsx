@@ -182,7 +182,7 @@ export default function ProviderProfileSetupPage() {
     } catch (error: any) {
       // 501 means profile doesn't exist yet, which is expected for new providers
       if (error?.response?.status === 501) {
-        console.log('Profile not created yet, proceeding with setup');
+        // Profile not created yet, which is expected for new providers
       } else {
         console.error('Error checking profile:', error);
       }
@@ -332,8 +332,6 @@ export default function ProviderProfileSetupPage() {
         serviceArea: formData.serviceAreas!,
         bankAccount: formData.bankAccount!,
       };
-
-      console.log('Submitting profile setup data:', updateData);
 
       await providerApi.updateProfile(updateData);
 

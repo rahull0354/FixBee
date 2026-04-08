@@ -73,7 +73,9 @@ export const providerApi = {
   },
 
   startService: async (id: string): Promise<ServiceRequest> => {
-    return apiClient.patch<ServiceRequest>(`/request/start/${id}`);
+    // Send user's timezone to backend for proper time slot validation
+    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return apiClient.patch<ServiceRequest>(`/request/start/${id}`, { timezone: userTimezone });
   },
 
   completeService: async (id: string, data: {

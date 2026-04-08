@@ -323,7 +323,7 @@ export default function EditReviewPage() {
       )}
 
       {/* Two Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
         {/* Right Column - Detailed Ratings & Comment (First on mobile) */}
         <div className="lg:col-span-2 space-y-4 sm:space-y-6 order-2 lg:order-1">
           {/* Detailed Ratings */}
@@ -488,7 +488,7 @@ export default function EditReviewPage() {
             </ul>
           </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 }

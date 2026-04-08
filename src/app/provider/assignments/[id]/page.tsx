@@ -63,7 +63,6 @@ export default function AssignmentDetailsPage() {
     const fetchRequestDetails = async () => {
       try {
         setLoading(true);
-        console.log("🔄 Fetching request details for:", requestId);
 
         const response = await providerApi.getRequestDetails(requestId);
         const requestData = (response as any).data || response;
@@ -72,11 +71,6 @@ export default function AssignmentDetailsPage() {
           throw new Error("Invalid request data received from API");
         }
 
-        console.log(
-          "📋 Received request data:",
-          JSON.stringify(requestData, null, 2),
-        );
-
         setRequest(requestData);
 
         // Set initial final price from estimated price
@@ -84,7 +78,7 @@ export default function AssignmentDetailsPage() {
           setFinalPrice(requestData.estimatedPrice.toString());
         }
       } catch (error: any) {
-        console.error("❌ Error fetching request details:", error);
+        console.error("Error fetching request details:", error);
         toast.error("Failed to load service request details");
         setRequest(null);
       } finally {
@@ -166,16 +160,7 @@ export default function AssignmentDetailsPage() {
             : undefined,
       };
 
-      console.log(
-        "📤 Sending completion data:",
-        JSON.stringify(completionData, null, 2),
-      );
-      console.log("📤 Material cost from form:", materialCost);
-      console.log("📤 Material cost value:", completionData.materialCost);
-
       await providerApi.completeService(requestId, completionData);
-
-      console.log("✅ Service completion API call successful");
 
       // Update sessionStorage with completion data so it persists for viewing
       const storageKey = `assignment_${requestId}`;
@@ -190,11 +175,6 @@ export default function AssignmentDetailsPage() {
           completedAt: new Date().toISOString(),
         };
 
-        console.log(
-          "💾 About to store updated request:",
-          JSON.stringify(updatedRequest, null, 2),
-        );
-
         // Store the updated request data with completion information
         sessionStorage.setItem(
           storageKey,
@@ -202,13 +182,6 @@ export default function AssignmentDetailsPage() {
             ...updatedRequest,
             timestamp: Date.now(),
           }),
-        );
-
-        console.log("💾 Successfully stored completion data in sessionStorage");
-        console.log("💾 Material cost stored:", updatedRequest.materialCost);
-        console.log(
-          "💾 Material description stored:",
-          updatedRequest.materialDescription,
         );
       }
 

@@ -71,53 +71,26 @@ export default function CustomerReviewsPage() {
   const loadReviews = async () => {
     try {
       setLoading(true);
-      console.log("[Reviews] Starting to load reviews...");
 
       const response = await customerApi.getMyReviews();
-      console.log("[Reviews] Raw API response:", response);
 
       // Handle different response formats
       let data: Review[] = [];
       if (Array.isArray(response)) {
         data = response;
-        console.log("[Reviews] Response is an array, length:", response.length);
       } else if (
         (response as any).data &&
         Array.isArray((response as any).data)
       ) {
         data = (response as any).data;
-        console.log("[Reviews] Response has data array, length:", data.length);
       } else if (
         (response as any).reviews &&
         Array.isArray((response as any).reviews)
       ) {
         data = (response as any).reviews;
-        console.log(
-          "[Reviews] Response has reviews array, length:",
-          data.length,
-        );
       } else {
         console.warn("[Reviews] Unexpected response format:", response);
       }
-
-      console.log("[Reviews] Total reviews received from API:", data.length);
-      console.log(
-        "[Reviews] All review IDs:",
-        data.map((r) => r.id),
-      );
-
-      // Log each review with details
-      data.forEach((review, index) => {
-        console.log(`[Reviews] Review ${index + 1}:`, {
-          id: review.id,
-          serviceRequestId: review.serviceRequestId,
-          serviceProviderId: review.serviceProviderId,
-          rating: review.rating,
-          comment: review.comment?.substring(0, 50) + "...",
-          isVisible: review.isVisible,
-          isFlagged: review.isFlagged,
-        });
-      });
 
       // Filter out any null/undefined reviews and ensure valid data
       const validReviews = data.filter((review) => review && review.id);
@@ -213,11 +186,7 @@ export default function CustomerReviewsPage() {
             providerMap.set(result.id, result.data);
           }
         });
-        console.log(
-          "[Reviews] Provider map built with",
-          providerMap.size,
-          "entries",
-        );
+        
       } else {
         console.error(
           "[Reviews] Provider promises rejected:",

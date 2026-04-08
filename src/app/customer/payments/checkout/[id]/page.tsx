@@ -59,31 +59,11 @@ export default function CheckoutPage() {
       setLoading(true);
       setCreatingIntent(true);
 
-      console.log("=================================");
-      console.log("🔄 Loading Invoice and Creating Payment Intent");
-      console.log("Invoice ID:", invoiceId);
-      console.log("=================================");
-
       // First, try to load as invoice
       try {
         const response = await customerApi.getInvoice(invoiceId);
-        console.log("Raw Invoice API Response:", response);
 
         const apiData = (response as any).data || response;
-        console.log(
-          "Extracted Invoice Data:",
-          JSON.stringify(apiData, null, 2),
-        );
-
-        // Debug tax calculation
-        console.log("=== TAX CALCULATION DEBUG ===");
-        console.log("Service Charge (laborCost):", apiData.laborCost);
-        console.log("Material Cost:", apiData.materialCost);
-        console.log("Platform Fee:", apiData.platformFee);
-        console.log("Tax Rate:", apiData.taxRate);
-        console.log("Tax Amount:", apiData.taxAmount);
-        console.log("Total Amount:", apiData.totalAmount);
-        console.log("Line Items:", JSON.stringify(apiData.lineItems, null, 2));
 
         // Calculate what tax should be
         const serviceCharge = parseFloat(apiData.laborCost || "0");
@@ -93,12 +73,6 @@ export default function CheckoutPage() {
         const expectedTaxableAmount = serviceCharge + materialCost;
         const expectedTax = (expectedTaxableAmount * taxRate) / 100;
         const actualTax = parseFloat(apiData.taxAmount || "0");
-
-        console.log("Expected Taxable Amount (Service + Material):", expectedTaxableAmount);
-        console.log("Expected Tax:", expectedTax);
-        console.log("Actual Tax from Backend:", actualTax);
-        console.log("Difference:", actualTax - expectedTax);
-        console.log("================================");
 
         setInvoice(apiData);
 
@@ -159,14 +133,11 @@ export default function CheckoutPage() {
         }
 
         // Create Stripe payment intent
-        console.log("Creating Stripe Payment Intent...");
         try {
           const intentResponse =
             await customerApi.createPaymentIntent(invoiceId);
-          console.log("Payment Intent Response:", intentResponse);
 
           const intentData = (intentResponse as any).data || intentResponse;
-          console.log("Payment Intent Created:", intentData);
 
           // Validate required fields
           if (!intentData.clientSecret) {
@@ -193,7 +164,6 @@ export default function CheckoutPage() {
             amount: intentData.amount || parseFloat(apiData.totalAmount),
           });
 
-          console.log("Invoice and Payment Intent Loaded Successfully");
         } catch (intentError: any) {
           console.error("Error creating payment intent:", intentError);
           toast.error(
@@ -222,7 +192,6 @@ export default function CheckoutPage() {
 
   const handlePaymentSuccess = useCallback(
     (paymentIntent: PaymentIntent) => {
-      console.log("Payment Successful:", paymentIntent);
       toast.success("Payment successful! Redirecting to receipt...");
 
       // Redirect to invoice detail page after a short delay

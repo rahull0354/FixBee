@@ -74,8 +74,6 @@ export default function PayoutDetailsPage() {
       setLoading(true);
       const data = await providerApi.getPayoutById(payoutId) as any;
 
-      console.log('Raw payout details response:', data);
-
       // Handle the actual API response structure
       const sanitizedPayout: PayoutDetails = {
         id: data?.id || '',
@@ -101,7 +99,6 @@ export default function PayoutDetailsPage() {
         invoiceIds: data?.invoiceIds || [],
       };
 
-      console.log('Sanitized payout details:', sanitizedPayout);
       setPayout(sanitizedPayout);
     } catch (error: any) {
       console.error('Error loading payout details:', error);

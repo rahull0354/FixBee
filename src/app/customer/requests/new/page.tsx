@@ -419,6 +419,7 @@ export default function NewServiceRequestPage() {
           date: String(data.scheduledDate),
           timeSlot: String(data.scheduledTimeSlot),
           preferredTime: preferredTime || undefined,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, // Send user's timezone
         },
         serviceAddress: {
           street: String(data.address.street),

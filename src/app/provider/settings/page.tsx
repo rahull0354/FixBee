@@ -117,8 +117,6 @@ export default function ProviderSettingsPage() {
       // Load bank accounts (includes UPI IDs in the response)
       const accountsResponse = await providerApi.getBankAccounts();
 
-      console.log('Full Bank Accounts Response:', accountsResponse);
-
       const accountsData =
         (accountsResponse as any).data?.accounts ||
         (accountsResponse as any).data ||
@@ -151,15 +149,11 @@ export default function ProviderSettingsPage() {
           createdAt: account.createdAt || new Date().toISOString(),
         }));
 
-      console.log('Extracted UPI IDs from Bank Accounts:', upiArray);
-
       setUpiIds(upiArray);
 
       // Extract primary UPI ID
       const primaryUpi = upiArray.find((upi: UpiId) => upi.isPrimary) || null;
       setPrimaryUpiId(primaryUpi);
-
-      console.log('Primary UPI ID:', primaryUpi);
     } catch (error: any) {
       console.error("Error loading settings:", error);
       toast.error("Failed to load settings");
@@ -189,7 +183,6 @@ export default function ProviderSettingsPage() {
         bankName: formData.bankName,
         accountType: formData.accountType,
       };
-      console.log('Sending bank account data:', requestData);
       await providerApi.addBankAccount(requestData);
       toast.success("Bank account added successfully!");
       setAddAccountDialogOpen(false);
@@ -218,7 +211,6 @@ export default function ProviderSettingsPage() {
         bankName: formData.bankName,
         accountType: formData.accountType,
       };
-      console.log('Updating bank account data:', requestData);
       await providerApi.updateBankAccount(selectedAccount.id, requestData);
       toast.success("Bank account updated successfully!");
       setEditAccountDialogOpen(false);

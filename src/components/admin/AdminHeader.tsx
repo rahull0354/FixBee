@@ -57,7 +57,7 @@ export function AdminHeader({ user, onMenuClick }: AdminHeaderProps) {
 
           {/* Page title */}
           <div>
-            <h1 className="text-xl lg:text-2xl font-bold bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 bg-clip-text text-transparent">
+            <h1 className="text-xl lg:text-2xl font-bold bg-linear-to-r from-blue-600 via-blue-700 to-blue-800 bg-clip-text text-transparent">
               {user?.name ? `${user.name}'s Dashboard` : 'Admin Dashboard'}
             </h1>
             <p className="text-sm text-gray-500 hidden sm:block">
@@ -74,7 +74,7 @@ export function AdminHeader({ user, onMenuClick }: AdminHeaderProps) {
               onClick={() => setShowDropdown(!showDropdown)}
               className="flex items-center gap-2 focus:outline-none"
             >
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold shadow-md hover:shadow-lg transition-shadow">
+              <div className="w-10 h-10 bg-linear-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold shadow-md hover:shadow-lg transition-shadow">
                 {getInitials(user?.name)}
               </div>
               <ChevronDown
@@ -91,11 +91,11 @@ export function AdminHeader({ user, onMenuClick }: AdminHeaderProps) {
                   className="fixed inset-0 z-50 bg-transparent"
                   onClick={() => setShowDropdown(false)}
                 />
-                <div className="fixed left-4 right-4 sm:absolute sm:left-auto sm:right-0 sm:w-56 top-[72px] sm:mt-2 bg-white rounded-xl shadow-lg border border-blue-100 py-2 z-50">
+                <div className="fixed left-4 right-4 sm:absolute sm:left-auto sm:right-0 sm:w-56 top-18 sm:mt-2 bg-white rounded-xl shadow-lg border border-blue-100 py-2 z-50">
                   {/* User Info Section */}
                   <div className="px-4 py-3 border-b border-blue-100">
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold shadow-md">
+                      <div className="w-10 h-10 bg-linear-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold shadow-md">
                         {getInitials(user?.name)}
                       </div>
                       <div className="flex-1 min-w-0">
