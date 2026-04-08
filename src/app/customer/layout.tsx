@@ -9,6 +9,7 @@ import { AlertCircle, Mail, Loader2, Lock, Home } from 'lucide-react';
 import { customerApi } from '@/lib/api';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { usePusherNotifications } from '@/lib/hooks/usePusherNotifications';
 
 export default function CustomerLayout({
   children,
@@ -30,6 +31,9 @@ export default function CustomerLayout({
   // Check if current page is dashboard
   const isDashboardPage = pathname === '/customer/dashboard';
 
+  // Initialize Pusher for real-time notifications (MUST be before conditional returns)
+  const pusherNotifications = usePusherNotifications(user?.id, 'customer');
+
   const handleRequestReactivation = async () => {
     try {
       setRequestingReactivation(true);
@@ -50,7 +54,7 @@ export default function CustomerLayout({
   // Show loading state while checking authentication
   if (loading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-sky-50 via-white to-blue-50 z-[9999]">
+      <div className="fixed inset-0 flex items-center justify-center bg-linear-to-br from-sky-50 via-white to-blue-50 z-9999">
         <style jsx>{`
           @keyframes shimmer {
             0% { transform: translateX(-100%); }
@@ -71,7 +75,7 @@ export default function CustomerLayout({
             <div className="absolute inset-4 rounded-full border-4 border-indigo-300 animate-ping" style={{ animationDuration: '1s', animationDelay: '0.4s' }} />
             {/* Center icon */}
             <div className="absolute inset-4 flex items-center justify-center">
-              <div className="w-24 h-24 bg-gradient-to-br from-sky-400 via-blue-400 to-indigo-400 rounded-full flex items-center justify-center shadow-2xl">
+              <div className="w-24 h-24 bg-linear-to-br from-sky-400 via-blue-400 to-indigo-400 rounded-full flex items-center justify-center shadow-2xl">
                 <Home className="h-12 w-12 text-white animate-pulse" />
               </div>
             </div>
@@ -79,7 +83,7 @@ export default function CustomerLayout({
 
           {/* Loading text with animated dots */}
           <div className="space-y-3">
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <h2 className="text-2xl font-bold bg-linear-to-r from-sky-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
               Loading FixBee
             </h2>
             <div className="flex items-center justify-center gap-2">
@@ -94,8 +98,8 @@ export default function CustomerLayout({
 
           {/* Progress bar with shimmer effect */}
           <div className="w-64 h-2 bg-gray-200 rounded-full overflow-hidden mx-auto relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-50 shimmer" />
-            <div className="h-full bg-gradient-to-r from-sky-400 via-blue-400 to-indigo-400 rounded-full animate-pulse" style={{ width: '60%' }} />
+            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white to-transparent opacity-50 shimmer" />
+            <div className="h-full bg-linear-to-r from-sky-400 via-blue-400 to-indigo-400 rounded-full animate-pulse" style={{ width: '60%' }} />
           </div>
         </div>
       </div>
@@ -123,7 +127,11 @@ export default function CustomerLayout({
       {/* Main content area */}
       <div className="lg:ml-72">
         {/* Header */}
-        <CustomerHeader user={user} onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
+        <CustomerHeader
+          user={user}
+          onMenuClick={() => setSidebarOpen(!sidebarOpen)}
+          pusherUnreadCount={pusherNotifications.unreadCount}
+        />
 
         {/* Deactivated Account Banner */}
         {isDeactivated && (

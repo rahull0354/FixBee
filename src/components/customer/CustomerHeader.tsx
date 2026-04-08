@@ -12,27 +12,28 @@ import type { Notification } from "@/types";
 interface CustomerHeaderProps {
   user: UserType | null;
   onMenuClick: () => void;
+  pusherUnreadCount?: number;
 }
 
-export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
+export function CustomerHeader({ user, onMenuClick, pusherUnreadCount = 0 }: CustomerHeaderProps) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [localNotifications, setLocalNotifications] = useState<Notification[]>([]);
   const [loadingNotifications, setLoadingNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const { logout } = useAuth();
   const router = useRouter();
 
+  // Update unread count when Pusher notifications arrive
   useEffect(() => {
-    // Initial load of unread count
+    if (pusherUnreadCount > 0) {
+      setUnreadCount(pusherUnreadCount);
+    }
+  }, [pusherUnreadCount]);
+
+  useEffect(() => {
+    // Initial load of unread count (Pusher handles real-time updates)
     loadUnreadCount();
-
-    // Poll for unread count every 30 seconds
-    const interval = setInterval(() => {
-      loadUnreadCount();
-    }, 30000); // 30 seconds
-
-    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -46,7 +47,7 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
       setLoadingNotifications(true);
       const response = await customerApi.getNotifications({ limit: 5 });
       const data = (response as any).data || response;
-      setNotifications(data.notifications || []);
+      setLocalNotifications(data.notifications || []);
       setUnreadCount(data.unreadCount || 0);
     } catch (error) {
       console.error("Error loading notifications:", error);
@@ -68,10 +69,10 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
   const handleMarkAsRead = async (id: string) => {
     try {
       await customerApi.markAsRead(id);
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+      setLocalNotifications((prev: Notification[]) =>
+        prev.map((n: Notification) => (n.id === id ? { ...n, isRead: true } : n))
       );
-      setUnreadCount((prev) => Math.max(0, prev - 1));
+      setUnreadCount((prev: number) => Math.max(0, prev - 1));
     } catch (error) {
       toast.error("Failed to mark as read");
     }
@@ -194,12 +195,14 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
 
           {/* Notifications Dropdown */}
           <div className="relative">
+
+            {/* Original Notification Bell */}
             <button
               onClick={() => {
                 setShowNotifications(!showNotifications);
                 setShowDropdown(false);
               }}
-              className="relative p-2 rounded-xl hover:bg-sky-50 transition-colors"
+              className="relative p-2 rounded-xl hover:bg-sky-50 transition-colors ml-2"
             >
               <Bell className="h-5 w-5 text-gray-600" />
               {unreadCount > 0 && (
@@ -209,7 +212,6 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
               )}
             </button>
 
-            {/* Notifications Dropdown */}
             {showNotifications && (
               <>
                 <div
@@ -235,14 +237,14 @@ export function CustomerHeader({ user, onMenuClick }: CustomerHeaderProps) {
                       <div className="flex items-center justify-center py-8">
                         <Loader2 className="h-6 w-6 animate-spin text-sky-500" />
                       </div>
-                    ) : notifications.length === 0 ? (
+                    ) : localNotifications.length === 0 ? (
                       <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
                         <Bell className="h-12 w-12 text-gray-300 mb-3" />
                         <p className="text-sm text-gray-500">No notifications yet</p>
                       </div>
                     ) : (
                       <div className="py-2">
-                        {notifications.map((notification) => {
+                        {localNotifications.map((notification) => {
                           const iconName = getNotificationIcon(notification.type);
                           const iconColor = getNotificationIconColor(notification.type);
                           const IconComponent = {

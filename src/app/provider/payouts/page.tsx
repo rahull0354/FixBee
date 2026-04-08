@@ -101,11 +101,6 @@ export default function ProviderPayoutsPage() {
       setLoading(true);
       const response = await providerApi.getPayouts() as any;
 
-      // Log the response to debug
-      console.log('=================================');
-      console.log('🔄 Raw Payouts API Response:', response);
-      console.log('Response type:', typeof response);
-
       // Handle the actual API response structure
       let payoutsData = [];
 
@@ -123,9 +118,6 @@ export default function ProviderPayoutsPage() {
         }
       }
 
-      console.log('📦 Processed payoutsData:', payoutsData);
-      console.log('Number of payouts:', payoutsData.length);
-
       // Ensure all payouts have required fields with defaults
       const sanitizedPayouts = payoutsData.map((payout: any) => ({
         id: payout.id || payout._id || '',
@@ -139,10 +131,9 @@ export default function ProviderPayoutsPage() {
         failureReason: payout.failureReason,
       }));
 
-      console.log('✅ Sanitized payouts:', sanitizedPayouts);
       setPayouts(sanitizedPayouts);
     } catch (error: any) {
-      console.error('❌ Error loading payouts:', error);
+      console.error('Error loading payouts:', error);
       const message =
         error?.response?.data?.message ||
         error?.message ||
@@ -158,14 +149,8 @@ export default function ProviderPayoutsPage() {
     try {
       const summaryResponse = await providerApi.getPayoutSummary() as any;
 
-      // Log the response to debug
-      console.log('=================================');
-      console.log('🔄 Raw Summary API Response:', summaryResponse);
-
       // Handle the actual API response structure
       const summaryData = summaryResponse;
-
-      console.log('📊 Processed summaryData:', summaryData);
 
       const sanitizedSummary = {
         totalEarnings: Number(summaryData?.totalPaid || 0) + Number(summaryData?.totalPending || 0) + Number(summaryData?.totalProcessing || 0),
@@ -178,10 +163,9 @@ export default function ProviderPayoutsPage() {
         completedPayouts: Number(summaryData?.totalPaidCount || 0),
       };
 
-      console.log('✅ Sanitized summary:', sanitizedSummary);
       setSummary(sanitizedSummary);
     } catch (error: any) {
-      console.error("❌ Error loading payout summary:", error);
+      console.error("Error loading payout summary:", error);
       // Set default values on error
       setSummary({
         totalEarnings: 0,

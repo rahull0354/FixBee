@@ -937,22 +937,19 @@ export default function AdminDashboardPage() {
               <QuickStat
                 label="Total Revenue"
                 value={`₹${(totalRevenue / 100000).toFixed(1)}L`}
-                trend="+12.5%"
+                trend={`${totalRevenueGrowth >= 0 ? "+" : ""}${totalRevenueGrowth.toFixed(1)}%`}
               />
               <QuickStat
                 label="Active Providers"
                 value={stats?.activeProviders || 0}
-                trend="+8.2%"
               />
               <QuickStat
                 label="Completion Rate"
                 value={`${completionRate}%`}
-                trend="+5.1%"
               />
               <QuickStat
                 label="Total Requests"
                 value={stats?.totalRequests || 0}
-                trend="+15.3%"
               />
             </div>
           </div>
@@ -1331,7 +1328,7 @@ function QuickStat({
 }: {
   label: string;
   value: string | number;
-  trend: string;
+  trend?: string;
 }) {
   return (
     <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl p-2 sm:p-3 lg:p-4 border border-white/20">
@@ -1342,9 +1339,11 @@ function QuickStat({
         <span className="text-lg sm:text-xl lg:text-2xl font-bold text-white">
           {value}
         </span>
-        <span className="text-[10px] sm:text-xs text-emerald-300 font-medium bg-emerald-500/20 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">
-          {trend}
-        </span>
+        {trend && (
+          <span className="text-[10px] sm:text-xs text-emerald-300 font-medium bg-emerald-500/20 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">
+            {trend}
+          </span>
+        )}
       </div>
     </div>
   );

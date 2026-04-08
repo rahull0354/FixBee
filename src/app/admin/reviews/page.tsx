@@ -104,28 +104,17 @@ export default function AdminReviewsPage() {
       });
 
       // Fetch customer and provider data
-      console.log('👥 Starting to fetch customer and provider data...');
       const [customerResults, providerResults] = await Promise.allSettled([
-        Promise.all(Array.from(customerIds).map(id => {
-          console.log('📞 Fetching customer:', id);
-          return adminApi.getCustomer(id);
-        })),
-        Promise.all(Array.from(providerIds).map(id => {
-          console.log('👨‍💼 Fetching provider:', id);
-          return adminApi.getProvider(id);
-        }))
+        Promise.all(Array.from(customerIds).map(id => adminApi.getCustomer(id))),
+        Promise.all(Array.from(providerIds).map(id => adminApi.getProvider(id)))
       ]);
-
-      console.log('Customer fetch results:', customerResults);
-      console.log('Provider fetch results:', providerResults);
 
       // Create maps for quick lookup
       const customerMap = new Map();
       const providerMap = new Map();
 
       if (customerResults.status === "fulfilled") {
-        customerResults.value.forEach((result: any, index) => {
-          console.log(`Customer ${index} result:`, result);
+        customerResults.value.forEach((result: any) => {
           const customer = (result as any).data || result;
           if (customer?.id) {
             customerMap.set(customer.id, customer);
@@ -136,8 +125,7 @@ export default function AdminReviewsPage() {
       }
 
       if (providerResults.status === "fulfilled") {
-        providerResults.value.forEach((result: any, index) => {
-          console.log(`Provider ${index} result:`, result);
+        providerResults.value.forEach((result: any) => {
           const provider = (result as any).data || result;
           if (provider?.id) {
             providerMap.set(provider.id, provider);

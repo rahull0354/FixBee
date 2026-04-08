@@ -92,27 +92,10 @@ export default function ProviderPaymentsPage() {
     try {
       setLoading(true);
 
-      console.log('=================================');
-      console.log('🔄 Loading Provider Payments/Invoices');
-      console.log('=================================');
-
       // Fetch provider's payments/earnings
       const response = await providerApi.getMyPayments();
 
-      console.log('📦 Raw API Response:', response);
-
       const apiData = (response as any).data || response;
-      console.log('📄 Number of payments/invoices:', apiData?.length || 0);
-
-      // Log each payment to see the structure
-      (apiData || []).forEach((payment: any, index: number) => {
-        console.log(`\n🔍 Payment #${index + 1}:`, payment.invoiceNumber);
-        console.log('  - All fields:', Object.keys(payment));
-        console.log('  - subTotal:', payment.subTotal);
-        console.log('  - laborCost:', payment.laborCost);
-        console.log('  - materialCost:', payment.materialCost);
-        console.log('  - providerEarning (backend):', payment.providerEarning);
-      });
 
       // Fix providerEarning to be subTotal (service charge + material cost)
       const correctedPayments = (apiData || []).map((payment: any) => {
@@ -131,15 +114,12 @@ export default function ProviderPaymentsPage() {
           correctProviderEarning = parseFloat(payment.providerEarning || 0);
         }
 
-        console.log(`  💰 Corrected earning: ${correctProviderEarning}`);
-
         return {
           ...payment,
           providerEarning: correctProviderEarning.toFixed(2),
         };
       });
 
-      console.log('✅ Corrected payments:', correctedPayments);
       setPayments(correctedPayments);
     } catch (error: any) {
       console.error('❌ Error loading payments:', error);

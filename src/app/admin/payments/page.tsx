@@ -105,13 +105,8 @@ export default function AdminPaymentsPage() {
       // Load payment stats
       try {
         const statsResponse = await adminApi.getPaymentStats();
-        console.log(
-          "📊 Payment Stats Response:",
-          JSON.stringify(statsResponse, null, 2),
-        );
 
         const statsData = (statsResponse as any).data || statsResponse;
-        console.log("📊 Stats Data:", statsData);
 
         // Transform backend stats to frontend format
         const completedAmount = parseFloat(statsData.completedAmount || 0);
@@ -132,7 +127,6 @@ export default function AdminPaymentsPage() {
           revenueChange: "0", // Backend doesn't provide this yet
           paymentChange: "0", // Backend doesn't provide this yet
         };
-        console.log("✅ Transformed Stats:", transformedStats);
         setStats(transformedStats);
       } catch (statsError) {
         console.warn(
@@ -157,28 +151,15 @@ export default function AdminPaymentsPage() {
         const paymentsResponse = await adminApi.getAllPayments({
           limit: 10,
         });
-        console.log(
-          "💰 Payments Response:",
-          JSON.stringify(paymentsResponse, null, 2),
-        );
 
         const paymentsData = (paymentsResponse as any).data || paymentsResponse;
         const paymentsArray = Array.isArray(paymentsData)
           ? paymentsData
           : paymentsData.payments || [];
-        console.log("💰 Payments Array:", paymentsArray);
 
         // Transform payments and fetch customer details
         const transformedPayments = await Promise.all(
           paymentsArray.slice(0, 5).map(async (payment: any) => {
-            // Log payment structure for debugging
-            console.log("🔍 Processing payment:", payment.id);
-            console.log("  - gateway:", payment.gateway);
-            console.log("  - paymentMethod:", payment.paymentMethod);
-            console.log("  - invoiceId:", payment.invoiceId);
-            console.log("  - status:", payment.status);
-            console.log("  - Full payment object:", payment);
-
             let customerName = "Customer";
             let invoiceNumber =
               payment.metadata?.invoiceNumber ||
@@ -187,16 +168,12 @@ export default function AdminPaymentsPage() {
             // Try to fetch invoice details to get customer information
             if (payment.invoiceId) {
               try {
-                console.log("  📄 Fetching invoice:", payment.invoiceId);
                 const invoiceResponse = await adminApi.getInvoice(
                   payment.invoiceId,
                 );
-                console.log("  📦 Invoice response:", invoiceResponse);
 
                 const invoiceData =
                   (invoiceResponse as any).data || invoiceResponse;
-                console.log("  ✅ Invoice data:", invoiceData);
-                console.log("  ✅ Invoice customer:", invoiceData?.customer);
 
                 if (invoiceData) {
                   invoiceNumber = invoiceData.invoiceNumber || invoiceNumber;
@@ -204,10 +181,6 @@ export default function AdminPaymentsPage() {
                   // Use customer data from invoice (already populated)
                   if (invoiceData.customer?.name) {
                     customerName = invoiceData.customer.name;
-                    console.log(
-                      "  ✅✅✅ Customer name from invoice.customer.name:",
-                      customerName,
-                    );
                   }
                   // Fallback: Check if customer is nested differently
                   else if (typeof invoiceData.customer === "string") {
@@ -215,22 +188,14 @@ export default function AdminPaymentsPage() {
                       const customerObj = JSON.parse(invoiceData.customer);
                       if (customerObj.name) {
                         customerName = customerObj.name;
-                        console.log(
-                          "  ✅ Customer name from parsed customer JSON:",
-                          customerName,
-                        );
                       }
                     } catch (e) {
-                      console.log("  ⚠️  Could not parse customer JSON");
+                      // Could not parse customer JSON
                     }
                   }
                   // Last resort: Fetch customer separately
                   else if (invoiceData.customerId) {
                     try {
-                      console.log(
-                        "  👤 Customer not in invoice, fetching:",
-                        invoiceData.customerId,
-                      );
                       const customerResponse = await adminApi.getCustomer(
                         invoiceData.customerId,
                       );
@@ -239,26 +204,15 @@ export default function AdminPaymentsPage() {
 
                       if (customerData?.name) {
                         customerName = customerData.name;
-                        console.log(
-                          "  ✅ Customer name from API:",
-                          customerName,
-                        );
                       }
                     } catch (custErr) {
-                      console.log("  ⚠️  Could not fetch customer:", custErr);
+                      // Could not fetch customer
                     }
                   }
                 }
               } catch (invoiceErr: any) {
-                console.log(
-                  "  ❌ Could not fetch invoice:",
-                  invoiceErr?.response?.status || invoiceErr?.message,
-                );
-                console.log("  ❌ Full error:", invoiceErr);
-                // Continue with fallbacks
+                // Could not fetch invoice, continue with fallbacks
               }
-            } else {
-              console.log("  ⚠️  No invoiceId found in payment");
             }
 
             // Fallback: Extract customer name from payment metadata
@@ -277,8 +231,6 @@ export default function AdminPaymentsPage() {
                   customerName.charAt(0).toUpperCase() + customerName.slice(1);
               }
             }
-
-            console.log("  ✅ Final customer name:", customerName);
 
             // Determine payment method for icon (online vs cash)
             const isOnlinePayment =
@@ -304,7 +256,6 @@ export default function AdminPaymentsPage() {
           }),
         );
 
-        console.log("✅ Transformed Payments:", transformedPayments);
         setRecentPayments(transformedPayments);
       } catch (paymentsError) {
         console.warn(
@@ -329,18 +280,11 @@ export default function AdminPaymentsPage() {
           ? invoicesData
           : invoicesData.invoices || [];
 
-        console.log('📋 Pending Invoices Response:', invoicesResponse);
-        console.log('📋 Pending Invoices Array:', invoicesArray);
-        console.log('📋 Pending Invoices Count:', invoicesArray.length);
-
         // Calculate total pending payments amount
         const pendingTotal = invoicesArray.reduce((sum: number, invoice: any) => {
           const amount = parseFloat(invoice.totalAmount || invoice.amount || 0);
-          console.log(`  - Invoice ${invoice.invoiceNumber}: ₹${amount}`);
           return sum + amount;
         }, 0);
-
-        console.log('💰 Total Pending Amount:', pendingTotal);
 
         // Update stats with pending payments total
         setStats((prevStats) => {

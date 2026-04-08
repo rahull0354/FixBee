@@ -148,11 +148,7 @@ export default function ProviderReviewsPage() {
 
   const handleRespond = (review: Review) => {
     setSelectedReview(review);
-    // providerResponse might be an object { comment, respondedAt } or a string
-    const responseText = typeof review.providerResponse === 'object'
-      ? review.providerResponse?.comment || ''
-      : review.providerResponse || '';
-    setResponseText(responseText);
+    setResponseText(''); // Start with empty text - no editing allowed
     setRespondDialogOpen(true);
   };
 
@@ -622,17 +618,13 @@ export default function ProviderReviewsPage() {
                     </div>
                     <Button
                       onClick={() => handleRespond(review)}
-                      disabled={review.isFlagged}
+                      disabled={review.isFlagged || !!review.providerResponse}
                       className={`gap-1.5 sm:gap-2 bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg w-full sm:w-auto text-sm sm:text-base ${
-                        review.isFlagged ? "opacity-50 cursor-not-allowed" : ""
+                        review.isFlagged || !!review.providerResponse ? "opacity-50 cursor-not-allowed" : ""
                       }`}
                     >
                       <Reply className="h-4 w-4" />
-                      {review.providerResponse && (
-                        typeof review.providerResponse === 'object'
-                          ? review.providerResponse.comment
-                          : review.providerResponse
-                      ) ? 'Edit Response' : 'Write Response'}
+                      Write Response
                     </Button>
                   </div>
                 </div>
@@ -644,31 +636,35 @@ export default function ProviderReviewsPage() {
 
       {/* Response Dialog */}
       <Dialog open={respondDialogOpen} onOpenChange={setRespondDialogOpen}>
-        <DialogContent className="max-w-[95vw] sm:max-w-150 lg:max-w-12.5 p-0 overflow-hidden rounded-2xl">
-          <div className="bg-linear-to-r from-emerald-500 to-teal-500 p-4 sm:p-5 lg:p-6 text-white">
-            <DialogHeader>
-              <DialogTitle className="text-lg sm:text-xl lg:text-2xl flex items-center gap-2 sm:gap-3">
-                <div className="p-1.5 sm:p-2 bg-white/20 rounded-lg sm:rounded-xl">
-                  <Reply className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />
+        <DialogContent className="max-w-[95vw] sm:max-w-150 md:max-w-162.5 w-full max-h-[90vh] sm:max-h-[85vh] overflow-y-auto p-0 bg-white border-2 border-emerald-100 rounded-2xl sm:rounded-xl shadow-2xl">
+          {/* Header with Gradient */}
+          <div className="bg-linear-to-r from-emerald-500 to-teal-500 px-4 sm:px-6 py-4 sm:py-5 text-white sticky top-0 z-10">
+            <DialogHeader className="space-y-1 sm:space-y-2">
+              <DialogTitle className="text-lg sm:text-xl md:text-2xl font-bold flex items-center gap-2 sm:gap-3 flex-wrap">
+                <div className="p-1.5 sm:p-2 bg-white/20 rounded-lg sm:rounded-xl shrink-0">
+                  <Reply className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
-                Respond to Review
+                <span>Respond to Review</span>
               </DialogTitle>
-              <DialogDescription className="text-emerald-100 mt-1.5 sm:mt-2 text-xs sm:text-sm lg:text-base">
-                Write a thoughtful response to {selectedReview?.customer?.name}'s review. This helps build trust with future customers.
+              <DialogDescription className="text-emerald-100 text-xs sm:text-base pt-1 sm:pt-2">
+                Write a thoughtful response to {selectedReview?.customer?.name}&apos;s review.
               </DialogDescription>
             </DialogHeader>
           </div>
 
-          <div className="p-4 sm:p-5 lg:p-6 space-y-4 sm:space-y-5 lg:space-y-6">
+          {/* Content */}
+          <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
             {selectedReview && (
-              <div className="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-5 border-l-2 sm:border-l-4 border-yellow-400">
-                <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+              <div className="bg-gray-50 rounded-lg sm:rounded-xl p-3 sm:p-4 border-l-4 border-yellow-400">
+                <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3 flex-wrap">
                   <StarRating rating={selectedReview.rating} size="sm" />
-                  <span className="text-xs sm:text-sm text-gray-600">
+                  <span className="text-xs text-gray-600">
                     {new Date(selectedReview.createdAt).toLocaleDateString()}
                   </span>
                 </div>
-                <p className="text-gray-800 italic text-sm sm:text-base">"{selectedReview.comment}"</p>
+                <p className="text-gray-800 italic text-sm sm:text-base">
+                  &ldquo;{selectedReview.comment}&rdquo;
+                </p>
               </div>
             )}
 
@@ -682,10 +678,12 @@ export default function ProviderReviewsPage() {
                 placeholder="Thank the customer for their feedback, address any specific points they mentioned, or provide additional context about your service..."
                 value={responseText}
                 onChange={(e) => setResponseText(e.target.value)}
-                className="text-sm sm:text-base resize-none"
+                className="text-sm sm:text-base resize-none min-h-30"
               />
-              <div className="flex items-center justify-between text-xs sm:text-sm">
-                <span className="text-gray-500">{responseText.length} characters</span>
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <span className="text-xs sm:text-sm text-gray-500">
+                  {responseText.length} characters
+                </span>
                 <span className="text-emerald-600 font-medium">
                   {responseText.length >= 20 ? '✓ Good length' : 'Minimum 20 characters'}
                 </span>

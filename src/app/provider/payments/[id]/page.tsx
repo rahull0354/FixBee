@@ -118,16 +118,8 @@ export default function ProviderPaymentDetailPage() {
       const response = await providerApi.getPaymentById(paymentId);
       const apiData = (response as any).data || response;
 
-      console.log('📦 Payment Detail Response:', apiData);
-      console.log('💰 Original providerEarning:', apiData.providerEarning);
-      console.log('💰 subTotal:', apiData.subTotal);
-      console.log('💰 laborCost:', apiData.laborCost);
-      console.log('💰 materialCost:', apiData.materialCost);
-
       // Provider Net Earning = subTotal (which is already service charge + material cost)
       const subTotal = parseFloat(apiData.subTotal || 0);
-
-      console.log('💰 Setting providerEarning to subTotal:', subTotal);
 
       // Override the backend's incorrect calculation with the correct subtotal
       apiData.providerEarning = subTotal.toFixed(2);

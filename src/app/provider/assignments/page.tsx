@@ -58,34 +58,17 @@ export default function MyAssignmentsPage() {
     try {
       setLoading(true);
 
-      console.log('🔄 Fetching assignments from backend...');
       const response = await providerApi.getMyAssignedRequests();
       const data = (response as any).data || response;
       const requestsArray = Array.isArray(data) ? data : [];
 
-      console.log('📋 Received', requestsArray.length, 'assignments from backend');
-
-      // Log each assignment's status
-      requestsArray.forEach((req: any) => {
-        console.log(`📌 Assignment ${req.id}:`);
-        console.log(`  - Status: ${req.status}`);
-        console.log(`  - Final Price: ${req.finalPrice}`);
-        console.log(`  - Material Cost: ${req.materialCost}`);
-        console.log(`  - Material Description: ${req.materialDescription}`);
-      });
-
       // Transform backend data and fetch missing customer details
       const transformedRequests = await Promise.all(
         requestsArray.map(async (req: any) => {
-          console.log('🔄 Processing request:', req.id);
-          console.log('  req.customer:', req.customer);
-          console.log('  req.customerId:', req.customerId);
-
           let customerData = req.customer;
 
           // If customer is not populated, fetch it separately
           if (!customerData && req.customerId) {
-            console.log('  📞 Fetching customer details for:', req.customerId);
             try {
               const customerResponse = await providerApi.getCustomerById(req.customerId);
               const customerInfo = (customerResponse as any).data || customerResponse;
@@ -96,16 +79,13 @@ export default function MyAssignmentsPage() {
                 email: customerInfo.email,
                 phone: customerInfo.phone,
               };
-
-              console.log('  ✅ Fetched customer:', customerData);
             } catch (error) {
-              console.error('  ❌ Error fetching customer:', error);
+              console.error('Error fetching customer:', error);
               // Still include the request even if customer fetch fails
               customerData = null;
             }
           } else if (req.customerId && typeof req.customerId === 'object') {
             // If customerId is populated as object, use that
-            console.log('  Using customerId object as customer data');
             customerData = {
               id: req.customerId.id,
               name: req.customerId.name,
@@ -113,8 +93,6 @@ export default function MyAssignmentsPage() {
               phone: req.customerId.phone,
             };
           }
-
-          console.log('  Final customerData:', customerData);
 
           const transformed = {
             id: req.id,
@@ -140,13 +118,10 @@ export default function MyAssignmentsPage() {
             category: req.category,
           };
 
-          console.log('  ✅ Transformed:', transformed);
-
           return transformed;
         })
       );
 
-      console.log(`✅ Transformed ${transformedRequests.length} assignments`);
       setRequests(transformedRequests);
     } catch (error: any) {
       console.error('Error loading assignments:', error);
@@ -543,7 +518,6 @@ export default function MyAssignmentsPage() {
                     className="flex-1 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
                     onClick={() => {
                       const storageKey = `assignment_${request.id}`;
-                      console.log('💾 Storing assignment data in sessionStorage:', storageKey);
                       sessionStorage.setItem(storageKey, JSON.stringify({
                         ...request,
                         timestamp: Date.now(),

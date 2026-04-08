@@ -233,6 +233,7 @@ export function RescheduleDialog({
           date: formData.schedule.date,
           timeSlot: formData.schedule.timeSlot as 'morning' | 'afternoon' | 'evening',
           preferredTime: formData.schedule.preferredTime || undefined,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, // Send user's timezone
         },
         reason: formData.reason,
         reasonCode: formData.reasonCode as 'cannot_reach_location' | 'traffic_emergency' | 'personal_emergency' | 'customer_unavailable' | 'weather_conditions' | 'other',

@@ -486,16 +486,16 @@ export default function ReviewDetailPage() {
             </Button>
             <Button
               onClick={() => {
-                setResponseText(typeof review.providerResponse === "object" ? review.providerResponse?.comment || "" : review.providerResponse || "");
+                setResponseText("");
                 setRespondDialogOpen(true);
               }}
-              disabled={review.isFlagged}
+              disabled={review.isFlagged || !!review.providerResponse}
               className={`w-full sm:w-auto gap-2 bg-linear-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:from-emerald-500 hover:via-teal-500 hover:to-cyan-500 text-white ${
-                review.isFlagged ? "opacity-50 cursor-not-allowed" : ""
+                review.isFlagged || !!review.providerResponse ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
               <Reply className="h-4 w-4" />
-              {review.providerResponse ? "Edit Response" : "Write Response"}
+              Write Response
             </Button>
           </div>
         </CardContent>
