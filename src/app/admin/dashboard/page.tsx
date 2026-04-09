@@ -468,10 +468,7 @@ export default function AdminDashboardPage() {
       },
     },
     subtitle: {
-      text: `<span style="font-size: 12px; color: #64748B;">6-month trend • Total: ₹${(totalRevenue / 1000).toFixed(0)}K</span><br/>
-             <span style="font-size: 11px; color: ${Number(totalRevenueGrowth) >= 0 ? "#10B981" : "#EF4444"};">
-             ${Number(totalRevenueGrowth) >= 0 ? "↑" : "↓"} ${Math.abs(Number(totalRevenueGrowth)).toFixed(1)}% from last month
-             </span>`,
+      text: `<span style="font-size: 12px; color: #64748B;">Total Revenue: ₹${(totalRevenue / 1000).toFixed(0)}K</span>`,
       align: "left",
       useHTML: true,
     },
@@ -525,19 +522,7 @@ export default function AdminDashboardPage() {
       headerFormat:
         '<span style="font-size: 12px; font-weight: 700; color: #F8FAFC;">{point.key}</span><br/>',
       pointFormatter: function (this: any) {
-        const growth =
-          this.series.yData?.[this.index] && this.series.yData[this.index - 1]
-            ? (
-                ((this.y - this.series.yData[this.index - 1]) /
-                  this.series.yData[this.index - 1]) *
-                100
-              ).toFixed(1)
-            : "0.0";
-        const growthNum = parseFloat(growth);
-        const growthColor = growthNum >= 0 ? "#10B981" : "#EF4444";
-        const growthArrow = growthNum >= 0 ? "↑" : "↓";
-        return `<span style="color: ${this.color};">●</span> <b>${this.series.name}</b>: ₹${this.y.toLocaleString()}<br/>
-                <span style="font-size: 10px; color: ${growthColor};">   ${growthArrow} ${Math.abs(growthNum)}% from prev month</span><br/>`;
+        return `<span style="color: ${this.color};">●</span> <b>${this.series.name}</b>: ₹${this.y.toLocaleString()}<br/>`;
       },
     },
     plotOptions: {
@@ -937,19 +922,42 @@ export default function AdminDashboardPage() {
               <QuickStat
                 label="Total Revenue"
                 value={`₹${(totalRevenue / 100000).toFixed(1)}L`}
-                trend={`${totalRevenueGrowth >= 0 ? "+" : ""}${totalRevenueGrowth.toFixed(1)}%`}
+                trend={
+                  distributableAmount > 0
+                    ? `${adminPercentage.toFixed(0)}% commission`
+                    : undefined
+                }
+                trendDirection="up"
               />
               <QuickStat
                 label="Active Providers"
                 value={stats?.activeProviders || 0}
+                trend={
+                  stats?.totalProviders && stats?.activeProviders
+                    ? `${((stats?.activeProviders / stats?.totalProviders) * 100).toFixed(0)}% active`
+                    : undefined
+                }
+                trendDirection="up"
               />
               <QuickStat
                 label="Completion Rate"
                 value={`${completionRate}%`}
+                trend={
+                  parseFloat(completionRate as string) > 70
+                    ? "+Excellent"
+                    : undefined
+                }
+                trendDirection="up"
               />
               <QuickStat
                 label="Total Requests"
                 value={stats?.totalRequests || 0}
+                trend={
+                  stats?.totalRequests && stats?.completedRequests
+                    ? `${((stats?.completedRequests / stats?.totalRequests) * 100).toFixed(0)}% completed`
+                    : undefined
+                }
+                trendDirection="up"
               />
             </div>
           </div>
@@ -1213,6 +1221,8 @@ function MetricCard({
   prefix = "",
   color,
   delay,
+  percentage,
+  percentageLabel,
 }: {
   icon: React.ReactNode;
   label: string;
@@ -1220,6 +1230,8 @@ function MetricCard({
   prefix?: string;
   color: "blue" | "indigo" | "cyan" | "emerald";
   delay: number;
+  percentage?: number;
+  percentageLabel?: string;
 }) {
   const colorStyles = {
     blue: { iconBg: "bg-blue-100", iconColor: "text-blue-600" },
@@ -1252,6 +1264,17 @@ function MetricCard({
           {prefix}
           <AnimatedCounter end={value} delay={delay} />
         </p>
+        {percentage !== undefined && (
+          <div className="mt-2 flex items-center gap-2">
+            <span className="inline-flex items-center px-2 sm:px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+              {percentage > 0 ? "+" : ""}
+              {percentage.toFixed(1)}%
+            </span>
+            {percentageLabel && (
+              <span className="text-xs text-gray-600">{percentageLabel}</span>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1325,11 +1348,19 @@ function QuickStat({
   label,
   value,
   trend,
+  trendDirection = "up",
 }: {
   label: string;
   value: string | number;
   trend?: string;
+  trendDirection?: "up" | "down" | "neutral";
 }) {
+  const trendColors = {
+    up: "bg-emerald-500/20 text-emerald-300 border-emerald-400/30",
+    down: "bg-red-500/20 text-red-300 border-red-400/30",
+    neutral: "bg-gray-500/20 text-gray-300 border-gray-400/30",
+  };
+
   return (
     <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl p-2 sm:p-3 lg:p-4 border border-white/20">
       <p className="text-blue-100 text-[10px] sm:text-xs font-medium mb-1">
@@ -1340,7 +1371,9 @@ function QuickStat({
           {value}
         </span>
         {trend && (
-          <span className="text-[10px] sm:text-xs text-emerald-300 font-medium bg-emerald-500/20 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">
+          <span
+            className={`text-[10px] sm:text-xs font-medium px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border ${trendColors[trendDirection]}`}
+          >
             {trend}
           </span>
         )}

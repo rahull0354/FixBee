@@ -23,7 +23,6 @@ export const usePusherNotifications = (
 
     // Subscribe to user-specific channel
     const channelName = `${userType}-${userId}`;
-    console.log('🔔 Subscribing to Pusher channel:', channelName);
 
     const channel = subscribeToChannel(channelName);
     channelRef.current = channel;
@@ -49,7 +48,6 @@ export const usePusherNotifications = (
     ];
 
     const handleNotification = (data: any) => {
-      console.log('📨 Pusher notification received:', data);
       const notification: PusherNotification = {
         type: data.type || 'notification',
         data: data,
@@ -65,13 +63,11 @@ export const usePusherNotifications = (
 
     // Bind to all events
     events.forEach((event) => {
-      console.log(`🔗 Binding to event: ${event}`);
       channel.bind(event, handleNotification);
     });
 
     // Listen to all events for debugging
     channel.bind_global((eventName: string, data: any) => {
-      console.log('🌐 Pusher global event:', eventName, data);
     });
 
     return () => {
@@ -80,7 +76,6 @@ export const usePusherNotifications = (
         channel.unbind(event, handleNotification);
       });
       unsubscribeFromChannel(channelName);
-      console.log('🔔 Unsubscribed from channel:', channelName);
     };
   }, [userId, userType]);
 
@@ -157,8 +152,8 @@ export const usePusherNotifications = (
         break;
       case 'review.new':
       case 'new_review':
-        toast.success('New review received', {
-          description: 'You have received a new review',
+        toast.success('New review received!', {
+          description: `${data.data?.customerName || data.customerName || 'A customer'} left a ${data.data?.rating || data.rating || ''} star review`,
         });
         break;
       case 'review.reply':
