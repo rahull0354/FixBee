@@ -10,6 +10,7 @@ import { providerApi } from '@/lib/api';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { checkProviderProfileComplete } from '@/lib/utils/provider';
+import { usePusherNotifications } from '@/lib/hooks/usePusherNotifications';
 
 export default function ProviderLayout({
   children,
@@ -32,6 +33,9 @@ export default function ProviderLayout({
   // Check if current page is dashboard or setup page
   const isDashboardPage = pathname === '/provider/dashboard';
   const isSetupPage = pathname === '/provider/profile/setup';
+
+  // Initialize Pusher for real-time notifications (MUST be before conditional returns)
+  const pusherNotifications = usePusherNotifications(user?.id, 'provider');
 
   useEffect(() => {
     checkProfileCompletion();
@@ -152,7 +156,11 @@ export default function ProviderLayout({
       {/* Main content area */}
       <div className="lg:ml-72">
         {/* Header */}
-        <ProviderHeader user={user} onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
+        <ProviderHeader
+          user={user}
+          onMenuClick={() => setSidebarOpen(!sidebarOpen)}
+          pusherUnreadCount={pusherNotifications.unreadCount}
+        />
 
         {/* Deactivated Account Banner */}
         {isDeactivated && !user?.isSuspended && (

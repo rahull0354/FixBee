@@ -24,17 +24,22 @@ export function CustomerHeader({ user, onMenuClick, pusherUnreadCount = 0 }: Cus
   const { logout } = useAuth();
   const router = useRouter();
 
-  // Update unread count when Pusher notifications arrive
+  // Store the initial database unread count
+  const [databaseUnreadCount, setDatabaseUnreadCount] = useState(0);
+
+  // Update unread count when Pusher notifications arrive (ADD to database count)
   useEffect(() => {
-    if (pusherUnreadCount > 0) {
-      setUnreadCount(pusherUnreadCount);
+    if (databaseUnreadCount > 0 || pusherUnreadCount > 0) {
+      setUnreadCount(databaseUnreadCount + pusherUnreadCount);
     }
-  }, [pusherUnreadCount]);
+  }, [pusherUnreadCount, databaseUnreadCount]);
 
   useEffect(() => {
     // Initial load of unread count (Pusher handles real-time updates)
-    loadUnreadCount();
-  }, []);
+    if (user?.id) {
+      loadUnreadCount();
+    }
+  }, [user?.id]);
 
   useEffect(() => {
     if (showNotifications) {
@@ -48,7 +53,9 @@ export function CustomerHeader({ user, onMenuClick, pusherUnreadCount = 0 }: Cus
       const response = await customerApi.getNotifications({ limit: 5 });
       const data = (response as any).data || response;
       setLocalNotifications(data.notifications || []);
-      setUnreadCount(data.unreadCount || 0);
+      const dbUnreadCount = data.unreadCount || 0;
+      setDatabaseUnreadCount(dbUnreadCount);
+      setUnreadCount(dbUnreadCount + pusherUnreadCount);
     } catch (error) {
       console.error("Error loading notifications:", error);
     } finally {
@@ -60,7 +67,9 @@ export function CustomerHeader({ user, onMenuClick, pusherUnreadCount = 0 }: Cus
     try {
       const response = await customerApi.getNotifications({ limit: 1 });
       const data = (response as any).data || response;
-      setUnreadCount(data.unreadCount || 0);
+      const dbUnreadCount = data.unreadCount || 0;
+      setDatabaseUnreadCount(dbUnreadCount);
+      setUnreadCount(dbUnreadCount + pusherUnreadCount);
     } catch (error) {
       console.error("Error loading unread count:", error);
     }
@@ -72,6 +81,7 @@ export function CustomerHeader({ user, onMenuClick, pusherUnreadCount = 0 }: Cus
       setLocalNotifications((prev: Notification[]) =>
         prev.map((n: Notification) => (n.id === id ? { ...n, isRead: true } : n))
       );
+      setDatabaseUnreadCount((prev: number) => Math.max(0, prev - 1));
       setUnreadCount((prev: number) => Math.max(0, prev - 1));
     } catch (error) {
       toast.error("Failed to mark as read");

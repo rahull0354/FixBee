@@ -132,13 +132,27 @@ export const usePusherNotifications = (
         });
         break;
       case 'payout.completed':
-        toast.success('Payout completed', {
-          description: `₹${data.amount || '0'} has been transferred to your account`,
+      case 'payout_completed':
+        toast.success('Payout completed!', {
+          description: `₹${data.data?.amount || data.amount || '0'} has been transferred to your account${data.data?.utr ? `. UTR: ${data.data.utr}` : ''}`,
+        });
+        break;
+      case 'payout.initiated':
+      case 'payout_initiated':
+        toast.info('Payout initiated', {
+          description: `₹${data.data?.amount || data.amount || '0'} for ${data.data?.invoiceCount || data.invoiceCount || '0'} invoice(s) has been initiated`,
+        });
+        break;
+      case 'payout.processed':
+      case 'payout_processed':
+        toast.info('Payout being processed', {
+          description: `₹${data.data?.amount || data.amount || '0'} is being processed. Amount will be credited shortly`,
         });
         break;
       case 'payout.failed':
+      case 'payout_failed':
         toast.error('Payout failed', {
-          description: data.message || 'Payout could not be processed',
+          description: data.data?.failureReason || data.failureReason || data.message || 'Payout could not be processed',
         });
         break;
       case 'review.new':
