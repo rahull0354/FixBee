@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { loadStripe, Stripe, StripeElementsOptions, PaymentIntent } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { Loader2, Lock, CreditCard, AlertTriangle } from 'lucide-react';
+import { Loader2, Lock, CreditCard, AlertTriangle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
@@ -60,7 +60,6 @@ function CheckoutForm({
         onError?.(confirmError.message || 'Payment failed');
         toast.error(confirmError.message || 'Payment failed');
       } else if (paymentIntent?.status === 'succeeded') {
-        toast.success('Payment successful!');
         onSuccess?.(paymentIntent);
       }
     } catch (err: any) {
@@ -154,7 +153,7 @@ function CheckoutForm({
       {/* Payment Info */}
       <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
         <p className="text-xs sm:text-sm text-gray-700">
-          <strong>💡 Note:</strong> Your payment will be processed securely through Stripe.
+          <strong><Info />Note:</strong> Your payment will be processed securely through Stripe.
           You will receive a confirmation email once the payment is complete.
         </p>
       </div>

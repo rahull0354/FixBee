@@ -12,9 +12,10 @@ import type { Notification } from '@/types';
 interface ProviderHeaderProps {
   user: any;
   onMenuClick: () => void;
+  pusherUnreadCount?: number;
 }
 
-export function ProviderHeader({ user, onMenuClick }: ProviderHeaderProps) {
+export function ProviderHeader({ user, onMenuClick, pusherUnreadCount = 0 }: ProviderHeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { logout } = useAuth();
@@ -27,6 +28,16 @@ export function ProviderHeader({ user, onMenuClick }: ProviderHeaderProps) {
   const [unreadCount, setUnreadCount] = useState(0);
 
   const [availabilityStatus, setAvailabilityStatus] = useState<'available' | 'busy' | 'offline'>('offline');
+
+  // Store the initial database unread count
+  const [databaseUnreadCount, setDatabaseUnreadCount] = useState(0);
+
+  // Update unread count when Pusher notifications arrive (ADD to database count)
+  useEffect(() => {
+    if (databaseUnreadCount > 0 || pusherUnreadCount > 0) {
+      setUnreadCount(databaseUnreadCount + pusherUnreadCount);
+    }
+  }, [pusherUnreadCount, databaseUnreadCount]);
 
   // Check if we're on the setup page - skip loading profile there
   const isSetupPage = pathname === '/provider/profile/setup';
@@ -86,13 +97,34 @@ export function ProviderHeader({ user, onMenuClick }: ProviderHeaderProps) {
     }
   }, [showNotifications]);
 
+  useEffect(() => {
+    // Initial load of unread count (Pusher handles real-time updates)
+    if (user?.id) {
+      loadUnreadCount();
+    }
+  }, [user?.id]);
+
+  const loadUnreadCount = async () => {
+    try {
+      const response = await providerApi.getNotifications({ limit: 1 });
+      const data = (response as any).data || response;
+      const dbUnreadCount = data.unreadCount || 0;
+      setDatabaseUnreadCount(dbUnreadCount);
+      setUnreadCount(dbUnreadCount + pusherUnreadCount);
+    } catch (error) {
+      console.error('Error loading unread count:', error);
+    }
+  };
+
   const loadNotifications = async () => {
     try {
       setLoadingNotifications(true);
       const response = await providerApi.getNotifications({ limit: 5 });
       const data = (response as any).data || response;
       setNotifications(data.notifications || []);
-      setUnreadCount(data.unreadCount || 0);
+      const dbUnreadCount = data.unreadCount || 0;
+      setDatabaseUnreadCount(dbUnreadCount);
+      setUnreadCount(dbUnreadCount + pusherUnreadCount);
     } catch (error) {
       console.error('Error loading notifications:', error);
     } finally {
@@ -158,6 +190,7 @@ export function ProviderHeader({ user, onMenuClick }: ProviderHeaderProps) {
       setNotifications((prev) =>
         prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
       );
+      setDatabaseUnreadCount((prev) => Math.max(0, prev - 1));
       setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch (error) {
       toast.error('Failed to mark as read');

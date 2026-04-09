@@ -324,8 +324,74 @@ export default function EditReviewPage() {
 
       {/* Two Column Layout */}
       <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-        {/* Right Column - Detailed Ratings & Comment (First on mobile) */}
-        <div className="lg:col-span-2 space-y-4 sm:space-y-6 order-2 lg:order-1">
+        {/* Left Column - Overall Rating (First on mobile, left on desktop) */}
+        <div className="lg:col-span-1 space-y-4 sm:space-y-6 order-1 lg:order-1">
+          {/* Overall Rating Card */}
+          <div className="bg-white rounded-2xl shadow-xl border border-sky-100 p-4 sm:p-6 lg:p-8">
+            <div className="space-y-4 sm:space-y-5">
+              <div>
+                <Label className="text-base sm:text-lg font-bold text-gray-900 mb-1 block">
+                  Overall Rating
+                </Label>
+                <p className="text-xs sm:text-sm text-gray-600">Update your overall rating</p>
+              </div>
+
+              <div className="bg-linear-to-br from-sky-50 via-blue-50 to-indigo-50 rounded-2xl p-4 sm:p-6 lg:p-8 border border-sky-100">
+                <div className="flex flex-col items-center">
+                  <StarRating
+                    value={rating}
+                    onChange={(val) => setValue('rating', val)}
+                  />
+                  <div className="mt-3 sm:mt-4 text-center">
+                    <p className="text-xs sm:text-sm font-semibold text-gray-800">
+                      {rating === 5 && 'Exceptional!'}
+                      {rating === 4 && 'Very Good!'}
+                      {rating === 3 && 'Good!'}
+                      {rating === 2 && 'Fair!'}
+                      {rating === 1 && 'Poor!'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {errors.rating && (
+                <p className="text-xs text-red-500 flex items-center gap-1">
+                  <AlertTriangle className="h-4 w-4" />
+                  {errors.rating.message}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Tips Card */}
+          <div className="bg-linear-to-br from-sky-50 via-blue-50 to-indigo-50 border border-sky-200 rounded-2xl p-4 sm:p-6">
+            <h3 className="font-bold text-sky-900 mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base">
+              <Lightbulb className="h-5 w-5 text-sky-600" />
+              Tips
+            </h3>
+            <ul className="text-xs sm:text-sm text-sky-800 space-y-1 sm:space-y-2">
+              <li className="flex items-start gap-2">
+                <span className="text-sky-600 font-bold shrink-0">•</span>
+                <span>Be specific and honest</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-sky-600 font-bold shrink-0">•</span>
+                <span>Focus on the service quality</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-sky-600 font-bold shrink-0">•</span>
+                <span>Mention professionalism</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-sky-600 font-bold shrink-0">•</span>
+                <span>Help others with your feedback</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Right Column - Detailed Ratings & Comment (Second on mobile, right on desktop) */}
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6 order-2 lg:order-2">
           {/* Detailed Ratings */}
           <div className="bg-white rounded-2xl shadow-xl border border-sky-100 p-4 sm:p-6 lg:p-8">
             <div className="space-y-4 sm:space-y-5">
@@ -391,101 +457,35 @@ export default function EditReviewPage() {
               )}
             </div>
           </div>
-        </div>
 
-        {/* Left Column - Overall Rating & Submit (Last on mobile) */}
-        <div className="lg:col-span-1 space-y-4 sm:space-y-6 order-1 lg:order-2">
-          {/* Overall Rating Card */}
-          <div className="bg-white rounded-2xl shadow-xl border border-sky-100 p-4 sm:p-6 lg:p-8 lg:sticky lg:top-8">
-            <div className="space-y-4 sm:space-y-5">
-              <div>
-                <Label className="text-base sm:text-lg font-bold text-gray-900 mb-1 block">
-                  Overall Rating
-                </Label>
-                <p className="text-xs sm:text-sm text-gray-600">Update your overall rating</p>
-              </div>
-
-              <div className="bg-linear-to-br from-sky-50 via-blue-50 to-indigo-50 rounded-2xl p-4 sm:p-6 lg:p-8 border border-sky-100">
-                <div className="flex flex-col items-center">
-                  <StarRating
-                    value={rating}
-                    onChange={(val) => setValue('rating', val)}
-                  />
-                  <div className="mt-3 sm:mt-4 text-center">
-                    <p className="text-xs sm:text-sm font-semibold text-gray-800">
-                      {rating === 5 && 'Exceptional!'}
-                      {rating === 4 && 'Very Good!'}
-                      {rating === 3 && 'Good!'}
-                      {rating === 2 && 'Fair!'}
-                      {rating === 1 && 'Poor!'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {errors.rating && (
-                <p className="text-xs text-red-500 flex items-center gap-1">
-                  <AlertTriangle className="h-4 w-4" />
-                  {errors.rating.message}
-                </p>
+          {/* Submit Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.back()}
+              disabled={submitting}
+              className="flex-1 py-3 sm:py-4 h-auto text-sky-700 text-sm sm:text-base font-semibold rounded-xl border-sky-500 hover:bg-sky-50 hover:border-sky-600 transition-all"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="flex-1 bg-linear-to-r from-sky-500 via-blue-500 to-indigo-600 hover:from-sky-600 hover:via-blue-600 hover:to-indigo-700 text-white py-3 sm:py-4 h-auto text-sm sm:text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Updating...
+                </>
+              ) : (
+                <>
+                  <Star className="mr-2 h-4 w-4 fill-yellow-300" />
+                  Update Review
+                </>
               )}
-            </div>
-
-            {/* Submit Buttons */}
-            <div className="flex flex-col gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-gray-200 mt-4 sm:mt-5">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => router.back()}
-                disabled={submitting}
-                className="w-full py-2 sm:py-3 h-auto text-sm sm:text-base font-semibold rounded-xl border-2"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={submitting}
-                className="w-full bg-linear-to-r from-sky-500 via-blue-500 to-indigo-600 hover:from-sky-600 hover:via-blue-600 hover:to-indigo-700 text-white py-2 sm:py-3 h-auto text-sm sm:text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"
-              >
-                {submitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Updating...
-                  </>
-                ) : (
-                  <>
-                    <Star className="mr-2 h-4 w-4 fill-yellow-300" />
-                    Update Review
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-
-          {/* Tips Card */}
-          <div className="bg-linear-to-br from-sky-50 via-blue-50 to-indigo-50 border border-sky-200 rounded-2xl p-4 sm:p-6">
-            <h3 className="font-bold text-sky-900 mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base">
-              <Lightbulb className="h-5 w-5 text-sky-600" />
-              Tips
-            </h3>
-            <ul className="text-xs sm:text-sm text-sky-800 space-y-1 sm:space-y-2">
-              <li className="flex items-start gap-2">
-                <span className="text-sky-600 font-bold shrink-0">•</span>
-                <span>Be specific and honest</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-sky-600 font-bold shrink-0">•</span>
-                <span>Focus on the service quality</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-sky-600 font-bold shrink-0">•</span>
-                <span>Mention professionalism</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-sky-600 font-bold shrink-0">•</span>
-                <span>Help others with your feedback</span>
-              </li>
-            </ul>
+            </Button>
           </div>
         </div>
       </form>
