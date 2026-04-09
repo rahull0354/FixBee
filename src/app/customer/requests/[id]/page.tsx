@@ -48,6 +48,7 @@ import {
 } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ProviderProfileModal } from '@/components/customer/ProviderProfileModal';
 
 export default function RequestDetailsPage() {
   const params = useParams();
@@ -73,6 +74,9 @@ export default function RequestDetailsPage() {
   const [newTimeSlot, setNewTimeSlot] = useState('');
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
+  // Provider profile modal
+  const [providerModalOpen, setProviderModalOpen] = useState(false);
+
   useEffect(() => {
     if (id) {
       loadRequest();
@@ -91,7 +95,6 @@ export default function RequestDetailsPage() {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && id) {
-        console.log('[Request Details] Page visible, reloading reviews...');
         loadReviews();
       }
     };
@@ -106,10 +109,8 @@ export default function RequestDetailsPage() {
   const loadReviews = async () => {
     try {
       setReviewsLoading(true);
-      console.log('[Request Details] Loading reviews for request:', id);
 
       const response = await customerApi.getMyReviews();
-      console.log('[Request Details] Reviews API response:', response);
 
       // Handle different response formats
       let reviewsData: any[] = [];
@@ -124,12 +125,9 @@ export default function RequestDetailsPage() {
       // Filter out any invalid reviews
       const validReviews = reviewsData.filter(review => review && review.id);
 
-      console.log('[Request Details] Valid reviews loaded:', validReviews.length);
-      console.log('[Request Details] Review IDs:', validReviews.map(r => r.id));
 
       setReviews(validReviews);
     } catch (error) {
-      console.error('[Request Details] Error loading reviews:', error);
       setReviews([]);
     } finally {
       setReviewsLoading(false);
@@ -146,11 +144,9 @@ export default function RequestDetailsPage() {
       // Invoice doesn't exist - this is okay for services completed before payment integration
       // Silently handle 404 errors for old completed services
       if (error?.response?.status === 404) {
-        console.log('[Request Details] No invoice found for this request (old completed service)');
         setInvoice(null);
       } else {
         // Only log other errors
-        console.error('[Request Details] Error loading invoice:', error?.response?.data?.message || error.message);
         setInvoice(null);
       }
     } finally {
@@ -219,7 +215,6 @@ export default function RequestDetailsPage() {
 
           setProvider({ ...providerData, completedJobs: completedJobsCount });
         } catch (providerError) {
-          console.warn('[Request Details] Failed to fetch provider:', providerError);
           // Continue even if provider fetch fails - show placeholder
         }
       }
@@ -230,14 +225,11 @@ export default function RequestDetailsPage() {
       }
       setNewTimeSlot(data.scheduledTimeSlot || 'morning');
     } catch (error: any) {
-      console.error('[Request Details] Error loading request:', error);
 
       // Show more detailed error info
       const errorMessage = error?.response?.data?.message || error?.response?.data || error?.message || 'Failed to load request details';
       const status = error?.response?.status;
 
-      console.error('[Request Details] Error status:', status);
-      console.error('[Request Details] Error data:', error?.response?.data);
 
       toast.error(`${errorMessage}${status ? ` (Status: ${status})` : ''}`);
       setRequest(null);
@@ -259,7 +251,6 @@ export default function RequestDetailsPage() {
       setCancelDialogOpen(false);
       loadRequest(); // Reload to get updated data
     } catch (error: any) {
-      console.error('Error cancelling request:', error);
       const message = error?.response?.data?.message || error?.message || 'Failed to cancel request';
       toast.error(message);
     } finally {
@@ -285,7 +276,6 @@ export default function RequestDetailsPage() {
       setRescheduleDialogOpen(false);
       loadRequest(); // Reload to get updated data
     } catch (error: any) {
-      console.error('Error rescheduling request:', error);
       const message = error?.response?.data?.message || error?.message || 'Failed to reschedule request';
       toast.error(message);
     } finally {
@@ -328,7 +318,6 @@ export default function RequestDetailsPage() {
         year: 'numeric',
       });
     } catch (error) {
-      console.error('Date formatting error:', error, dateString);
       return 'Invalid Date';
     }
   };
@@ -759,15 +748,23 @@ export default function RequestDetailsPage() {
 
           {/* Provider Info */}
           {provider ? (
-            <div className="bg-white rounded-2xl shadow-xl border border-sky-100 overflow-hidden">
+            <div
+              onClick={() => setProviderModalOpen(true)}
+              className="bg-white rounded-2xl shadow-xl border border-sky-100 overflow-hidden cursor-pointer hover:shadow-2xl transition-shadow duration-300"
+            >
               {/* Gradient Header */}
               <div className="bg-linear-to-br from-sky-500 via-blue-500 to-indigo-600 p-4 sm:p-6 pb-6 sm:pb-8 text-white relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
 
                 <div className="relative z-10">
-                  <div className="flex items-center gap-2 mb-3 sm:mb-4">
-                    <User className="h-4 w-4 sm:h-5 sm:w-5" />
-                    <h3 className="text-base sm:text-lg font-bold">Service Provider</h3>
+                  <div className="flex items-center justify-between mb-3 sm:mb-4">
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <h3 className="text-base sm:text-lg font-bold">Service Provider</h3>
+                    </div>
+                    <span className="text-xs bg-white/20 backdrop-blur-sm px-2 py-1 rounded-lg border border-white/30">
+                      View Profile →
+                    </span>
                   </div>
 
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
@@ -1054,7 +1051,6 @@ export default function RequestDetailsPage() {
                     review.requestId === request.id || review.serviceRequestId === request.id
                   );
 
-                  console.log('[Request Details] Found review for request:', requestReview ? requestReview.id : 'none');
 
                   if (requestReview) {
                     return (
@@ -1416,6 +1412,15 @@ export default function RequestDetailsPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Provider Profile Modal */}
+      {provider && (
+        <ProviderProfileModal
+          providerId={provider.id}
+          open={providerModalOpen}
+          onClose={() => setProviderModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

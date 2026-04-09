@@ -117,7 +117,6 @@ export default function CustomerRequestsPage() {
 
       setRequests(data);
     } catch (error) {
-      console.error("Error loading requests:", error);
       toast.error("Failed to load service requests");
       setRequests([]);
     } finally {
@@ -165,7 +164,6 @@ export default function CustomerRequestsPage() {
         year: "numeric",
       });
     } catch (error) {
-      console.error("Date formatting error:", error, dateString);
       return "Invalid Date";
     }
   };

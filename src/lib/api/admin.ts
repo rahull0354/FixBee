@@ -108,6 +108,10 @@ export const adminApi = {
     return apiClient.get('/payments/stats');
   },
 
+  getProviderEarnings: async () => {
+    return apiClient.get('/author/providers/earnings');
+  },
+
   getAllPayments: async (params?: { page?: number; limit?: number }) => {
     const config = params ? { params } : undefined;
     return apiClient.get('/payments/history', config);

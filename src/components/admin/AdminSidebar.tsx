@@ -12,6 +12,7 @@ import {
   Settings,
   Shield,
   X,
+  IndianRupee,
 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 
@@ -26,7 +27,7 @@ const navigation = [
   { name: 'Providers', href: '/admin/providers', icon: Building2 },
   { name: 'Customers', href: '/admin/customers', icon: Users },
   { name: 'Reviews', href: '/admin/reviews', icon: MessageSquare },
-  { name: 'Payments', href: '/admin/payments', icon: DollarSign },
+  { name: 'Payments', href: '/admin/payments', icon: IndianRupee },
   { name: 'Settings', href: '/admin/settings', icon: Settings },
 ];
 
