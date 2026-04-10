@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Menu, Bell, Search, User, LogOut, ChevronDown, Check, Loader2, Briefcase, Star, Tag, Info } from "lucide-react";
+import { Menu, Bell, Search, User, LogOut, ChevronDown, Check, Loader2, Briefcase, Star, Tag, Info, Settings } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { customerApi } from "@/lib/api";
 import { toast } from "sonner";
@@ -165,6 +165,11 @@ export function CustomerHeader({ user, onMenuClick, pusherUnreadCount = 0 }: Cus
   const handleProfileClick = () => {
     setShowDropdown(false);
     router.push("/customer/profile");
+  };
+
+  const handleSettingsClick = () => {
+    setShowDropdown(false);
+    router.push("/customer/settings");
   };
 
   return (
@@ -387,6 +392,15 @@ export function CustomerHeader({ user, onMenuClick, pusherUnreadCount = 0 }: Cus
                   >
                     <User className="h-4 w-4" />
                     <span className="text-sm font-medium">Profile</span>
+                  </button>
+
+                  {/* Settings Button */}
+                  <button
+                    onClick={handleSettingsClick}
+                    className="flex items-center gap-3 w-full px-4 py-3 text-gray-700 hover:bg-sky-50 transition-colors"
+                  >
+                    <Settings className="h-4 w-4" />
+                    <span className="text-sm font-medium">Settings</span>
                   </button>
 
                   <div className="border-t border-sky-100 my-1" />

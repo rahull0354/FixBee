@@ -247,7 +247,7 @@ export default function NewCategoryPage() {
         <div className="space-y-1">
           <Link
             href="/admin/categories"
-            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+            className="inline-flex items-center gap-2 text-violet-600 hover:text-violet-700 font-semibold transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Categories
@@ -264,11 +264,11 @@ export default function NewCategoryPage() {
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Basic Information */}
-        <div className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-lg border border-violet-100 overflow-hidden">
           {/* Card Header */}
-          <div className="bg-linear-to-r from-blue-50 to-blue-50 px-6 py-4 border-b border-blue-100">
+          <div className="bg-linear-to-r from-violet-50 to-fuchsia-50 px-6 py-4 border-b border-violet-100">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 bg-linear-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="h-10 w-10 bg-linear-to-br from-violet-400 to-fuchsia-600 rounded-xl flex items-center justify-center shadow-lg">
                 <FolderKanban className="h-5 w-5 text-white" />
               </div>
               <h2 className="text-lg font-bold text-gray-900">
@@ -293,7 +293,7 @@ export default function NewCategoryPage() {
                   onChange={handleChange}
                   placeholder="e.g., Plumbing"
                   required
-                  className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 h-12"
+                  className="border-violet-200 focus:border-violet-400 focus:ring-blue-400 h-12"
                 />
               </div>
 
@@ -321,7 +321,7 @@ export default function NewCategoryPage() {
                 onChange={handleChange}
                 placeholder="e.g., plumbing"
                 required
-                className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 font-mono h-12"
+                className="border-violet-200 focus:border-violet-400 focus:ring-blue-400 font-mono h-12"
               />
               <p className="text-xs text-gray-500">
                 URL-friendly version of the name (auto-generated)
@@ -343,14 +343,14 @@ export default function NewCategoryPage() {
                 onChange={handleChange}
                 placeholder="Describe this category..."
                 rows={3}
-                className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 resize-none"
+                className="border-violet-200 focus:border-violet-400 focus:ring-blue-400 resize-none"
               />
             </div>
           </div>
         </div>
 
         {/* Pricing */}
-        <div className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-lg border border-violet-100 overflow-hidden">
           {/* Card Header */}
           <div className="bg-linear-to-r from-emerald-50 to-teal-50 px-6 py-4 border-b border-emerald-100">
             <div className="flex items-center gap-3">
@@ -380,7 +380,7 @@ export default function NewCategoryPage() {
                   placeholder="0"
                   min="0"
                   step="0.01"
-                  className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 mt-1.5 h-12"
+                  className="border-violet-200 focus:border-violet-400 focus:ring-blue-400 mt-1.5 h-12"
                 />
               </div>
 
@@ -400,7 +400,7 @@ export default function NewCategoryPage() {
                   placeholder="0"
                   min="0"
                   step="0.01"
-                  className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 mt-1.5 h-12"
+                  className="border-violet-200 focus:border-violet-400 focus:ring-blue-400 mt-1.5 h-12"
                 />
               </div>
 
@@ -417,7 +417,7 @@ export default function NewCategoryPage() {
                   value={formData.priceRangeUnit}
                   onChange={handleChange}
                   placeholder="e.g., per visit"
-                  className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 mt-1.5 h-12"
+                  className="border-violet-200 focus:border-violet-400 focus:ring-blue-400 mt-1.5 h-12"
                 />
               </div>
             </div>
@@ -425,11 +425,11 @@ export default function NewCategoryPage() {
         </div>
 
         {/* Commission Type */}
-        <div className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-lg border border-violet-100 overflow-hidden">
           {/* Card Header */}
-          <div className="bg-linear-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-blue-100">
+          <div className="bg-linear-to-r from-violet-50 to-indigo-50 px-6 py-4 border-b border-violet-100">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 bg-linear-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="h-10 w-10 bg-linear-to-br from-violet-400 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
                 <Percent className="h-5 w-5 text-white" />
               </div>
               <h2 className="text-lg font-bold text-gray-900">
@@ -453,25 +453,25 @@ export default function NewCategoryPage() {
                   handleSelectChange("commissionType", value)
                 }
               >
-                <SelectTrigger className="w-full border-blue-200 bg-white shadow-sm hover:shadow-md transition-shadow focus:border-blue-400 focus:ring-blue-400 h-12 mt-1.5">
+                <SelectTrigger className="w-full border-violet-200 bg-white shadow-sm hover:shadow-md transition-shadow focus:border-violet-400 focus:ring-blue-400 h-12 mt-1.5">
                   <SelectValue placeholder="Select commission type" />
                 </SelectTrigger>
-                <SelectContent className="bg-white border border-blue-200 shadow-lg">
+                <SelectContent className="bg-white border border-violet-200 shadow-lg">
                   <SelectItem
                     value="percentage"
-                    className="hover:bg-blue-50 focus:bg-blue-100 cursor-pointer"
+                    className="hover:bg-violet-50 focus:bg-violet-100 cursor-pointer"
                   >
                     Percentage Based
                   </SelectItem>
                   <SelectItem
                     value="fixed"
-                    className="hover:bg-blue-50 focus:bg-blue-100 cursor-pointer"
+                    className="hover:bg-violet-50 focus:bg-violet-100 cursor-pointer"
                   >
                     Fixed Amount
                   </SelectItem>
                   <SelectItem
                     value="tiered"
-                    className="hover:bg-blue-50 focus:bg-blue-100 cursor-pointer"
+                    className="hover:bg-violet-50 focus:bg-violet-100 cursor-pointer"
                   >
                     Tiered Commission
                   </SelectItem>
@@ -502,7 +502,7 @@ export default function NewCategoryPage() {
                   max="100"
                   step="0.01"
                   required
-                  className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 mt-1.5 h-12"
+                  className="border-violet-200 focus:border-violet-400 focus:ring-blue-400 mt-1.5 h-12"
                 />
                 <p className="text-xs text-gray-500 mt-1.5">
                   Enter the percentage commission (e.g., 20 for 20%)
@@ -528,7 +528,7 @@ export default function NewCategoryPage() {
                   min="0"
                   step="0.01"
                   required
-                  className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 mt-1.5 h-12"
+                  className="border-violet-200 focus:border-violet-400 focus:ring-blue-400 mt-1.5 h-12"
                 />
                 <p className="text-xs text-gray-500 mt-1.5">
                   Enter the fixed commission amount in rupees
@@ -538,9 +538,9 @@ export default function NewCategoryPage() {
 
             {formData.commissionType === "tiered" && (
               <div className="space-y-4">
-                <p className="text-sm text-gray-600 bg-blue-50 border border-blue-200 rounded-xl p-3">
-                  <span className="font-semibold text-blue-900">Hybrid Commission:</span> Combines a fixed amount with a percentage of the provider rate.
-                  Formula: <span className="font-mono text-blue-700">Fixed Amount + (Provider Rate × Percentage %)</span>
+                <p className="text-sm text-gray-600 bg-violet-50 border border-violet-200 rounded-xl p-3">
+                  <span className="font-semibold text-violet-900">Hybrid Commission:</span> Combines a fixed amount with a percentage of the provider rate.
+                  Formula: <span className="font-mono text-violet-700">Fixed Amount + (Provider Rate × Percentage %)</span>
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -558,7 +558,7 @@ export default function NewCategoryPage() {
                       min="0"
                       step="0.01"
                       required
-                      className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 mt-1.5 h-12"
+                      className="border-violet-200 focus:border-violet-400 focus:ring-blue-400 mt-1.5 h-12"
                     />
                     <p className="text-xs text-gray-500 mt-1.5">
                       Base fixed commission amount
@@ -580,7 +580,7 @@ export default function NewCategoryPage() {
                       max="100"
                       step="0.01"
                       required
-                      className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 mt-1.5 h-12"
+                      className="border-violet-200 focus:border-violet-400 focus:ring-blue-400 mt-1.5 h-12"
                     />
                     <p className="text-xs text-gray-500 mt-1.5">
                       Percentage of provider rate to add
@@ -602,7 +602,7 @@ export default function NewCategoryPage() {
                       placeholder="e.g., 50"
                       min="0"
                       step="0.01"
-                      className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 mt-1.5 h-12"
+                      className="border-violet-200 focus:border-violet-400 focus:ring-blue-400 mt-1.5 h-12"
                     />
                     <p className="text-xs text-gray-500 mt-1.5">
                       Minimum commission to charge (optional)
@@ -622,7 +622,7 @@ export default function NewCategoryPage() {
                       placeholder="e.g., 500"
                       min="0"
                       step="0.01"
-                      className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 mt-1.5 h-12"
+                      className="border-violet-200 focus:border-violet-400 focus:ring-blue-400 mt-1.5 h-12"
                     />
                     <p className="text-xs text-gray-500 mt-1.5">
                       Maximum commission to charge (optional)
@@ -658,7 +658,7 @@ export default function NewCategoryPage() {
         </div>
 
         {/* Required Skills */}
-        <div className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-lg border border-violet-100 overflow-hidden">
           {/* Card Header */}
           <div className="bg-linear-to-r from-violet-50 to-purple-50 px-6 py-4 border-b border-violet-100">
             <div className="flex items-center gap-3">
@@ -691,7 +691,7 @@ export default function NewCategoryPage() {
                   onKeyPress={(e) =>
                     e.key === "Enter" && (e.preventDefault(), addSkill())
                   }
-                  className="flex-1 border-blue-200 focus:border-blue-400 focus:ring-blue-400 h-12"
+                  className="flex-1 border-violet-200 focus:border-violet-400 focus:ring-blue-400 h-12"
                 />
                 <Button
                   type="button"
@@ -728,7 +728,7 @@ export default function NewCategoryPage() {
         </div>
 
         {/* Common Services */}
-        <div className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-lg border border-violet-100 overflow-hidden">
           {/* Card Header */}
           <div className="bg-linear-to-r from-amber-50 to-orange-50 px-6 py-4 border-b border-amber-100">
             <div className="flex items-center justify-between">
@@ -769,10 +769,10 @@ export default function NewCategoryPage() {
                 {formData.commonServices.map((service, index) => (
                   <div
                     key={index}
-                    className="border border-blue-100 rounded-xl p-4 hover:border-blue-200 transition-colors"
+                    className="border border-violet-100 rounded-xl p-4 hover:border-violet-200 transition-colors"
                   >
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-semibold text-gray-900 bg-blue-50 px-3 py-1 rounded-full">
+                      <span className="text-sm font-semibold text-gray-900 bg-violet-50 px-3 py-1 rounded-full">
                         Service #{index + 1}
                       </span>
                       <Button
@@ -797,7 +797,7 @@ export default function NewCategoryPage() {
                             updateCommonService(index, "name", e.target.value)
                           }
                           placeholder="e.g., Faucet Repair"
-                          className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 mt-1.5 h-12"
+                          className="border-violet-200 focus:border-violet-400 focus:ring-blue-400 mt-1.5 h-12"
                         />
                       </div>
 
@@ -818,7 +818,7 @@ export default function NewCategoryPage() {
                           placeholder="500"
                           min="0"
                           step="0.01"
-                          className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 mt-1.5 h-12"
+                          className="border-violet-200 focus:border-violet-400 focus:ring-blue-400 mt-1.5 h-12"
                         />
                       </div>
 
@@ -836,7 +836,7 @@ export default function NewCategoryPage() {
                             )
                           }
                           placeholder="e.g., 1-2 hours"
-                          className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 mt-1.5 h-12"
+                          className="border-violet-200 focus:border-violet-400 focus:ring-blue-400 mt-1.5 h-12"
                         />
                       </div>
                     </div>
@@ -848,13 +848,13 @@ export default function NewCategoryPage() {
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-end gap-4 bg-white rounded-2xl shadow-lg border border-blue-100 p-6">
+        <div className="flex items-center justify-end gap-4 bg-white rounded-2xl shadow-lg border border-violet-100 p-6">
           <Link href="/admin/categories">
             <Button
               type="button"
               variant="outline"
               disabled={submitting}
-              className="border-blue-200 text-blue-700 hover:bg-blue-50"
+              className="border-violet-200 text-violet-700 hover:bg-violet-50"
             >
               Cancel
             </Button>
@@ -862,7 +862,7 @@ export default function NewCategoryPage() {
           <Button
             type="submit"
             disabled={submitting}
-            className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg shadow-blue-200"
+            className="bg-linear-to-r from-violet-500 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-700 text-white shadow-lg shadow-blue-200"
           >
             {submitting ? (
               <>
@@ -1027,11 +1027,11 @@ function IconPicker({ value, onChange }: IconPickerProps) {
         <Button
           type="button"
           variant="outline"
-          className="w-full justify-start border-blue-200 bg-white shadow-sm hover:shadow-md transition-shadow h-12 px-3 py-2"
+          className="w-full justify-start border-violet-200 bg-white shadow-sm hover:shadow-md transition-shadow h-12 px-3 py-2"
         >
           {SelectedIcon ? (
             <div className="flex items-center gap-2 truncate">
-              <SelectedIcon className="h-5 w-5 text-blue-600 shrink-0" />
+              <SelectedIcon className="h-5 w-5 text-violet-600 shrink-0" />
               <span className="text-sm truncate">{value}</span>
             </div>
           ) : (
@@ -1048,13 +1048,13 @@ function IconPicker({ value, onChange }: IconPickerProps) {
 
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-violet-500" />
           <Input
             type="text"
             placeholder="Search icons..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-10 border-blue-200 focus:border-blue-400 focus:ring-blue-400"
+            className="pl-10 border-violet-200 focus:border-violet-400 focus:ring-blue-400"
           />
         </div>
 
@@ -1080,13 +1080,13 @@ function IconPicker({ value, onChange }: IconPickerProps) {
                     flex items-center justify-center p-3 rounded-xl border-2 transition-all
                     ${
                       isSelected
-                        ? "border-blue-500 bg-blue-50 shadow-lg"
-                        : "border-gray-200 hover:border-blue-300 hover:bg-blue-50"
+                        ? "border-violet-500 bg-violet-50 shadow-lg"
+                        : "border-gray-200 hover:border-violet-300 hover:bg-violet-50"
                     }
                   `}
                   title={iconName}
                 >
-                  <IconComponent className="h-5 w-5 text-blue-600" />
+                  <IconComponent className="h-5 w-5 text-violet-600" />
                 </button>
               );
             })}
@@ -1103,10 +1103,10 @@ function IconPicker({ value, onChange }: IconPickerProps) {
 
         {/* Selected Icon Display */}
         {value && (
-          <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <div className="mt-4 p-4 bg-violet-50 rounded-xl border border-violet-200">
             <div className="flex items-center gap-3">
               {SelectedIcon && (
-                <SelectedIcon className="h-6 w-6 text-blue-600" />
+                <SelectedIcon className="h-6 w-6 text-violet-600" />
               )}
               <div>
                 <p className="text-sm font-medium text-gray-900">

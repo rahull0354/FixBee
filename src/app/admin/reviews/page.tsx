@@ -227,30 +227,30 @@ export default function AdminReviewsPage() {
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white rounded-2xl shadow-lg border border-blue-100 p-4 sm:p-6">
+      <div className="bg-white rounded-2xl shadow-lg border border-violet-100 p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row gap-4">
           {/* Search */}
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-violet-500" />
             <Input
               type="text"
               placeholder="Search reviews..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 border-blue-200 focus:border-blue-400 focus:ring-blue-400"
+              className="pl-10 border-violet-200 focus:border-violet-400 focus:ring-blue-400"
             />
           </div>
 
           {/* Status Filter */}
           <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
-            <SelectTrigger className="w-full sm:w-48 border-blue-200 bg-white shadow-sm hover:shadow-md transition-shadow focus:border-blue-400 focus:ring-blue-400">
+            <SelectTrigger className="w-full sm:w-48 border-violet-200 bg-white shadow-sm hover:shadow-md transition-shadow focus:border-violet-400 focus:ring-blue-400">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
-            <SelectContent className="bg-white border border-blue-200 shadow-lg">
-              <SelectItem value="all" className="hover:bg-blue-50 focus:bg-blue-100 cursor-pointer">All Reviews</SelectItem>
-              <SelectItem value="flagged" className="hover:bg-blue-50 focus:bg-blue-100 cursor-pointer">Flagged</SelectItem>
-              <SelectItem value="visible" className="hover:bg-blue-50 focus:bg-blue-100 cursor-pointer">Visible</SelectItem>
-              <SelectItem value="hidden" className="hover:bg-blue-50 focus:bg-blue-100 cursor-pointer">Hidden</SelectItem>
+            <SelectContent className="bg-white border border-violet-200 shadow-lg">
+              <SelectItem value="all" className="hover:bg-violet-50 focus:bg-violet-100 cursor-pointer">All Reviews</SelectItem>
+              <SelectItem value="flagged" className="hover:bg-violet-50 focus:bg-violet-100 cursor-pointer">Flagged</SelectItem>
+              <SelectItem value="visible" className="hover:bg-violet-50 focus:bg-violet-100 cursor-pointer">Visible</SelectItem>
+              <SelectItem value="hidden" className="hover:bg-violet-50 focus:bg-violet-100 cursor-pointer">Hidden</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -263,7 +263,7 @@ export default function AdminReviewsPage() {
             {reviews.map((review) => (
               <div
                 key={review.id}
-                className="group bg-white rounded-2xl shadow-md border border-blue-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full flex flex-col"
+                className="group bg-white rounded-2xl shadow-md border border-violet-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full flex flex-col"
               >
                 <div className="relative">
                   {/* Background with contextual image */}
@@ -276,7 +276,7 @@ export default function AdminReviewsPage() {
                       }}
                     />
                     {/* Gradient overlay for better contrast */}
-                    <div className="absolute inset-0 bg-linear-to-br from-blue-50/50 to-indigo-50/50" />
+                    <div className="absolute inset-0 bg-linear-to-br from-violet-50/50 to-indigo-50/50" />
 
                     {/* Status Badge - Top Left */}
                     <div className="absolute top-4 left-4 z-20 flex gap-2">
@@ -325,19 +325,19 @@ export default function AdminReviewsPage() {
                   <div className="absolute top-20 left-6 right-6 z-10 flex items-center justify-center gap-3">
                     {/* Customer */}
                     <div className="text-center">
-                      <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-blue-400 to-blue-600 border-4 border-white shadow-xl flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-violet-400 to-fuchsia-600 border-4 border-white shadow-xl flex items-center justify-center">
                         <span className="text-2xl font-bold text-white">
                           {review.customer?.name?.charAt(0).toUpperCase() || 'U'}
                         </span>
                       </div>
-                      <p className="text-xs font-semibold text-blue-900 mt-1.5 max-w-20 mx-auto leading-tight">
+                      <p className="text-xs font-semibold text-violet-900 mt-1.5 max-w-20 mx-auto leading-tight">
                         {review.customer?.name || 'Unknown'}
                       </p>
                     </div>
 
                     {/* Arrow */}
-                    <div className="bg-white/90 backdrop-blur-sm rounded-full p-1.5 shadow-xl border-2 border-blue-200">
-                      <ArrowRight className="h-5 w-5 text-blue-600" />
+                    <div className="bg-white/90 backdrop-blur-sm rounded-full p-1.5 shadow-xl border-2 border-violet-200">
+                      <ArrowRight className="h-5 w-5 text-violet-600" />
                     </div>
 
                     {/* Provider */}
@@ -365,9 +365,9 @@ export default function AdminReviewsPage() {
                   </div>
 
                   {/* Review Comment - Fixed max height */}
-                  <div className="bg-linear-to-br from-gray-50 to-blue-50/50 rounded-xl p-4 border border-blue-100 mb-4">
+                  <div className="bg-linear-to-br from-gray-50 to-fuchsia-50/50 rounded-xl p-4 border border-violet-100 mb-4">
                     <div className="flex items-start gap-2">
-                      <MessageSquare className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" />
+                      <MessageSquare className="h-4 w-4 text-violet-500 shrink-0 mt-0.5" />
                       <p className="text-sm text-gray-800 italic leading-relaxed line-clamp-4">
                         &quot;{review.comment}&quot;
                       </p>
@@ -395,7 +395,7 @@ export default function AdminReviewsPage() {
                     <Button
                       variant="outline"
                       onClick={() => router.push(`/admin/reviews/${review.id}`)}
-                      className="flex-1 rounded-lg border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 font-medium h-10 text-sm"
+                      className="flex-1 rounded-lg border-violet-200 text-violet-700 hover:bg-violet-50 hover:border-violet-300 font-medium h-10 text-sm"
                     >
                       View Details
                     </Button>
@@ -406,7 +406,7 @@ export default function AdminReviewsPage() {
                       className={`flex-1 rounded-lg font-medium h-10 text-sm transition-all duration-200 ${
                         review.isVisible
                           ? 'border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
-                          : 'border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300'
+                          : 'border-violet-200 text-violet-700 hover:bg-violet-50 hover:border-violet-300'
                       }`}
                     >
                       {processing === review.id ? (
@@ -431,7 +431,7 @@ export default function AdminReviewsPage() {
 
           {/* Pagination Controls */}
           {totalPages > 1 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-2xl shadow-lg border border-blue-100 p-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-2xl shadow-lg border border-violet-100 p-4">
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <span>Showing</span>
                 <span className="font-semibold text-gray-900">
@@ -452,7 +452,7 @@ export default function AdminReviewsPage() {
                   size="sm"
                   onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                   disabled={currentPage === 1}
-                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                  className="border-violet-200 text-violet-700 hover:bg-violet-50"
                 >
                   Previous
                 </Button>
@@ -478,8 +478,8 @@ export default function AdminReviewsPage() {
                         onClick={() => setCurrentPage(pageNum)}
                         className={
                           currentPage === pageNum
-                            ? "bg-blue-600 text-white hover:bg-blue-700"
-                            : "border-blue-200 text-blue-700 hover:bg-blue-50"
+                            ? "bg-violet-600 text-white hover:bg-violet-700"
+                            : "border-violet-200 text-violet-700 hover:bg-violet-50"
                         }
                       >
                         {pageNum}
@@ -493,7 +493,7 @@ export default function AdminReviewsPage() {
                   size="sm"
                   onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                   disabled={currentPage === totalPages}
-                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                  className="border-violet-200 text-violet-700 hover:bg-violet-50"
                 >
                   Next
                 </Button>
@@ -507,7 +507,7 @@ export default function AdminReviewsPage() {
                     setItemsPerPage(Number(e.target.value));
                     setCurrentPage(1);
                   }}
-                  className="border border-blue-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="border border-violet-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
                   <option value={10}>10</option>
                   <option value={20}>20</option>
@@ -535,8 +535,8 @@ function EmptyState({
 }) {
   return (
     <div className="text-center py-12 sm:py-16">
-      <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-blue-100 rounded-full mb-4 sm:mb-6">
-        <MessageSquare className="h-8 w-8 sm:h-10 sm:w-10 text-blue-500" />
+      <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-violet-100 rounded-full mb-4 sm:mb-6">
+        <MessageSquare className="h-8 w-8 sm:h-10 sm:w-10 text-violet-500" />
       </div>
       <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">
         {searchQuery || statusFilter !== 'all' ? 'No reviews found' : 'No reviews yet'}

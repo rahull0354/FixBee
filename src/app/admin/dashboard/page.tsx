@@ -203,7 +203,7 @@ const ChartWrapper = ({
         className="flex items-center justify-center bg-slate-50 rounded-2xl"
         style={{ minHeight: "320px" }}
       >
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-violet-500" />
       </div>
     );
   }
@@ -215,7 +215,7 @@ const ChartWrapper = ({
 function GlowCard({
   children,
   className = "",
-  gradient = "from-blue-500/20 to-cyan-500/20",
+  gradient = "from-violet-500/20 to-fuchsia-500/20",
   delay = 0,
 }: {
   children: React.ReactNode;
@@ -230,15 +230,24 @@ function GlowCard({
         animation: `fadeInUp 0.6s ease-out ${delay}ms both`,
       }}
     >
-      {/* Ambient glow effect */}
+      {/* Multi-layered glow effect */}
+      <div className="absolute inset-0 bg-linear-to-br from-gray-100 to-gray-50 rounded-2xl sm:rounded-3xl blur-2xl opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
       <div
-        className={`absolute inset-0 bg-linear-to-br ${gradient} rounded-2xl sm:rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+        className={`absolute inset-0 bg-linear-to-br ${gradient} rounded-2xl sm:rounded-3xl blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-500`}
       />
-      {/* Main card */}
-      <div className="relative bg-white/80 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-lg border border-white/50 overflow-hidden">
-        {/* Subtle gradient overlay */}
-        <div className="absolute inset-0 bg-linear-to-br from-white/50 to-transparent pointer-events-none" />
-        <div className="relative p-4 sm:p-6">{children}</div>
+
+      {/* Main card with enhanced styling */}
+      <div className="relative bg-white/90 backdrop-blur-2xl rounded-2xl sm:rounded-3xl shadow-xl border border-white/60 overflow-hidden group-hover:shadow-2xl transition-shadow duration-300">
+        {/* Animated gradient border */}
+        <div className="absolute inset-0 rounded-2xl sm:rounded-3xl bg-linear-to-br from-violet-500/10 via-purple-500/10 to-fuchsia-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+        {/* Subtle inner glow */}
+        <div className="absolute inset-0 bg-linear-to-br from-white/80 via-transparent to-white/40 pointer-events-none" />
+
+        {/* Decorative corner accent */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-bl from-violet-500/5 via-transparent to-transparent rounded-bl-full" />
+
+        <div className="relative p-3 sm:p-4 lg:p-6">{children}</div>
       </div>
     </div>
   );
@@ -879,100 +888,159 @@ export default function AdminDashboardPage() {
     <div className="min-h-screen bg-linear-to-br">
       {/* Decorative Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 right-0 w-150 h-150 bg-linear-to-br from-blue-400/10 to-cyan-400/10 rounded-full blur-3xl" />
+        <div className="absolute top-0 right-0 w-150 h-150 bg-linear-to-br from-violet-400/10 to-fuchsia-400/10 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 w-150 h-150 bg-linear-to-tr from-indigo-400/10 to-purple-400/10 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative z-10 p-4 sm:p-6 lg:p-8 max-w-450 mx-auto space-y-6 sm:space-y-8">
-        {/* Hero Section - Distinctive Typography */}
-        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-linear-to-br from-blue-600 via-blue-700 to-indigo-800 p-6 sm:p-8 lg:p-12 shadow-2xl">
-          {/* Decorative Pattern */}
-          <div className="absolute inset-0 opacity-10">
-            <div
-              className="absolute inset-0"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-              }}
-            />
+      <div className="relative z-10 p-3 sm:p-4 lg:p-6 max-w-450 mx-auto space-y-3 sm:space-y-4 lg:space-y-6">
+        {/* Hero Section - Redesigned with Unique Layout */}
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-linear-to-br from-violet-600 via-purple-700 to-fuchsia-800 p-3 sm:p-4 lg:p-5 shadow-2xl">
+          {/* Animated Background Pattern */}
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute inset-0">
+              <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl animate-pulse" />
+              <div className="absolute bottom-0 right-0 w-96 h-96 bg-fuchsia-300 rounded-full blur-3xl animate-pulse delay-1000" />
+            </div>
+          </div>
+
+          {/* Geometric Decorative Elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-24 -right-24 w-48 h-48 border-4 border-white/10 rounded-full" />
+            <div className="absolute -top-32 -right-32 w-64 h-64 border-2 border-white/5 rounded-full" />
+            <div className="absolute -bottom-16 -left-16 w-32 h-32 border-4 border-white/10 rounded-full" />
+            <div className="absolute top-1/2 right-10 w-2 h-2 bg-white/20 rounded-full" />
+            <div className="absolute top-1/3 right-20 w-1.5 h-1.5 bg-white/15 rounded-full" />
+            <div className="absolute bottom-1/3 left-16 w-2.5 h-2.5 bg-white/10 rounded-full" />
           </div>
 
           <div className="relative z-10">
-            {/* Greeting with distinctive font styling */}
-            <div className="mb-4 sm:mb-6">
-              <p className="text-blue-200 text-xs sm:text-sm font-medium tracking-wider uppercase mb-2">
-                Admin Dashboard
-              </p>
-              <h1
-                className="text-2xl sm:text-3xl lg:text-5xl font-bold text-white mb-2 sm:mb-3"
-                style={{
-                  fontFamily: "'Clash Display', 'Inter', sans-serif",
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                Welcome back, {user?.name?.split(" ")[0] || "Admin"}!
-              </h1>
-              <p className="text-blue-100 text-sm sm:text-base lg:text-lg max-w-2xl">
-                Monitor your platform's performance and growth with
-                comprehensive analytics
-              </p>
+            {/* Header Section with Modern Layout */}
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3 sm:mb-4">
+              {/* Left: Greeting */}
+              <div className="flex-1">
+                <h1
+                  className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-1 sm:mb-2 leading-tight"
+                  style={{
+                    fontFamily: "'Clash Display', 'Inter', sans-serif",
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  Welcome back,&nbsp;
+                  <br className="sm:hidden" />
+                  <span className="bg-linear-to-r from-violet-200 via-purple-200 to-fuchsia-200 bg-clip-text text-transparent">
+                    {user?.name?.split(" ")[0] || "Admin"}!
+                  </span>
+                </h1>
+
+                <p className="text-violet-100 text-xs sm:text-sm max-w-xl hidden sm:block">
+                  Monitor your platform's performance with real-time analytics and insights
+                </p>
+              </div>
+
+              {/* Right: Date & Time */}
+              <div className="hidden sm:block">
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2 sm:p-3 border border-white/20">
+                  <p className="text-white/70 text-xs font-medium uppercase tracking-wider mb-1">
+                    {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
+                  </p>
+                  <p className="text-white text-sm sm:text-base lg:text-lg font-bold">
+                    {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            {/* Quick Stats Row */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 lg:gap-4 mt-4 sm:mt-6 lg:mt-8">
-              <QuickStat
-                label="Total Revenue"
-                value={`₹${(totalRevenue / 100000).toFixed(1)}L`}
-                trend={
-                  distributableAmount > 0
-                    ? `${adminPercentage.toFixed(0)}% commission`
-                    : undefined
-                }
-                trendDirection="up"
-              />
-              <QuickStat
-                label="Active Providers"
-                value={stats?.activeProviders || 0}
-                trend={
-                  stats?.totalProviders && stats?.activeProviders
-                    ? `${((stats?.activeProviders / stats?.totalProviders) * 100).toFixed(0)}% active`
-                    : undefined
-                }
-                trendDirection="up"
-              />
-              <QuickStat
-                label="Completion Rate"
-                value={`${completionRate}%`}
-                trend={
-                  parseFloat(completionRate as string) > 70
-                    ? "+Excellent"
-                    : undefined
-                }
-                trendDirection="up"
-              />
-              <QuickStat
-                label="Total Requests"
-                value={stats?.totalRequests || 0}
-                trend={
-                  stats?.totalRequests && stats?.completedRequests
-                    ? `${((stats?.completedRequests / stats?.totalRequests) * 100).toFixed(0)}% completed`
-                    : undefined
-                }
-                trendDirection="up"
-              />
+            {/* Quick Stats - Modern Card Layout */}
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
+              <div className="relative overflow-hidden bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2 sm:p-3 border border-white/20">
+                <div className="absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 bg-linear-to-br from-white/10 to-transparent rounded-bl-full" />
+                <div className="relative">
+                  <p className="text-white/70 text-xs font-semibold uppercase tracking-wider mb-1">
+                    Total Revenue
+                  </p>
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-1">
+                    ₹{(totalRevenue / 100000).toFixed(1)}L
+                  </p>
+                  {distributableAmount > 0 && (
+                    <div className="flex items-center gap-1">
+                      <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-emerald-300" />
+                      <p className="text-xs text-emerald-200 font-medium">
+                        {adminPercentage.toFixed(0)}%
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="relative overflow-hidden bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2 sm:p-3 border border-white/20">
+                <div className="absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 bg-linear-to-br from-white/10 to-transparent rounded-bl-full" />
+                <div className="relative">
+                  <p className="text-white/70 text-xs font-semibold uppercase tracking-wider mb-1">
+                    Active Providers
+                  </p>
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-1">
+                    {stats?.activeProviders || 0}
+                  </p>
+                  {stats?.totalProviders && stats?.activeProviders && (
+                    <div className="flex items-center gap-1">
+                      <CheckCircle className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-emerald-300" />
+                      <p className="text-xs text-emerald-200 font-medium">
+                        {((stats?.activeProviders / stats?.totalProviders) * 100).toFixed(0)}%
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="relative overflow-hidden bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2 sm:p-3 border border-white/20">
+                <div className="absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 bg-linear-to-br from-white/10 to-transparent rounded-bl-full" />
+                <div className="relative">
+                  <p className="text-white/70 text-xs font-semibold uppercase tracking-wider mb-1">
+                    Completion Rate
+                  </p>
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-1">
+                    {completionRate}%
+                  </p>
+                  {parseFloat(completionRate as string) > 70 && (
+                    <div className="flex items-center gap-1">
+                      <Sparkles className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-yellow-300" />
+                      <p className="text-xs text-yellow-200 font-medium">Excellent</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="relative overflow-hidden bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2 sm:p-3 border border-white/20">
+                <div className="absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 bg-linear-to-br from-white/10 to-transparent rounded-bl-full" />
+                <div className="relative">
+                  <p className="text-white/70 text-xs font-semibold uppercase tracking-wider mb-1">
+                    Total Requests
+                  </p>
+                  <p className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-1">
+                    {stats?.totalRequests || 0}
+                  </p>
+                  {stats?.totalRequests && stats?.completedRequests && (
+                    <div className="flex items-center gap-1">
+                      <Activity className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-fuchsia-300" />
+                      <p className="text-xs text-fuchsia-200 font-medium">
+                        {((stats?.completedRequests / stats?.totalRequests) * 100).toFixed(0)}%
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Decorative floating elements */}
-          <div className="absolute top-4 sm:top-6 lg:top-8 right-4 sm:right-6 lg:right-8 w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 bg-white/10 rounded-xl sm:rounded-2xl backdrop-blur-sm items-center justify-center animate-pulse hidden sm:flex">
-            <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8 text-white/80" />
-          </div>
+          {/* Bottom Decorative Bar */}
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r from-violet-400 via-fuchsia-400 to-purple-400" />
         </div>
 
         {/* Main Metrics Grid - Staggered Animation */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          <GlowCard delay={0} gradient="from-blue-500/20 to-cyan-500/20">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
+          <GlowCard delay={0} gradient="from-violet-500/20 to-fuchsia-500/20">
             <MetricCard
-              icon={<Users className="h-7 w-7" />}
+              icon={<Users className="h-6 w-6 sm:h-7 sm:w-7" />}
               label="Total Users"
               value={stats?.totalUsers || 0}
               color="blue"
@@ -982,7 +1050,7 @@ export default function AdminDashboardPage() {
 
           <GlowCard delay={100} gradient="from-indigo-500/20 to-purple-500/20">
             <MetricCard
-              icon={<FolderKanban className="h-7 w-7" />}
+              icon={<FolderKanban className="h-6 w-6 sm:h-7 sm:w-7" />}
               label="Categories"
               value={stats?.totalCategories || 0}
               color="indigo"
@@ -990,9 +1058,9 @@ export default function AdminDashboardPage() {
             />
           </GlowCard>
 
-          <GlowCard delay={200} gradient="from-cyan-500/20 to-blue-500/20">
+          <GlowCard delay={200} gradient="from-violet-500/20 to-fuchsia-500/20">
             <MetricCard
-              icon={<Activity className="h-7 w-7" />}
+              icon={<Activity className="h-6 w-6 sm:h-7 sm:w-7" />}
               label="Requests"
               value={stats?.totalRequests || 0}
               color="cyan"
@@ -1002,7 +1070,7 @@ export default function AdminDashboardPage() {
 
           <GlowCard delay={300} gradient="from-emerald-500/20 to-teal-500/20">
             <MetricCard
-              icon={<IndianRupee className="h-7 w-7" />}
+              icon={<IndianRupee className="h-6 w-6 sm:h-7 sm:w-7" />}
               label="Revenue"
               value={stats?.totalRevenue || 0}
               prefix="₹"
@@ -1013,7 +1081,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Charts Section - Row 1 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-3 lg:gap-4">
           <GlowCard delay={400} className="lg:col-span-2">
             <ChartWrapper
               highcharts={Highcharts}
@@ -1037,7 +1105,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Charts Section - Row 2 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-3 lg:gap-4">
           <GlowCard delay={700} className="lg:col-span-1">
             <ChartWrapper highcharts={Highcharts} options={usersBarOptions} />
           </GlowCard>
@@ -1051,17 +1119,17 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Detailed Stats Section */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
           {/* Service Requests Breakdown */}
           <GlowCard delay={900} className="sm:col-span-1">
             <div>
-              <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
-                <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+              <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                <Activity className="h-4 w-4 text-violet-600" />
                 Service Requests
               </h3>
               <div className="space-y-3 sm:space-y-4">
                 <StatusRow
-                  icon={<Clock className="h-4 w-4" />}
+                  icon={<Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
                   label="Pending"
                   value={stats?.pendingRequests || 0}
                   color="amber"
@@ -1069,15 +1137,15 @@ export default function AdminDashboardPage() {
                   textColor="text-amber-700"
                 />
                 <StatusRow
-                  icon={<TrendingUp className="h-4 w-4" />}
+                  icon={<TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
                   label="In Progress"
                   value={stats?.inProgressRequests || 0}
                   color="blue"
-                  bgColor="bg-blue-50"
-                  textColor="text-blue-700"
+                  bgColor="bg-violet-50"
+                  textColor="text-violet-700"
                 />
                 <StatusRow
-                  icon={<CheckCircle className="h-4 w-4" />}
+                  icon={<CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
                   label="Completed"
                   value={stats?.completedRequests || 0}
                   color="emerald"
@@ -1085,7 +1153,7 @@ export default function AdminDashboardPage() {
                   textColor="text-emerald-700"
                 />
                 <StatusRow
-                  icon={<XCircle className="h-4 w-4" />}
+                  icon={<XCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
                   label="Cancelled"
                   value={stats?.cancelledRequests || 0}
                   color="slate"
@@ -1099,13 +1167,13 @@ export default function AdminDashboardPage() {
           {/* Providers Overview */}
           <GlowCard delay={1000} className="sm:col-span-1">
             <div>
-              <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
-                <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-600" />
+              <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                <Building2 className="h-4 w-4 text-indigo-600" />
                 Providers
               </h3>
               <div className="space-y-3 sm:space-y-4">
                 <StatusRow
-                  icon={<CheckCircle className="h-4 w-4" />}
+                  icon={<CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
                   label="Active"
                   value={stats?.activeProviders || 0}
                   color="emerald"
@@ -1113,19 +1181,19 @@ export default function AdminDashboardPage() {
                   textColor="text-emerald-700"
                 />
                 <StatusRow
-                  icon={<XCircle className="h-4 w-4" />}
+                  icon={<XCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
                   label="Suspended"
                   value={stats?.suspendedProviders || 0}
                   color="slate"
                   bgColor="bg-slate-100"
                   textColor="text-slate-700"
                 />
-                <div className="pt-4 border-t border-gray-200 mt-4">
+                <div className="pt-3 sm:pt-4 border-t border-gray-200 mt-3 sm:mt-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-gray-700">
+                    <span className="text-xs sm:text-sm font-semibold text-gray-700">
                       Total Providers
                     </span>
-                    <span className="text-xl sm:text-2xl font-bold text-indigo-600">
+                    <span className="text-lg sm:text-xl lg:text-2xl font-bold text-indigo-600">
                       {stats?.totalProviders || 0}
                     </span>
                   </div>
@@ -1137,8 +1205,8 @@ export default function AdminDashboardPage() {
           {/* Revenue Distribution */}
           <GlowCard delay={1100} className="sm:col-span-2 lg:col-span-1">
             <div>
-              <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
-                <IndianRupee className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600" />
+              <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                <IndianRupee className="h-4 w-4 text-emerald-600" />
                 Revenue Distribution
               </h3>
               <ChartWrapper
@@ -1150,15 +1218,15 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Quick Actions - Distinctive Design */}
-        <GlowCard delay={1200} gradient="from-blue-600/20 to-indigo-600/20">
-          <div className="bg-linear-to-r from-blue-600 to-indigo-700 rounded-2xl p-4 sm:p-6 lg:p-8 text-white">
+        <GlowCard delay={1200} gradient="from-violet-600/20 to-indigo-600/20">
+          <div className="bg-linear-to-r from-violet-600 to-indigo-700 rounded-2xl p-4 sm:p-6 lg:p-8 text-white">
             <div className="flex items-center gap-3 mb-4 sm:mb-6">
               <div className="p-2 sm:p-3 bg-white/20 rounded-xl backdrop-blur-sm">
                 <Zap className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
               <div>
                 <h2 className="text-xl sm:text-2xl font-bold">Quick Actions</h2>
-                <p className="text-blue-100 text-xs sm:text-sm">
+                <p className="text-violet-100 text-xs sm:text-sm">
                   Manage your platform efficiently
                 </p>
               </div>
@@ -1169,7 +1237,7 @@ export default function AdminDashboardPage() {
                 href="/admin/categories"
                 icon={<FolderKanban className="h-4 w-4 sm:h-5 sm:w-5" />}
                 label="Manage Categories"
-                color="from-blue-500 to-blue-600"
+                color="from-violet-500 to-fuchsia-600"
               />
               <ActionButton
                 href="/admin/providers"
@@ -1181,7 +1249,7 @@ export default function AdminDashboardPage() {
                 href="/admin/customers"
                 icon={<Users className="h-4 w-4 sm:h-5 sm:w-5" />}
                 label="View Customers"
-                color="from-cyan-500 to-cyan-600"
+                color="from-violet-500 to-fuchsia-600"
               />
               <ActionButton
                 href="/admin/reviews"
@@ -1234,47 +1302,86 @@ function MetricCard({
   percentageLabel?: string;
 }) {
   const colorStyles = {
-    blue: { iconBg: "bg-blue-100", iconColor: "text-blue-600" },
-    indigo: { iconBg: "bg-indigo-100", iconColor: "text-indigo-600" },
-    cyan: { iconBg: "bg-cyan-100", iconColor: "text-cyan-600" },
-    emerald: { iconBg: "bg-emerald-100", iconColor: "text-emerald-600" },
+    blue: {
+      bgGradient: "from-violet-500 via-purple-500 to-fuchsia-500",
+      iconBg: "bg-white/20",
+      iconColor: "text-white",
+      textColor: "text-violet-700",
+      lightBg: "bg-violet-50",
+    },
+    indigo: {
+      bgGradient: "from-indigo-500 via-purple-500 to-pink-500",
+      iconBg: "bg-white/20",
+      iconColor: "text-white",
+      textColor: "text-indigo-700",
+      lightBg: "bg-indigo-50",
+    },
+    cyan: {
+      bgGradient: "from-cyan-500 via-blue-500 to-indigo-500",
+      iconBg: "bg-white/20",
+      iconColor: "text-white",
+      textColor: "text-cyan-700",
+      lightBg: "bg-cyan-50",
+    },
+    emerald: {
+      bgGradient: "from-emerald-500 via-teal-500 to-green-500",
+      iconBg: "bg-white/20",
+      iconColor: "text-white",
+      textColor: "text-emerald-700",
+      lightBg: "bg-emerald-50",
+    },
   };
 
   const styles = colorStyles[color];
 
   return (
-    <div className="space-y-2 sm:space-y-3">
-      <div
-        className={`p-2 sm:p-3 rounded-lg sm:rounded-xl ${styles.iconBg} w-fit`}
-      >
-        <div
-          className={`h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7 ${styles.iconColor}`}
-        >
-          {icon}
-        </div>
-      </div>
-      <div>
-        <p className="text-xs sm:text-sm font-medium text-gray-600 mb-1">
-          {label}
-        </p>
-        <p
-          className="text-2xl sm:text-3xl font-bold text-gray-900"
-          style={{ fontFamily: "'Clash Display', sans-serif" }}
-        >
-          {prefix}
-          <AnimatedCounter end={value} delay={delay} />
-        </p>
-        {percentage !== undefined && (
-          <div className="mt-2 flex items-center gap-2">
-            <span className="inline-flex items-center px-2 sm:px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
-              {percentage > 0 ? "+" : ""}
-              {percentage.toFixed(1)}%
-            </span>
-            {percentageLabel && (
-              <span className="text-xs text-gray-600">{percentageLabel}</span>
-            )}
+    <div className="relative group overflow-hidden">
+      {/* Gradient background */}
+      <div className={`absolute inset-0 bg-linear-to-br ${styles.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl`} />
+
+      {/* Main content */}
+      <div className="relative bg-white rounded-2xl p-3.5 sm:p-4 border-2 border-transparent group-hover:border-white/50 transition-all duration-300">
+        {/* Content */}
+        <div className="space-y-2.5 sm:space-y-3">
+          {/* Label with icon */}
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <div className={`p-2 rounded-lg ${styles.lightBg}`}>
+              <div className={`h-3.5 w-3.5 ${styles.textColor}`}>
+                {icon}
+              </div>
+            </div>
+            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+              {label}
+            </p>
           </div>
-        )}
+
+          {/* Value with animated counter */}
+          <div>
+            <p
+              className="text-2xl sm:text-3xl font-bold bg-linear-to-br from-gray-900 to-gray-700 bg-clip-text text-transparent"
+              style={{ fontFamily: "'Clash Display', sans-serif" }}
+            >
+              {prefix}
+              <AnimatedCounter end={value} delay={delay} />
+            </p>
+          </div>
+
+          {/* Percentage badge */}
+          {percentage !== undefined && (
+            <div className="flex items-center gap-2">
+              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-bold ${styles.lightBg} ${styles.textColor} border border-current/20 shadow-sm`}>
+                {percentage > 0 ? "+" : ""}
+                {percentage.toFixed(1)}%
+              </span>
+              {percentageLabel && (
+                <span className="text-xs text-gray-500 font-medium">{percentageLabel}</span>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Decorative elements */}
+        <div className="absolute bottom-0 right-0 w-24 h-24 bg-linear-to-br from-current/5 to-transparent rounded-tl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       </div>
     </div>
   );
@@ -1363,7 +1470,7 @@ function QuickStat({
 
   return (
     <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl p-2 sm:p-3 lg:p-4 border border-white/20">
-      <p className="text-blue-100 text-[10px] sm:text-xs font-medium mb-1">
+      <p className="text-violet-100 text-[10px] sm:text-xs font-medium mb-1">
         {label}
       </p>
       <div className="flex items-center gap-1 sm:gap-2">
@@ -1410,10 +1517,10 @@ function ActionButton({
 // Loading Skeleton
 function LoadingSkeleton() {
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8">
       <div className="max-w-450 mx-auto space-y-6 sm:space-y-8">
         {/* Hero Skeleton */}
-        <div className="h-64 sm:h-72 lg:h-80 rounded-2xl sm:rounded-3xl bg-linear-to-br from-blue-600 to-indigo-800 animate-pulse" />
+        <div className="h-64 sm:h-72 lg:h-80 rounded-2xl sm:rounded-3xl bg-linear-to-br from-violet-600 to-indigo-800 animate-pulse" />
 
         {/* Metrics Grid Skeleton */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">

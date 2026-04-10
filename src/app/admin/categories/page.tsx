@@ -189,7 +189,7 @@ export default function AdminCategoriesPage() {
         </div>
         <Button
           onClick={() => router.push("/admin/categories/new")}
-          className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg shadow-blue-200"
+          className="bg-linear-to-r from-violet-500 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-700 text-white shadow-lg shadow-blue-200"
         >
           <Plus className="h-4 w-4 mr-2" />
           Add Category
@@ -199,17 +199,17 @@ export default function AdminCategoriesPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {/* Total Categories */}
-        <div className="bg-linear-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-2xl p-5 shadow-lg shadow-blue-100/50 hover:shadow-xl transition-all hover:-translate-y-1">
+        <div className="bg-linear-to-br from-violet-50 to-fuchsia-100 border border-violet-200 rounded-2xl p-5 shadow-lg shadow-blue-100/50 hover:shadow-xl transition-all hover:-translate-y-1">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <p className="text-sm font-medium text-blue-700">
+              <p className="text-sm font-medium text-violet-700">
                 Total Categories
               </p>
-              <p className="text-2xl sm:text-3xl font-bold text-blue-800">
+              <p className="text-2xl sm:text-3xl font-bold text-violet-800">
                 {totalCategories}
               </p>
             </div>
-            <div className="h-12 w-12 bg-linear-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+            <div className="h-12 w-12 bg-linear-to-br from-violet-400 to-fuchsia-600 rounded-xl flex items-center justify-center shadow-lg">
               <FolderKanban className="h-6 w-6 text-white" />
             </div>
           </div>
@@ -264,17 +264,17 @@ export default function AdminCategoriesPage() {
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white rounded-2xl shadow-lg border border-blue-100 p-4 sm:p-6">
+      <div className="bg-white rounded-2xl shadow-lg border border-violet-100 p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row gap-4">
           {/* Search */}
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-violet-500" />
             <Input
               type="text"
               placeholder="Search by name or slug..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 border-blue-200 focus:border-blue-400 focus:ring-blue-400"
+              className="pl-10 border-violet-200 focus:border-violet-400 focus:ring-blue-400"
             />
           </div>
 
@@ -283,7 +283,7 @@ export default function AdminCategoriesPage() {
             value={statusFilter}
             onValueChange={(value: any) => setStatusFilter(value)}
           >
-            <SelectTrigger className="w-full sm:w-48 border-blue-200">
+            <SelectTrigger className="w-full sm:w-48 border-violet-200">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
@@ -302,13 +302,13 @@ export default function AdminCategoriesPage() {
             {paginatedCategories.map((category) => (
               <div
                 key={category.id}
-                className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden hover:shadow-xl transition-all hover:-translate-y-1"
+                className="bg-white rounded-2xl shadow-lg border border-violet-100 overflow-hidden hover:shadow-xl transition-all hover:-translate-y-1"
               >
                 {/* Gradient Header */}
-                <div className="bg-linear-to-r from-blue-50 to-blue-100 px-6 py-4 border-b border-blue-100">
+                <div className="bg-linear-to-r from-violet-50 to-fuchsia-100 px-6 py-4 border-b border-violet-100">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className="h-10 w-10 bg-linear-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shrink-0">
+                      <div className="h-10 w-10 bg-linear-to-br from-violet-400 to-fuchsia-600 rounded-xl flex items-center justify-center shadow-lg shrink-0">
                         <IconRenderer
                           iconName={category.icon}
                           className="h-5 w-5 text-white"
@@ -332,7 +332,7 @@ export default function AdminCategoriesPage() {
                             </Badge>
                           )}
                         </div>
-                        <p className="text-xs sm:text-sm text-blue-600 font-mono font-medium">
+                        <p className="text-xs sm:text-sm text-violet-600 font-mono font-medium">
                           /{category.slug}
                         </p>
                       </div>
@@ -354,8 +354,8 @@ export default function AdminCategoriesPage() {
                     {/* Price Range */}
                     {category.priceRange && (
                       <div className="flex items-center gap-2 text-sm">
-                        <div className="h-8 w-8 bg-blue-50 rounded-lg flex items-center justify-center shrink-0">
-                          <TrendingUp className="h-4 w-4 text-blue-600" />
+                        <div className="h-8 w-8 bg-violet-50 rounded-lg flex items-center justify-center shrink-0">
+                          <TrendingUp className="h-4 w-4 text-violet-600" />
                         </div>
                         <div>
                           <p className="text-xs text-gray-500">Price Range</p>
@@ -414,7 +414,7 @@ export default function AdminCategoriesPage() {
                       onClick={() =>
                         router.push(`/admin/categories/${category.id}`)
                       }
-                      className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300"
+                      className="border-violet-200 text-violet-700 hover:bg-violet-50 hover:border-violet-300"
                     >
                       <Edit className="h-4 w-4 mr-1" />
                       Edit
@@ -508,8 +508,8 @@ function EmptyState({
 }) {
   return (
     <div className="text-center py-12 sm:py-16">
-      <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-linear-to-br from-blue-100 to-blue-100 rounded-full mb-4 sm:mb-6">
-        <FolderKanban className="h-8 w-8 sm:h-10 sm:w-10 text-blue-600" />
+      <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-linear-to-br from-violet-100 to-fuchsia-100 rounded-full mb-4 sm:mb-6">
+        <FolderKanban className="h-8 w-8 sm:h-10 sm:w-10 text-violet-600" />
       </div>
       <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">
         {searchQuery || statusFilter !== "all"
@@ -612,7 +612,7 @@ function PaginationControls({
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg border border-blue-100 p-4 sm:p-6">
+    <div className="bg-white rounded-2xl shadow-lg border border-violet-100 p-4 sm:p-6">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         {/* Items Info */}
         <div className="text-sm text-gray-600">
@@ -631,7 +631,7 @@ function PaginationControls({
             size="sm"
             onClick={() => onPageChange(1)}
             disabled={currentPage === 1}
-            className="border-blue-200 text-blue-700 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="border-violet-200 text-violet-700 hover:bg-violet-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ChevronsLeft className="h-4 w-4" />
           </Button>
@@ -642,7 +642,7 @@ function PaginationControls({
             size="sm"
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="border-blue-200 text-blue-700 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="border-violet-200 text-violet-700 hover:bg-violet-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -658,8 +658,8 @@ function PaginationControls({
                   onClick={() => onPageChange(page)}
                   className={
                     currentPage === page
-                      ? "bg-linear-to-r from-blue-500 to-blue-600 text-white border-0"
-                      : "border-blue-200 text-blue-700 hover:bg-blue-50"
+                      ? "bg-linear-to-r from-violet-500 to-fuchsia-600 text-white border-0"
+                      : "border-violet-200 text-violet-700 hover:bg-violet-50"
                   }
                 >
                   {page}
@@ -673,7 +673,7 @@ function PaginationControls({
           </div>
 
           {/* Mobile Page Indicator */}
-          <div className="sm:hidden text-sm font-medium text-blue-700 px-3">
+          <div className="sm:hidden text-sm font-medium text-violet-700 px-3">
             Page {currentPage} of {totalPages}
           </div>
 
@@ -683,7 +683,7 @@ function PaginationControls({
             size="sm"
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="border-blue-200 text-blue-700 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="border-violet-200 text-violet-700 hover:bg-violet-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -694,7 +694,7 @@ function PaginationControls({
             size="sm"
             onClick={() => onPageChange(totalPages)}
             disabled={currentPage === totalPages}
-            className="border-blue-200 text-blue-700 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="border-violet-200 text-violet-700 hover:bg-violet-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ChevronsRight className="h-4 w-4" />
           </Button>

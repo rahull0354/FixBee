@@ -129,16 +129,16 @@ export default function AdminCustomersPage() {
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white rounded-2xl shadow-lg border border-blue-100 p-4 sm:p-6">
+      <div className="bg-white rounded-2xl shadow-lg border border-violet-100 p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-violet-500" />
             <Input
               type="text"
               placeholder="Search by name, email, or phone..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 border-blue-200 focus:border-blue-400 focus:ring-blue-400"
+              className="pl-10 border-violet-200 focus:border-violet-400 focus:ring-blue-400"
             />
           </div>
 
@@ -146,13 +146,13 @@ export default function AdminCustomersPage() {
             value={statusFilter}
             onValueChange={(value: any) => setStatusFilter(value)}
           >
-            <SelectTrigger className="w-full sm:w-48 border-blue-200 bg-white shadow-sm hover:shadow-md transition-shadow focus:border-blue-400 focus:ring-blue-400">
+            <SelectTrigger className="w-full sm:w-48 border-violet-200 bg-white shadow-sm hover:shadow-md transition-shadow focus:border-violet-400 focus:ring-blue-400">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
-            <SelectContent className="bg-white border border-blue-200 shadow-lg">
-              <SelectItem value="all" className="hover:bg-blue-50 focus:bg-blue-100 cursor-pointer">All Customers</SelectItem>
-              <SelectItem value="active" className="hover:bg-blue-50 focus:bg-blue-100 cursor-pointer">Active</SelectItem>
-              <SelectItem value="inactive" className="hover:bg-blue-50 focus:bg-blue-100 cursor-pointer">Inactive</SelectItem>
+            <SelectContent className="bg-white border border-violet-200 shadow-lg">
+              <SelectItem value="all" className="hover:bg-violet-50 focus:bg-violet-100 cursor-pointer">All Customers</SelectItem>
+              <SelectItem value="active" className="hover:bg-violet-50 focus:bg-violet-100 cursor-pointer">Active</SelectItem>
+              <SelectItem value="inactive" className="hover:bg-violet-50 focus:bg-violet-100 cursor-pointer">Inactive</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -175,7 +175,7 @@ export default function AdminCustomersPage() {
 
           {/* Pagination Controls */}
           {totalPages > 1 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-2xl shadow-lg border border-blue-100 p-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-2xl shadow-lg border border-violet-100 p-4">
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <span>Showing</span>
                 <span className="font-semibold text-gray-900">
@@ -196,7 +196,7 @@ export default function AdminCustomersPage() {
                   size="sm"
                   onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                   disabled={currentPage === 1}
-                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                  className="border-violet-200 text-violet-700 hover:bg-violet-50"
                 >
                   Previous
                 </Button>
@@ -222,8 +222,8 @@ export default function AdminCustomersPage() {
                         onClick={() => setCurrentPage(pageNum)}
                         className={
                           currentPage === pageNum
-                            ? "bg-blue-600 text-white hover:bg-blue-700"
-                            : "border-blue-200 text-blue-700 hover:bg-blue-50"
+                            ? "bg-violet-600 text-white hover:bg-violet-700"
+                            : "border-violet-200 text-violet-700 hover:bg-violet-50"
                         }
                       >
                         {pageNum}
@@ -237,7 +237,7 @@ export default function AdminCustomersPage() {
                   size="sm"
                   onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                   disabled={currentPage === totalPages}
-                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                  className="border-violet-200 text-violet-700 hover:bg-violet-50"
                 >
                   Next
                 </Button>
@@ -251,7 +251,7 @@ export default function AdminCustomersPage() {
                     setItemsPerPage(Number(e.target.value));
                     setCurrentPage(1);
                   }}
-                  className="border border-blue-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="border border-violet-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
                   <option value={12}>12</option>
                   <option value={24}>24</option>
@@ -303,7 +303,7 @@ function CustomerCard({
   onViewDetails: () => void;
 }) {
   return (
-    <div className="group bg-white rounded-2xl shadow-md border border-blue-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+    <div className="group bg-white rounded-2xl shadow-md border border-violet-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
       <div className="relative">
         {/* Background with contextual image */}
         <div className="h-32 bg-white relative overflow-hidden border-b border-gray-100">
@@ -316,13 +316,13 @@ function CustomerCard({
             }}
           />
           {/* Gradient overlay for better contrast */}
-          <div className="absolute inset-0 bg-linear-to-br from-blue-50/30 to-indigo-50/30" />
+          <div className="absolute inset-0 bg-linear-to-br from-violet-50/30 to-indigo-50/30" />
 
           {/* View Button - Top Right */}
           <div className="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <Button
               onClick={onViewDetails}
-              className="bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white p-2 h-9 w-9 shadow-lg"
+              className="bg-linear-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white p-2 h-9 w-9 shadow-lg"
             >
               <Eye className="h-4 w-4" />
             </Button>
@@ -353,7 +353,7 @@ function CustomerCard({
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-blue-500 to-indigo-600">
+              <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-violet-500 to-indigo-600">
                 <span className="text-3xl font-bold text-white">
                   {customer.name.charAt(0).toUpperCase()}
                 </span>
@@ -371,12 +371,12 @@ function CustomerCard({
             {customer.name}
           </h3>
           <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Mail className="h-4 w-4 text-blue-500" />
+            <Mail className="h-4 w-4 text-violet-500" />
             <span className="truncate">{customer.email}</span>
           </div>
           {customer.phone && (
             <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
-              <Phone className="h-4 w-4 text-blue-500" />
+              <Phone className="h-4 w-4 text-violet-500" />
               <span className="truncate">{customer.phone}</span>
             </div>
           )}
@@ -385,7 +385,7 @@ function CustomerCard({
         {/* Stats Row - Three Divs */}
         <div className="grid grid-cols-3 gap-3 mb-4">
           {/* Account Status */}
-          <div className="bg-white rounded-xl p-3 border-2 border-blue-200 text-center">
+          <div className="bg-white rounded-xl p-3 border-2 border-violet-200 text-center">
             <CheckCircle
               className={`h-4 w-4 mx-auto mb-1 ${customer.isActive ? "text-emerald-600" : "text-gray-400"}`}
             />
@@ -427,8 +427,8 @@ function EmptyState({
 }) {
   return (
     <div className="text-center py-12">
-      <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-        <Search className="h-8 w-8 text-blue-500" />
+      <div className="inline-flex items-center justify-center w-16 h-16 bg-violet-100 rounded-full mb-4">
+        <Search className="h-8 w-8 text-violet-500" />
       </div>
       <h3 className="text-lg font-bold text-gray-900 mb-2">
         {searchQuery || statusFilter !== "all"

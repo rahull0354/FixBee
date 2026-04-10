@@ -572,7 +572,7 @@ export default function ProviderPayoutsPage() {
       case "pending":
         return "bg-yellow-100 text-yellow-800 border-yellow-200";
       case "processing":
-        return "bg-blue-100 text-blue-800 border-blue-200";
+        return "bg-violet-100 text-violet-800 border-violet-200";
       case "failed":
         return "bg-red-100 text-red-800 border-red-200";
       default:
@@ -588,7 +588,7 @@ export default function ProviderPayoutsPage() {
       case "pending":
         return <Clock className="h-5 w-5 text-yellow-600" />;
       case "processing":
-        return <Clock className="h-5 w-5 text-blue-600" />;
+        return <Clock className="h-5 w-5 text-violet-600" />;
       case "failed":
         return <XCircle className="h-5 w-5 text-red-600" />;
       default:
@@ -604,7 +604,7 @@ export default function ProviderPayoutsPage() {
       case "pending":
         return "bg-yellow-100";
       case "processing":
-        return "bg-blue-100";
+        return "bg-violet-100";
       case "failed":
         return "bg-red-100";
       default:
@@ -657,14 +657,14 @@ export default function ProviderPayoutsPage() {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
             <Button
               variant="outline"
-              className="border-blue-300 text-blue-700 hover:bg-blue-50 w-full sm:w-auto justify-center"
+              className="border-violet-300 text-violet-700 hover:bg-violet-50 w-full sm:w-auto justify-center"
               onClick={() => router.push("/admin/payments/distribute/history")}
             >
               <Calendar className="h-4 w-4 mr-2" />
               Payout History
             </Button>
             <Button
-              className="bg-linear-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white w-full sm:w-auto justify-center"
+              className="bg-linear-to-r from-sky-500 to-fuchsia-600 hover:from-sky-600 hover:to-fuchsia-700 text-white w-full sm:w-auto justify-center"
               onClick={() => loadPayoutData()}
             >
               <RefreshCcw className="h-4 w-4 mr-2" />
@@ -710,14 +710,14 @@ export default function ProviderPayoutsPage() {
         </div>
 
         {/* Providers with Pending */}
-        <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-2xl p-4 sm:p-6 border-2 border-blue-200 shadow-lg hover:shadow-xl transition-shadow">
+        <div className="bg-linear-to-br from-violet-50 to-indigo-50 rounded-2xl p-4 sm:p-6 border-2 border-violet-200 shadow-lg hover:shadow-xl transition-shadow">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center shadow-md">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-linear-to-br from-violet-400 to-indigo-500 flex items-center justify-center shadow-md">
               <Users className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
-            <ArrowUpRight className="h-5 w-5 text-blue-600" />
+            <ArrowUpRight className="h-5 w-5 text-violet-600" />
           </div>
-          <p className="text-xs sm:text-sm font-semibold text-blue-900 uppercase tracking-wide mb-1">
+          <p className="text-xs sm:text-sm font-semibold text-violet-900 uppercase tracking-wide mb-1">
             Providers Awaiting
           </p>
           <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
@@ -742,7 +742,7 @@ export default function ProviderPayoutsPage() {
       </div>
 
       {/* Provider Earnings List */}
-      <div className="bg-white rounded-2xl shadow-lg border-2 border-blue-100 p-4 sm:p-6">
+      <div className="bg-white rounded-2xl shadow-lg border-2 border-violet-100 p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
@@ -759,29 +759,29 @@ export default function ProviderPayoutsPage() {
                 placeholder="Search providers..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-full sm:w-64 border-blue-200 h-12"
+                className="pl-10 w-full sm:w-64 border-violet-200 h-12"
               />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-48 border-blue-200 bg-white shadow-sm hover:shadow-md transition-shadow h-12">
+              <SelectTrigger className="w-full sm:w-48 border-violet-200 bg-white shadow-sm hover:shadow-md transition-shadow h-12">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
-              <SelectContent className="bg-white border border-blue-200 shadow-lg">
+              <SelectContent className="bg-white border border-violet-200 shadow-lg">
                 <SelectItem
                   value="all"
-                  className="focus:bg-blue-50 focus:text-blue-900 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-blue-500 hover:data-[state=checked]:text-white"
+                  className="focus:bg-violet-50 focus:text-violet-900 data-[state=checked]:bg-violet-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-violet-500 hover:data-[state=checked]:text-white"
                 >
                   All Providers
                 </SelectItem>
                 <SelectItem
                   value="pending"
-                  className="focus:bg-blue-50 focus:text-blue-900 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-blue-500 hover:data-[state=checked]:text-white"
+                  className="focus:bg-violet-50 focus:text-violet-900 data-[state=checked]:bg-violet-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-violet-500 hover:data-[state=checked]:text-white"
                 >
                   Has Pending
                 </SelectItem>
                 <SelectItem
                   value="cleared"
-                  className="focus:bg-blue-50 focus:text-blue-900 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-blue-500 hover:data-[state=checked]:text-white"
+                  className="focus:bg-violet-50 focus:text-violet-900 data-[state=checked]:bg-violet-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-violet-500 hover:data-[state=checked]:text-white"
                 >
                   Cleared
                 </SelectItem>
@@ -798,13 +798,13 @@ export default function ProviderPayoutsPage() {
               return (
                 <div
                   key={earning.providerId}
-                  className="bg-white rounded-2xl shadow-lg border-2 border-blue-100 overflow-hidden hover:shadow-xl transition-all"
+                  className="bg-white rounded-2xl shadow-lg border-2 border-violet-100 overflow-hidden hover:shadow-xl transition-all"
                 >
                   {/* Header */}
-                  <div className="bg-linear-to-r from-sky-50 to-blue-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-blue-100">
+                  <div className="bg-linear-to-r from-sky-50 to-fuchsia-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-violet-100">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-center gap-3 flex-1">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-linear-to-br from-sky-500 to-blue-600 flex items-center justify-center shadow-md">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-linear-to-br from-sky-500 to-fuchsia-600 flex items-center justify-center shadow-md">
                           <User className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -843,12 +843,12 @@ export default function ProviderPayoutsPage() {
                   <div className="p-4 sm:p-6">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
                       {/* Total Earnings */}
-                      <div className="bg-blue-50 rounded-xl p-3 sm:p-4 border border-blue-100">
+                      <div className="bg-violet-50 rounded-xl p-3 sm:p-4 border border-violet-100">
                         <div className="flex items-center justify-between mb-2">
-                          <p className="text-[10px] sm:text-xs font-semibold text-blue-900 uppercase tracking-wide">
+                          <p className="text-[10px] sm:text-xs font-semibold text-violet-900 uppercase tracking-wide">
                             Total Earnings
                           </p>
-                          <DollarSign className="h-4 w-4 text-blue-600" />
+                          <DollarSign className="h-4 w-4 text-violet-600" />
                         </div>
                         <p className="text-xl sm:text-2xl font-bold text-gray-900">
                           {formatCurrency(earning.totalEarnings)}
@@ -923,7 +923,7 @@ export default function ProviderPayoutsPage() {
                       {earning.lastPayoutDate && (
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
-                            <Calendar className="h-4 w-4 text-blue-600" />
+                            <Calendar className="h-4 w-4 text-violet-600" />
                           </div>
                           <div>
                             <p className="text-[10px] text-gray-500 uppercase font-semibold">
@@ -943,7 +943,7 @@ export default function ProviderPayoutsPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => openDetailsDialog(earning)}
-                        className="border-blue-200 text-blue-700 hover:bg-blue-50 w-full sm:w-auto justify-center"
+                        className="border-violet-200 text-violet-700 hover:bg-violet-50 w-full sm:w-auto justify-center"
                       >
                         <Eye className="h-4 w-4 mr-2" />
                         View Details
@@ -953,7 +953,7 @@ export default function ProviderPayoutsPage() {
                         <Button
                           size="sm"
                           onClick={() => openPreparePayoutDialog(earning)}
-                          className="bg-linear-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white w-full sm:w-auto justify-center"
+                          className="bg-linear-to-r from-sky-500 to-fuchsia-600 hover:from-sky-600 hover:to-fuchsia-700 text-white w-full sm:w-auto justify-center"
                         >
                           <Send className="h-4 w-4 mr-2" />
                           Prepare Payout
@@ -973,8 +973,8 @@ export default function ProviderPayoutsPage() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-linear-to-br from-blue-100 to-indigo-100 rounded-full mb-4">
-              <Wallet className="h-10 w-10 text-blue-600" />
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-linear-to-br from-violet-100 to-indigo-100 rounded-full mb-4">
+              <Wallet className="h-10 w-10 text-violet-600" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">
               No Provider Earnings Found
@@ -990,7 +990,7 @@ export default function ProviderPayoutsPage() {
 
       {/* Recent Payout History */}
       {payoutHistory.length > 0 && (
-        <div className="bg-white rounded-2xl shadow-lg border-2 border-blue-100 p-4 sm:p-6">
+        <div className="bg-white rounded-2xl shadow-lg border-2 border-violet-100 p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
@@ -1004,7 +1004,7 @@ export default function ProviderPayoutsPage() {
               variant="outline"
               size="sm"
               onClick={() => router.push("/admin/payments/distribute/history")}
-              className="border-blue-200 text-blue-700 hover:bg-blue-50 w-full sm:w-auto justify-center"
+              className="border-violet-200 text-violet-700 hover:bg-violet-50 w-full sm:w-auto justify-center"
             >
               View All
             </Button>
@@ -1014,7 +1014,7 @@ export default function ProviderPayoutsPage() {
             {payoutHistory.slice(0, 5).map((payout) => (
               <div
                 key={payout.id}
-                className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-blue-50/30 transition-colors"
+                className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200 hover:bg-violet-50/30 transition-colors"
               >
                 <div className="flex items-center gap-4">
                   <div
@@ -1058,7 +1058,7 @@ export default function ProviderPayoutsPage() {
 
       {/* Prepare Payout Dialog */}
       <Dialog open={showPrepareDialog} onOpenChange={setShowPrepareDialog}>
-        <DialogContent className="sm:max-w-2xl bg-white border-2 border-blue-200 max-h-[80vh] overflow-hidden w-[95vw] flex flex-col">
+        <DialogContent className="sm:max-w-2xl bg-white border-2 border-violet-200 max-h-[80vh] overflow-hidden w-[95vw] flex flex-col">
           <DialogHeader className="py-3 sm:py-6 px-4 sm:px-6 space-y-1 sm:space-y-0">
             <DialogTitle className="text-base sm:text-xl text-gray-900">
               Prepare Payout
@@ -1070,23 +1070,23 @@ export default function ProviderPayoutsPage() {
 
           {loadingPrepare ? (
             <div className="py-6 flex items-center justify-center flex-1 overflow-y-auto">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
             </div>
           ) : prepareData ? (
             <div className="space-y-2 sm:space-y-4 py-2 sm:py-4 overflow-y-auto flex-1 pr-2">
               {/* Amount Summary */}
-              <div className="bg-linear-to-r from-blue-50 to-indigo-50 rounded-xl p-2.5 sm:p-4 border border-blue-200">
+              <div className="bg-linear-to-r from-violet-50 to-indigo-50 rounded-xl p-2.5 sm:p-4 border border-violet-200">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div>
-                    <p className="text-xs sm:text-sm font-semibold text-blue-900">
+                    <p className="text-xs sm:text-sm font-semibold text-violet-900">
                       Total Amount to Pay
                     </p>
-                    <p className="text-2xl sm:text-3xl font-bold text-blue-900 flex items-center gap-1">
+                    <p className="text-2xl sm:text-3xl font-bold text-violet-900 flex items-center gap-1">
                       {formatCurrency(prepareData.totalAmount || payoutAmount)}
                     </p>
                   </div>
                   <div className="sm:text-right">
-                    <p className="text-sm text-blue-700">
+                    <p className="text-sm text-violet-700">
                       {prepareData.invoiceCount || 0} Invoices
                     </p>
                   </div>
@@ -1097,7 +1097,7 @@ export default function ProviderPayoutsPage() {
               {prepareData.invoices && prepareData.invoices.length > 0 ? (
                 <div className="bg-white rounded-xl p-3 sm:p-4 border border-gray-200">
                   <h3 className="text-xs sm:text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-blue-600" />
+                    <FileText className="h-4 w-4 text-violet-600" />
                     Invoices Included ({prepareData.invoices.length})
                   </h3>
                   <div className="space-y-2 max-h-32 overflow-y-auto">
@@ -1160,14 +1160,14 @@ export default function ProviderPayoutsPage() {
                     )}
                 </div>
               ) : (
-                <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+                <div className="bg-violet-50 rounded-xl p-4 border border-violet-200">
                   <div className="flex items-center gap-3">
-                    <FileText className="h-5 w-5 text-blue-600" />
+                    <FileText className="h-5 w-5 text-violet-600" />
                     <div>
-                      <p className="text-sm font-semibold text-blue-900">
+                      <p className="text-sm font-semibold text-violet-900">
                         No Invoices Found
                       </p>
-                      <p className="text-xs text-blue-700">
+                      <p className="text-xs text-violet-700">
                         This payout will be created without associated invoices
                       </p>
                     </div>
@@ -1209,8 +1209,8 @@ export default function ProviderPayoutsPage() {
                                   selectedBankAccount ===
                                     (account.id || account.bankAccountId) &&
                                   payoutMethod === "bank_transfer"
-                                    ? "border-blue-500 bg-blue-50"
-                                    : "border-gray-200 hover:border-blue-300 bg-white"
+                                    ? "border-violet-500 bg-violet-50"
+                                    : "border-gray-200 hover:border-violet-300 bg-white"
                                 }`}
                               >
                                 <input
@@ -1227,7 +1227,7 @@ export default function ProviderPayoutsPage() {
                                     );
                                     setPayoutMethod("bank_transfer");
                                   }}
-                                  className="w-4 h-4 text-blue-600 accent-blue-600 mt-0.5 shrink-0"
+                                  className="w-4 h-4 text-violet-600 accent-blue-600 mt-0.5 shrink-0"
                                 />
                                 <div className="flex-1 min-w-0">
                                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-1">
@@ -1235,7 +1235,7 @@ export default function ProviderPayoutsPage() {
                                       {account.bankName || account.bank}
                                     </span>
                                     {account.isPrimary && (
-                                      <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-medium w-fit">
+                                      <span className="text-[10px] bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded font-medium w-fit">
                                         Primary
                                       </span>
                                     )}
@@ -1280,8 +1280,8 @@ export default function ProviderPayoutsPage() {
                             className={`flex items-center gap-2 p-2.5 rounded-lg border-2 cursor-pointer transition-all ${
                               selectedUpiId === (upi.id || upi.upiId) &&
                               payoutMethod === "upi"
-                                ? "border-blue-500 bg-blue-50"
-                                : "border-gray-200 hover:border-blue-300 bg-white"
+                                ? "border-violet-500 bg-violet-50"
+                                : "border-gray-200 hover:border-violet-300 bg-white"
                             }`}
                           >
                             <input
@@ -1295,7 +1295,7 @@ export default function ProviderPayoutsPage() {
                                 setSelectedUpiId(upi.id || upi.upiId);
                                 setPayoutMethod("upi");
                               }}
-                              className="w-4 h-4 text-blue-600 accent-blue-600 mt-0.5 shrink-0"
+                              className="w-4 h-4 text-violet-600 accent-blue-600 mt-0.5 shrink-0"
                             />
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1">
@@ -1303,7 +1303,7 @@ export default function ProviderPayoutsPage() {
                                   {upi.upiId}
                                 </span>
                                 {upi.isPrimary && (
-                                  <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-medium">
+                                  <span className="text-[10px] bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded font-medium">
                                     Primary
                                   </span>
                                 )}
@@ -1330,7 +1330,7 @@ export default function ProviderPayoutsPage() {
                   value={payoutNotes}
                   onChange={(e) => setPayoutNotes(e.target.value)}
                   placeholder="Add any notes about this payout..."
-                  className="w-full min-h-16 max-h-24 px-3 py-2 text-sm border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white"
+                  className="w-full min-h-16 max-h-24 px-3 py-2 text-sm border border-violet-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white"
                 />
               </div>
             </div>
@@ -1341,14 +1341,14 @@ export default function ProviderPayoutsPage() {
               variant="outline"
               onClick={() => setShowPrepareDialog(false)}
               disabled={processingPayout}
-              className="border-blue-200 hover:bg-blue-50 w-full sm:w-auto h-9 sm:h-10"
+              className="border-violet-200 hover:bg-violet-50 w-full sm:w-auto h-9 sm:h-10"
             >
               Cancel
             </Button>
             <Button
               onClick={handleInitiatePayout}
               disabled={processingPayout || loadingPrepare}
-              className="bg-linear-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white w-full sm:w-auto h-9 sm:h-10"
+              className="bg-linear-to-r from-sky-500 to-fuchsia-600 hover:from-sky-600 hover:to-fuchsia-700 text-white w-full sm:w-auto h-9 sm:h-10"
             >
               {processingPayout ? (
                 <>
@@ -1368,7 +1368,7 @@ export default function ProviderPayoutsPage() {
 
       {/* Process Payment Dialog */}
       <Dialog open={showProcessDialog} onOpenChange={setShowProcessDialog}>
-        <DialogContent className="sm:max-w-md bg-white border-2 border-blue-200 w-[95vw]">
+        <DialogContent className="sm:max-w-md bg-white border-2 border-violet-200 w-[95vw]">
           <DialogHeader>
             <DialogTitle className="text-lg sm:text-xl text-gray-900">
               Process Payment
@@ -1381,11 +1381,11 @@ export default function ProviderPayoutsPage() {
           {processPayoutData && (
             <div className="space-y-3 sm:space-y-4 py-4">
               {/* Amount */}
-              <div className="bg-linear-to-r from-blue-50 to-indigo-50 rounded-xl p-3 sm:p-4 border border-blue-200">
-                <p className="text-xs sm:text-sm font-semibold text-blue-900 mb-1">
+              <div className="bg-linear-to-r from-violet-50 to-indigo-50 rounded-xl p-3 sm:p-4 border border-violet-200">
+                <p className="text-xs sm:text-sm font-semibold text-violet-900 mb-1">
                   Amount to Transfer
                 </p>
-                <p className="text-2xl sm:text-3xl font-bold text-blue-900">
+                <p className="text-2xl sm:text-3xl font-bold text-violet-900">
                   {formatCurrency(
                     processPayoutData.amount ||
                       processPayoutData.payout?.amount ||
@@ -1457,11 +1457,11 @@ export default function ProviderPayoutsPage() {
 
                 {payoutMethod === "upi" && (processPayoutData?.upiId || processPayoutData?.payout?.upiId) ? (
                   <div className="space-y-2">
-                    <div className="bg-blue-50 rounded-lg p-3 sm:p-4 border border-blue-200">
+                    <div className="bg-violet-50 rounded-lg p-3 sm:p-4 border border-violet-200">
                       <p className="text-xs sm:text-sm text-gray-600 mb-1">
                         UPI ID
                       </p>
-                      <p className="font-mono text-lg sm:text-xl font-bold text-blue-900 break-all">
+                      <p className="font-mono text-lg sm:text-xl font-bold text-violet-900 break-all">
                         {processPayoutData?.upiId?.upiId ||
                           processPayoutData?.payout?.upiId?.upiId ||
                           processPayoutData?.upiId ||
@@ -1501,7 +1501,7 @@ export default function ProviderPayoutsPage() {
                 setShowProcessDialog(false);
                 handleMadePayment();
               }}
-              className="border-blue-200 hover:bg-blue-50 w-full"
+              className="border-violet-200 hover:bg-violet-50 w-full"
             >
               I've Made the Payment
             </Button>
@@ -1525,7 +1525,7 @@ export default function ProviderPayoutsPage() {
           {viewingProvider && (
             <div className="space-y-3 sm:space-y-4 py-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                <div className="bg-blue-50 rounded-xl p-4 border border-green-200">
+                <div className="bg-violet-50 rounded-xl p-4 border border-green-200">
                   <p className="text-xs font-semibold text-green-900 uppercase mb-1">
                     Total Earnings
                   </p>

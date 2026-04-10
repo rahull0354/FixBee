@@ -224,7 +224,10 @@ export function LoginForm({ role }: LoginFormProps) {
 
             {/* Form */}
             <div className="px-8 py-6">
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="space-y-5"
+              >
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-gray-700 font-medium">
                     Email Address

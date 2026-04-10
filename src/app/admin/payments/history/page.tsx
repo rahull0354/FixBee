@@ -337,7 +337,7 @@ export default function AdminPaymentsHistoryPage() {
         <Button
           variant="outline"
           size="sm"
-          className="border-blue-200 text-blue-700 hover:bg-blue-50"
+          className="border-violet-200 text-violet-700 hover:bg-violet-50"
           onClick={() => router.push("/admin/payments")}
         >
           <X className="h-4 w-4 mr-2" />
@@ -438,7 +438,7 @@ export default function AdminPaymentsHistoryPage() {
       </div>
 
       {/* Search & Filter Bar */}
-      <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-blue-100 p-3 sm:p-4">
+      <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-violet-100 p-3 sm:p-4">
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
@@ -447,31 +447,31 @@ export default function AdminPaymentsHistoryPage() {
               placeholder="Search by transaction ID, invoice, customer..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 h-10 sm:h-12 text-sm border-blue-200 bg-white shadow-sm hover:shadow-md transition-shadow"
+              className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 h-10 sm:h-12 text-sm border-violet-200 bg-white shadow-sm hover:shadow-md transition-shadow"
             />
           </div>
 
           {/* Status Filter Dropdown */}
           <div className="flex items-center gap-2 sm:gap-3 sm:w-auto">
-            <span className="text-xs sm:text-sm font-semibold text-blue-700">
+            <span className="text-xs sm:text-sm font-semibold text-violet-700">
               Status:
             </span>
             <Select
               value={statusFilter}
               onValueChange={(value) => setStatusFilter(value as StatusFilter)}
             >
-              <SelectTrigger className="w-full sm:w-48 border-blue-200 bg-white shadow-sm hover:shadow-md transition-shadow h-10 sm:h-12">
+              <SelectTrigger className="w-full sm:w-48 border-violet-200 bg-white shadow-sm hover:shadow-md transition-shadow h-10 sm:h-12">
                 <div className="flex items-center gap-2">
-                  <Filter className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-500" />
+                  <Filter className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-violet-500" />
                   <SelectValue placeholder="Filter by status" />
                 </div>
               </SelectTrigger>
-              <SelectContent className="bg-white border border-blue-200 shadow-lg">
+              <SelectContent className="bg-white border border-violet-200 shadow-lg">
                 {statusFilters.map((filter) => (
                   <SelectItem
                     key={filter.value}
                     value={filter.value}
-                    className="hover:bg-blue-50 focus:bg-blue-100 cursor-pointer"
+                    className="hover:bg-violet-50 focus:bg-violet-100 cursor-pointer"
                   >
                     {filter.label}
                   </SelectItem>
@@ -493,10 +493,10 @@ export default function AdminPaymentsHistoryPage() {
           </div>
 
           {/* Desktop Table */}
-          <div className="hidden sm:block bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-blue-100 overflow-hidden">
+          <div className="hidden sm:block bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-violet-100 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-linear-to-r from-blue-50 to-indigo-50 border-b-2 border-blue-200">
+                <thead className="bg-linear-to-r from-violet-50 to-indigo-50 border-b-2 border-violet-200">
                   <tr>
                     <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-[10px] sm:text-xs font-bold text-gray-700 uppercase tracking-wide">
                       Transaction ID
@@ -525,7 +525,7 @@ export default function AdminPaymentsHistoryPage() {
                   {filteredPayments.map((payment) => (
                     <tr
                       key={payment.id}
-                      className="hover:bg-blue-50/50 transition-colors"
+                      className="hover:bg-violet-50/50 transition-colors"
                     >
                       <td className="px-4 lg:px-6 py-3 lg:py-4">
                         <p className="text-[10px] sm:text-xs text-gray-500 font-mono">
@@ -542,7 +542,7 @@ export default function AdminPaymentsHistoryPage() {
                                 `/admin/payments/invoices/${payment.invoiceId}`,
                               )
                             }
-                            className="text-xs sm:text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline"
+                            className="text-xs sm:text-sm text-violet-600 hover:text-violet-700 font-medium hover:underline"
                           >
                             {payment.metadata?.invoiceNumber ||
                               invoices[payment.invoiceId ?? ""]
@@ -622,11 +622,11 @@ export default function AdminPaymentsHistoryPage() {
             {filteredPayments.map((payment) => (
               <div
                 key={payment.id}
-                className="bg-white rounded-xl shadow-lg border-2 border-blue-100 p-3"
+                className="bg-white rounded-xl shadow-lg border-2 border-violet-100 p-3"
               >
                 <div className="flex items-start gap-2 mb-2">
-                  <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 flex items-center justify-center shrink-0">
-                    <DollarSign className="h-4 w-4 text-blue-600" />
+                  <div className="w-8 h-8 rounded-lg bg-linear-to-br from-violet-50 to-indigo-50 border-2 border-violet-200 flex items-center justify-center shrink-0">
+                    <DollarSign className="h-4 w-4 text-violet-600" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold text-gray-900 text-xs truncate pr-1">
@@ -656,7 +656,7 @@ export default function AdminPaymentsHistoryPage() {
                             `/admin/payments/invoices/${payment.invoiceId}`,
                           )
                         }
-                        className="text-xs text-blue-600 hover:text-blue-700 font-medium hover:underline truncate ml-2"
+                        className="text-xs text-violet-600 hover:text-violet-700 font-medium hover:underline truncate ml-2"
                       >
                         {payment.metadata?.invoiceNumber ||
                           invoices[payment.invoiceId ?? ""]?.invoiceNumber ||
@@ -705,7 +705,7 @@ export default function AdminPaymentsHistoryPage() {
 
           {/* Pagination */}
           {totalPayments > paymentsPerPage && (
-            <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-blue-100 p-3 sm:p-4 lg:p-6">
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-violet-100 p-3 sm:p-4 lg:p-6">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
                 <div className="text-xs sm:text-sm text-gray-600">
                   <span className="font-semibold">Page {currentPage}</span> of{" "}
@@ -718,7 +718,7 @@ export default function AdminPaymentsHistoryPage() {
                       setCurrentPage((prev) => Math.max(prev - 1, 1))
                     }
                     disabled={currentPage === 1}
-                    className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border border-blue-200 text-xs sm:text-sm font-medium text-gray-700 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border border-violet-200 text-xs sm:text-sm font-medium text-gray-700 hover:bg-violet-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   >
                     Previous
                   </button>
@@ -733,8 +733,8 @@ export default function AdminPaymentsHistoryPage() {
                         onClick={() => setCurrentPage(page)}
                         className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                           currentPage === page
-                            ? "bg-linear-to-r from-blue-400 to-indigo-400 text-white shadow-md"
-                            : "border border-blue-200 text-gray-700 hover:bg-blue-50"
+                            ? "bg-linear-to-r from-violet-400 to-indigo-400 text-white shadow-md"
+                            : "border border-violet-200 text-gray-700 hover:bg-violet-50"
                         }`}
                       >
                         {page}
@@ -754,7 +754,7 @@ export default function AdminPaymentsHistoryPage() {
                     disabled={
                       currentPage === Math.ceil(totalPayments / paymentsPerPage)
                     }
-                    className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border border-blue-200 text-xs sm:text-sm font-medium text-gray-700 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border border-violet-200 text-xs sm:text-sm font-medium text-gray-700 hover:bg-violet-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   >
                     Next
                   </button>
@@ -791,7 +791,7 @@ function LoadingSkeleton() {
       </div>
 
       {/* Filters Skeleton */}
-      <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-blue-100 p-3 sm:p-4 lg:p-6">
+      <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-violet-100 p-3 sm:p-4 lg:p-6">
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <Skeleton className="flex-1 h-10 sm:h-12" />
           <Skeleton className="h-10 w-32 sm:h-12 sm:w-40" />
@@ -799,7 +799,7 @@ function LoadingSkeleton() {
       </div>
 
       {/* Table Skeleton */}
-      <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-blue-100 p-3 sm:p-4 lg:p-6">
+      <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border border-violet-100 p-3 sm:p-4 lg:p-6">
         <div className="space-y-3 sm:space-y-4">
           {[1, 2, 3, 4, 5].map((i) => (
             <Skeleton key={i} className="h-16 sm:h-20 w-full" />
@@ -818,9 +818,9 @@ function EmptyState({
   statusFilter: StatusFilter;
 }) {
   return (
-    <div className="bg-white rounded-xl sm:rounded-2xl p-8 sm:p-12 shadow-lg border-2 border-blue-100 text-center">
-      <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-linear-to-br from-blue-100 to-indigo-100 rounded-full mb-4 sm:mb-6">
-        <DollarSign className="h-8 w-8 sm:h-10 sm:w-10 text-blue-600" />
+    <div className="bg-white rounded-xl sm:rounded-2xl p-8 sm:p-12 shadow-lg border-2 border-violet-100 text-center">
+      <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-linear-to-br from-violet-100 to-indigo-100 rounded-full mb-4 sm:mb-6">
+        <DollarSign className="h-8 w-8 sm:h-10 sm:w-10 text-violet-600" />
       </div>
       <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">
         {searchQuery || statusFilter !== "all"

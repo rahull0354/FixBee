@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { SessionManager } from '@/components/auth/SessionManager';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -90,10 +91,10 @@ export default function AdminSettingsPage() {
         {/* Profile Section */}
         <div className="lg:col-span-2 space-y-6">
           {/* Profile Information */}
-          <div className="bg-white rounded-2xl shadow-lg border border-blue-100 p-6">
+          <div className="bg-white rounded-2xl shadow-lg border border-violet-100 p-6">
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <User className="h-5 w-5 text-blue-600" />
+              <div className="p-2 bg-violet-100 rounded-lg">
+                <User className="h-5 w-5 text-violet-600" />
               </div>
               <div>
                 <h2 className="text-lg font-bold text-gray-900">Profile Information</h2>
@@ -109,7 +110,7 @@ export default function AdminSettingsPage() {
                   value={profileData.name}
                   onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
                   placeholder="Admin Name"
-                  className="border-blue-200 focus:border-blue-400 focus:ring-blue-400"
+                  className="border-violet-200 focus:border-violet-400 focus:ring-blue-400"
                 />
               </div>
 
@@ -122,7 +123,7 @@ export default function AdminSettingsPage() {
                   onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
                   placeholder="admin@fixbee.com"
                   disabled
-                  className="border-blue-200 focus:border-blue-400 focus:ring-blue-400 bg-gray-50"
+                  className="border-violet-200 focus:border-violet-400 focus:ring-blue-400 bg-gray-50"
                 />
                 <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
               </div>
@@ -130,7 +131,7 @@ export default function AdminSettingsPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="bg-gradient-to-r to-blue-50000 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                className="bg-gradient-to-r to-fuchsia-50000 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-700"
               >
                 {loading ? (
                   <>
@@ -145,7 +146,7 @@ export default function AdminSettingsPage() {
           </div>
 
           {/* Security Section */}
-          <div className="bg-white rounded-2xl shadow-lg border border-blue-100 p-6">
+          <div className="bg-white rounded-2xl shadow-lg border border-violet-100 p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-indigo-100 rounded-lg">
                 <Shield className="h-5 w-5 text-indigo-600" />
@@ -163,7 +164,7 @@ export default function AdminSettingsPage() {
               </div>
               <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50">
+                  <Button variant="outline" className="border-violet-200 text-violet-700 hover:bg-violet-50">
                     <Key className="h-4 w-4 mr-2" />
                     Change Password
                   </Button>
@@ -185,7 +186,7 @@ export default function AdminSettingsPage() {
                         onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
                         placeholder="Enter current password"
                         required
-                        className="border-blue-200 focus:border-blue-400 focus:ring-blue-400"
+                        className="border-violet-200 focus:border-violet-400 focus:ring-blue-400"
                       />
                     </div>
 
@@ -199,7 +200,7 @@ export default function AdminSettingsPage() {
                         placeholder="Enter new password"
                         required
                         minLength={6}
-                        className="border-blue-200 focus:border-blue-400 focus:ring-blue-400"
+                        className="border-violet-200 focus:border-violet-400 focus:ring-blue-400"
                       />
                       <p className="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
                     </div>
@@ -214,7 +215,7 @@ export default function AdminSettingsPage() {
                         placeholder="Confirm new password"
                         required
                         minLength={6}
-                        className="border-blue-200 focus:border-blue-400 focus:ring-blue-400"
+                        className="border-violet-200 focus:border-violet-400 focus:ring-blue-400"
                       />
                     </div>
 
@@ -223,14 +224,14 @@ export default function AdminSettingsPage() {
                         type="button"
                         variant="outline"
                         onClick={() => setShowPasswordDialog(false)}
-                        className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                        className="border-violet-200 text-violet-700 hover:bg-violet-50"
                       >
                         Cancel
                       </Button>
                       <Button
                         type="submit"
                         disabled={changePasswordLoading}
-                        className="bg-gradient-to-r to-blue-50000 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                        className="bg-gradient-to-r to-fuchsia-50000 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-700"
                       >
                         {changePasswordLoading ? (
                           <>
@@ -252,7 +253,7 @@ export default function AdminSettingsPage() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Account Info */}
-          <div className="bg-gradient-to-br to-blue-50000 to-blue-600 rounded-2xl p-6 text-white shadow-xl">
+          <div className="bg-gradient-to-br to-fuchsia-50000 to-fuchsia-600 rounded-2xl p-6 text-white shadow-xl">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
                 <Shield className="h-6 w-6" />
@@ -275,7 +276,7 @@ export default function AdminSettingsPage() {
           </div>
 
           {/* Notifications (Placeholder) */}
-          <div className="bg-white rounded-2xl shadow-lg border border-blue-100 p-6">
+          <div className="bg-white rounded-2xl shadow-lg border border-violet-100 p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-amber-100 rounded-lg">
                 <Bell className="h-5 w-5 text-amber-600" />
@@ -290,8 +291,22 @@ export default function AdminSettingsPage() {
             </p>
           </div>
 
+          {/* Active Sessions */}
+          <div className="bg-white rounded-2xl shadow-lg border border-violet-100 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-violet-100 rounded-lg">
+                <Shield className="h-5 w-5 text-violet-600" />
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900">Active Sessions</h3>
+                <p className="text-xs text-gray-600">Manage your sessions</p>
+              </div>
+            </div>
+            <SessionManager />
+          </div>
+
           {/* Platform Stats (Placeholder) */}
-          <div className="bg-white rounded-2xl shadow-lg border border-blue-100 p-6">
+          <div className="bg-white rounded-2xl shadow-lg border border-violet-100 p-6">
             <h3 className="font-bold text-gray-900 mb-4">Platform Info</h3>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
