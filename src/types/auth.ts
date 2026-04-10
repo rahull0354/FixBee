@@ -27,7 +27,8 @@ export interface User {
 
 export interface AuthState {
   user: User | null;
-  token: string | null;
+  accessToken: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
 }
 
@@ -59,7 +60,60 @@ export interface RegisterProviderData {
 }
 
 export interface AuthResponse {
-  user: User;
-  token: string;
-  message?: string;
+  message: string;
+  success: boolean;
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+  sessionId?: string;  // Session ID for tracking and revocation
+  customer?: User;
+  serviceProvider?: User;
+  provider?: User;
+  author?: User;
+  admin?: User;
+}
+
+export interface RefreshTokenResponse {
+  message: string;
+  success: boolean;
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+}
+
+export interface Session {
+  id: string;
+  deviceInfo: {
+    browser: string;
+    os: string;
+    device: string;
+    userAgent: string;
+  };
+  ipAddress: string;
+  createdAt: string;
+  expiresAt: string;
+  isCurrent: boolean;
+  revoked?: boolean;  // Whether the session has been revoked
+}
+
+export interface SessionsResponse {
+  message: string;
+  success: boolean;
+  sessions: Session[];
+}
+
+export interface LogoutResponse {
+  message: string;
+  success: boolean;
+}
+
+export interface LogoutAllResponse {
+  message: string;
+  success: boolean;
+  count: number;
+}
+
+export interface RevokeSessionResponse {
+  message: string;
+  success: boolean;
 }

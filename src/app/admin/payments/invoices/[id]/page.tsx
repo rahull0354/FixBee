@@ -267,7 +267,7 @@ export default function AdminInvoiceDetailPage() {
         <Button
           onClick={() => router.back()}
           variant="outline"
-          className="border-blue-200 text-blue-700 hover:bg-blue-50"
+          className="border-violet-200 text-violet-700 hover:bg-violet-50"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Go Back
@@ -286,7 +286,7 @@ export default function AdminInvoiceDetailPage() {
             variant="outline"
             size="sm"
             onClick={() => router.push("/admin/payments/invoices")}
-            className="border-blue-200 text-blue-700 hover:bg-blue-50 w-full sm:w-auto"
+            className="border-violet-200 text-violet-700 hover:bg-violet-50 w-full sm:w-auto"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Invoices
@@ -296,7 +296,7 @@ export default function AdminInvoiceDetailPage() {
               variant="outline"
               size="sm"
               onClick={handleDownloadPDF}
-              className="border-blue-200 text-blue-700 hover:bg-blue-50 flex-1 sm:flex-none"
+              className="border-violet-200 text-violet-700 hover:bg-violet-50 flex-1 sm:flex-none"
             >
               <Download className="h-4 w-4 mr-2" />
               Download PDF
@@ -305,7 +305,7 @@ export default function AdminInvoiceDetailPage() {
               variant="outline"
               size="sm"
               onClick={handlePrint}
-              className="border-blue-200 text-blue-700 hover:bg-blue-50 flex-1 sm:flex-none"
+              className="border-violet-200 text-violet-700 hover:bg-violet-50 flex-1 sm:flex-none"
             >
               <Printer className="h-4 w-4 mr-2" />
               Print
@@ -328,8 +328,8 @@ export default function AdminInvoiceDetailPage() {
         {/* Main Invoice Details */}
         <div className="lg:col-span-2 space-y-4 sm:space-y-6 order-3 lg:order-1">
           {/* Invoice Status Card */}
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-blue-100 overflow-hidden">
-            <div className="bg-linear-to-r from-blue-500 to-indigo-600 p-4 sm:p-6 text-white">
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-violet-100 overflow-hidden">
+            <div className="bg-linear-to-r from-violet-500 to-indigo-600 p-4 sm:p-6 text-white">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2 mb-1 sm:mb-2">
@@ -338,7 +338,7 @@ export default function AdminInvoiceDetailPage() {
                       Invoice Details
                     </h2>
                   </div>
-                  <p className="text-blue-100 text-xs sm:text-sm">
+                  <p className="text-violet-100 text-xs sm:text-sm">
                     Track and manage invoice status
                   </p>
                 </div>
@@ -349,10 +349,10 @@ export default function AdminInvoiceDetailPage() {
             <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
               {/* Dates */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl p-3 sm:p-4 border-2 border-blue-200">
+                <div className="bg-linear-to-br from-violet-50 to-indigo-50 rounded-xl p-3 sm:p-4 border-2 border-violet-200">
                   <div className="flex items-center gap-2 mb-2">
-                    <Calendar className="h-4 w-4 text-blue-600" />
-                    <p className="text-[10px] sm:text-xs font-semibold text-blue-800">
+                    <Calendar className="h-4 w-4 text-violet-600" />
+                    <p className="text-[10px] sm:text-xs font-semibold text-violet-800">
                       Invoice Date
                     </p>
                   </div>
@@ -360,10 +360,10 @@ export default function AdminInvoiceDetailPage() {
                     {formatDate(invoice.invoiceDate)}
                   </p>
                 </div>
-                <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl p-3 sm:p-4 border-2 border-blue-200">
+                <div className="bg-linear-to-br from-violet-50 to-indigo-50 rounded-xl p-3 sm:p-4 border-2 border-violet-200">
                   <div className="flex items-center gap-2 mb-2">
-                    <Calendar className="h-4 w-4 text-blue-600" />
-                    <p className="text-[10px] sm:text-xs font-semibold text-blue-800">
+                    <Calendar className="h-4 w-4 text-violet-600" />
+                    <p className="text-[10px] sm:text-xs font-semibold text-violet-800">
                       Due Date
                     </p>
                   </div>
@@ -390,7 +390,7 @@ export default function AdminInvoiceDetailPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="border-2 border-gray-200 rounded-xl p-3 sm:p-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <User className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                    <User className="h-4 w-4 sm:h-5 sm:w-5 text-violet-600" />
                     <h3 className="font-semibold text-gray-900 text-sm">
                       Customer
                     </h3>
@@ -446,7 +446,7 @@ export default function AdminInvoiceDetailPage() {
 
                 <div className="border-2 border-gray-200 rounded-xl p-3 sm:p-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                    <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 text-violet-600" />
                     <h3 className="font-semibold text-gray-900 text-sm">
                       Service Provider
                     </h3>
@@ -492,7 +492,7 @@ export default function AdminInvoiceDetailPage() {
               {invoice.serviceRequest && (
                 <div className="border-2 border-gray-200 rounded-xl p-3 sm:p-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                    <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 text-violet-600" />
                     <h3 className="font-semibold text-gray-900 text-sm">
                       Service Details
                     </h3>
@@ -533,14 +533,14 @@ export default function AdminInvoiceDetailPage() {
           </div>
 
           {/* Payment Breakdown - Redesigned */}
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-blue-100 overflow-hidden">
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-violet-100 overflow-hidden">
             {/* Header */}
-            <div className="bg-linear-to-r from-blue-600 to-indigo-600 px-4 sm:px-6 py-3 sm:py-4">
+            <div className="bg-linear-to-r from-violet-600 to-indigo-600 px-4 sm:px-6 py-3 sm:py-4">
               <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
                 <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
                 Earnings Breakdown
               </h3>
-              <p className="text-xs sm:text-sm text-blue-100 mt-1">
+              <p className="text-xs sm:text-sm text-violet-100 mt-1">
                 Complete payment breakdown
               </p>
             </div>
@@ -572,7 +572,7 @@ export default function AdminInvoiceDetailPage() {
               <div className="hidden sm:block border-2 border-gray-200 rounded-xl overflow-hidden mb-6">
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-linear-to-r from-blue-50 to-indigo-50 border-b-2 border-blue-200">
+                    <tr className="bg-linear-to-r from-violet-50 to-indigo-50 border-b-2 border-violet-200">
                       <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wide">
                         Description
                       </th>
@@ -592,11 +592,11 @@ export default function AdminInvoiceDetailPage() {
                         : parseFloat(invoice.laborCost || "0") || 0;
 
                       return serviceCharge > 0 ? (
-                        <tr className="hover:bg-blue-50/30 transition-colors">
+                        <tr className="hover:bg-violet-50/30 transition-colors">
                           <td className="px-4 py-4">
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-100 to-indigo-100 flex items-center justify-center shrink-0">
-                                <Briefcase className="h-4 w-4 text-blue-600" />
+                              <div className="w-8 h-8 rounded-lg bg-linear-to-br from-violet-100 to-indigo-100 flex items-center justify-center shrink-0">
+                                <Briefcase className="h-4 w-4 text-violet-600" />
                               </div>
                               <div>
                                 <p className="font-semibold text-gray-900 text-sm">
@@ -620,11 +620,11 @@ export default function AdminInvoiceDetailPage() {
                     {/* Material Cost */}
                     {invoice.materialCost &&
                       parseFloat(invoice.materialCost) > 0 && (
-                        <tr className="hover:bg-blue-50/30 transition-colors">
+                        <tr className="hover:bg-violet-50/30 transition-colors">
                           <td className="px-4 py-4">
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-100 to-indigo-100 flex items-center justify-center shrink-0">
-                                <Package className="h-4 w-4 text-blue-600" />
+                              <div className="w-8 h-8 rounded-lg bg-linear-to-br from-violet-100 to-indigo-100 flex items-center justify-center shrink-0">
+                                <Package className="h-4 w-4 text-violet-600" />
                               </div>
                               <div>
                                 <p className="font-semibold text-gray-900 text-sm">
@@ -743,11 +743,11 @@ export default function AdminInvoiceDetailPage() {
                     : parseFloat(invoice.laborCost || "0") || 0;
 
                   return serviceCharge > 0 ? (
-                    <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 p-4">
+                    <div className="bg-linear-to-br from-violet-50 to-indigo-50 rounded-xl border-2 border-violet-200 p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-linear-to-br from-blue-100 to-indigo-100 flex items-center justify-center shrink-0">
-                            <Briefcase className="h-5 w-5 text-blue-600" />
+                          <div className="w-10 h-10 rounded-lg bg-linear-to-br from-violet-100 to-indigo-100 flex items-center justify-center shrink-0">
+                            <Briefcase className="h-5 w-5 text-violet-600" />
                           </div>
                           <div>
                             <p className="font-bold text-gray-900 text-sm">
@@ -769,11 +769,11 @@ export default function AdminInvoiceDetailPage() {
                 {/* Material Cost */}
                 {invoice.materialCost &&
                   parseFloat(invoice.materialCost) > 0 && (
-                    <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 p-4">
+                    <div className="bg-linear-to-br from-violet-50 to-indigo-50 rounded-xl border-2 border-violet-200 p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-linear-to-br from-blue-100 to-indigo-100 flex items-center justify-center shrink-0">
-                            <Package className="h-5 w-5 text-blue-600" />
+                          <div className="w-10 h-10 rounded-lg bg-linear-to-br from-violet-100 to-indigo-100 flex items-center justify-center shrink-0">
+                            <Package className="h-5 w-5 text-violet-600" />
                           </div>
                           <div>
                             <p className="font-bold text-gray-900 text-sm">
@@ -865,17 +865,17 @@ export default function AdminInvoiceDetailPage() {
               </div>
 
               {/* Total Amount - Prominent */}
-              <div className="bg-linear-to-r from-blue-600 to-indigo-600 rounded-xl border-2 border-blue-700 p-4 sm:p-6 shadow-lg">
+              <div className="bg-linear-to-r from-violet-600 to-indigo-600 rounded-xl border-2 border-violet-700 p-4 sm:p-6 shadow-lg">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 sm:gap-4">
                     <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm shrink-0">
                       <IndianRupee className="h-5 w-5 sm:h-7 sm:w-7 text-white" />
                     </div>
                     <div>
-                      <p className="text-xs sm:text-sm font-medium text-blue-100 uppercase tracking-wide">
+                      <p className="text-xs sm:text-sm font-medium text-violet-100 uppercase tracking-wide">
                         Total Amount
                       </p>
-                      <p className="text-[10px] sm:text-xs text-blue-200">
+                      <p className="text-[10px] sm:text-xs text-violet-200">
                         Including all taxes and charges
                       </p>
                     </div>
@@ -894,9 +894,9 @@ export default function AdminInvoiceDetailPage() {
         {/* Sidebar - Payment Info */}
         <div className="space-y-4 sm:space-y-6 order-1 lg:order-2">
           {/* Payment Status Card */}
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-blue-100 p-4 sm:p-6 order-1">
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-violet-100 p-4 sm:p-6 order-1">
             <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+              <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-violet-600" />
               Payment Information
             </h3>
 
@@ -938,14 +938,14 @@ export default function AdminInvoiceDetailPage() {
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl sm:rounded-2xl shadow-lg border-2 border-blue-200 p-4 sm:p-6 order-2">
+          <div className="bg-linear-to-br from-violet-50 to-indigo-50 rounded-xl sm:rounded-2xl shadow-lg border-2 border-violet-200 p-4 sm:p-6 order-2">
             <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">
               Quick Actions
             </h3>
             <div className="space-y-2 sm:space-y-3">
               <Button
                 variant="outline"
-                className="w-full justify-start border-blue-200 text-blue-700 hover:bg-blue-50 text-xs sm:text-sm"
+                className="w-full justify-start border-violet-200 text-violet-700 hover:bg-violet-50 text-xs sm:text-sm"
                 onClick={() =>
                   router.push(`/admin/providers/${invoice.serviceProvider?.id}`)
                 }
@@ -955,7 +955,7 @@ export default function AdminInvoiceDetailPage() {
               </Button>
               <Button
                 variant="outline"
-                className="w-full justify-start border-blue-200 text-blue-700 hover:bg-blue-50 text-xs sm:text-sm"
+                className="w-full justify-start border-violet-200 text-violet-700 hover:bg-violet-50 text-xs sm:text-sm"
                 onClick={() =>
                   router.push(`/admin/customers/${invoice.customer?.id}`)
                 }
@@ -965,7 +965,7 @@ export default function AdminInvoiceDetailPage() {
               </Button>
               <Button
                 variant="outline"
-                className="w-full justify-start border-blue-200 text-blue-700 hover:bg-blue-50 text-xs sm:text-sm"
+                className="w-full justify-start border-violet-200 text-violet-700 hover:bg-violet-50 text-xs sm:text-sm"
                 onClick={() =>
                   router.push(`/admin/requests/${invoice.requestId}`)
                 }
@@ -978,9 +978,9 @@ export default function AdminInvoiceDetailPage() {
 
           {/* Earning Distribution */}
           {(invoice.providerEarning || invoice.platformFee) && (
-            <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-blue-100 p-4 sm:p-6 order-4">
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-violet-100 p-4 sm:p-6 order-4">
               <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
-                <Wallet className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                <Wallet className="h-4 w-4 sm:h-5 sm:w-5 text-violet-600" />
                 Earning Distribution
               </h3>
 
@@ -1000,17 +1000,17 @@ export default function AdminInvoiceDetailPage() {
                   const providerEarning = serviceCharge + materialCost;
 
                   return providerEarning > 0 ? (
-                    <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 p-3 sm:p-4">
+                    <div className="bg-linear-to-br from-violet-50 to-indigo-50 rounded-xl border-2 border-violet-200 p-3 sm:p-4">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-lg bg-linear-to-br from-violet-400 to-indigo-500 flex items-center justify-center">
                             <Briefcase className="h-4 w-4 text-white" />
                           </div>
                           <p className="font-semibold text-gray-900 text-xs sm:text-sm">
                             Provider
                           </p>
                         </div>
-                        <Badge className="bg-blue-100 text-blue-800 text-[10px] sm:text-xs font-semibold">
+                        <Badge className="bg-violet-100 text-violet-800 text-[10px] sm:text-xs font-semibold">
                           {(
                             (providerEarning /
                               parseFloat(invoice.totalAmount)) *
@@ -1019,7 +1019,7 @@ export default function AdminInvoiceDetailPage() {
                           %
                         </Badge>
                       </div>
-                      <p className="text-xl sm:text-2xl font-bold text-blue-700">
+                      <p className="text-xl sm:text-2xl font-bold text-violet-700">
                         {formatCurrency(providerEarning.toString())}
                       </p>
                       <p className="text-[10px] sm:text-xs text-gray-600 mt-1">
@@ -1094,7 +1094,7 @@ export default function AdminInvoiceDetailPage() {
                           {/* Service Charges */}
                           {(invoice.laborCost || invoice.materialCost) && (
                             <div
-                              className="bg-linear-to-r from-blue-400 to-indigo-500 h-full transition-all"
+                              className="bg-linear-to-r from-violet-400 to-indigo-500 h-full transition-all"
                               style={{ width: `${servicePercent}%` }}
                             />
                           )}
@@ -1123,7 +1123,7 @@ export default function AdminInvoiceDetailPage() {
                   <div className="flex items-center justify-between text-[10px] sm:text-xs mt-2 gap-2">
                     {(invoice.laborCost || invoice.materialCost) && (
                       <div className="flex items-center gap-1">
-                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-linear-to-r from-blue-400 to-indigo-500" />
+                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-linear-to-r from-violet-400 to-indigo-500" />
                         <span className="text-gray-600">Service</span>
                       </div>
                     )}

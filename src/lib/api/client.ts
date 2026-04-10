@@ -8,8 +8,61 @@ type ApiConfig = {
   [key: string]: any;
 };
 
+// Token storage helpers
+const TokenManager = {
+  getAccessToken: (): string | null => {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('accessToken');
+  },
+
+  getRefreshToken: (): string | null => {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('refreshToken');
+  },
+
+  getSessionId: (): string | null => {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('sessionId');
+  },
+
+  setTokens: (accessToken: string, refreshToken: string, expiresIn: number, sessionId?: string) => {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+    // Store token expiry timestamp
+    const expiryTime = Date.now() + expiresIn * 1000;
+    localStorage.setItem('tokenExpiry', expiryTime.toString());
+    // Store session ID if provided
+    if (sessionId) {
+      localStorage.setItem('sessionId', sessionId);
+    }
+  },
+
+  clearTokens: () => {
+    if (typeof window === 'undefined') return;
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('tokenExpiry');
+    localStorage.removeItem('sessionId');
+  },
+
+  isTokenExpired: (): boolean => {
+    if (typeof window === 'undefined') return true;
+    const expiryTime = localStorage.getItem('tokenExpiry');
+    if (!expiryTime) return true;
+    return Date.now() > parseInt(expiryTime);
+  },
+
+  getUserRole: (): string | null => {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('userRole');
+  },
+};
+
 class ApiClient {
   private client: AxiosInstance;
+  private isRefreshing: boolean = false;
+  private refreshSubscribers: Array<(token: string) => void> = [];
 
   constructor() {
     this.client = axios.create({
@@ -17,57 +70,39 @@ class ApiClient {
       headers: {
         'Content-Type': 'application/json',
       },
-      withCredentials: true, // Important for httpOnly cookies
     });
 
-    // Request interceptor
+    this.setupRequestInterceptor();
+    this.setupResponseInterceptor();
+  }
+
+  private setupRequestInterceptor() {
     this.client.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
-        // Log request data for debugging
-        if (config.data && typeof config.data === 'object') {
-          console.log('🔍 API Request:', {
-            url: config.url,
-            method: config.method?.toUpperCase(),
-            data: config.data,
-            hasPhone: 'phone' in config.data,
-            phoneValue: config.data.phone
-          });
-        }
-
-        // Try to get token from cookie as fallback for Authorization header
-        // Some backends expect Authorization header even with cookies
-        if (typeof document !== 'undefined') {
-          const getCookie = (name: string) => {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) return parts.pop()?.split(';').shift();
-            return null;
-          };
-
-          const token = getCookie('auth_token');
-          if (token && config.headers) {
-            config.headers.Authorization = `Bearer ${token}`;
-          }
+        // Add access token to Authorization header
+        const accessToken = TokenManager.getAccessToken();
+        if (accessToken && config.headers) {
+          config.headers.Authorization = `Bearer ${accessToken}`;
         }
 
         return config;
       },
       (error: AxiosError) => {
+        console.error('Request Error:', error);
         return Promise.reject(error);
       }
     );
+  }
 
-    // Response interceptor - unwrap backend response format
+  private setupResponseInterceptor() {
     this.client.interceptors.response.use(
       (response: AxiosResponse) => {
-
         // Handle backend response format: { message, success, data }
         const backendResponse = response.data as any;
 
         // If success is false, create an error but preserve axios structure
         if (backendResponse.success === false) {
           const error: any = new Error(backendResponse.message || 'Request failed');
-          // Preserve all axios error properties
           error.config = response.config;
           error.response = {
             ...response,
@@ -77,40 +112,117 @@ class ApiClient {
           throw error;
         }
 
-        // Extract the actual data from the backend response
-        // Backend sends: { message, success, user/data/customer/provider/author/review }
-        // We want to return the actual data (user, customer, review, etc)
-        const data = backendResponse.data || backendResponse.user || backendResponse.customer || backendResponse.provider || backendResponse.author || backendResponse.review;
+        // Check if this is an auth endpoint (login, register, refresh-token)
+        // Auth endpoints need the full response including tokens
+        const isAuthEndpoint = response.config?.url?.includes('/login') ||
+                               response.config?.url?.includes('/register') ||
+                               response.config?.url?.includes('/refresh-token');
 
-        // Return the data in the expected format
+        if (isAuthEndpoint) {
+          // Return the full backend response for auth endpoints
+          return {
+            ...response,
+            data: backendResponse
+          };
+        }
+
+        // For non-auth endpoints, extract the actual data
+        const data = backendResponse.data || backendResponse.user || backendResponse.customer || backendResponse.provider || backendResponse.author || backendResponse.serviceProvider || backendResponse.review;
+
         return {
           ...response,
           data: data !== undefined ? data : backendResponse
         };
       },
-      (error: AxiosError | any) => {
-        // Log error for debugging
-        console.error('❌ API Error:', {
-          url: error.config?.url,
-          status: error.response?.status,
-          data: error.response?.data,
-          message: error.message
-        });
+      async (error: AxiosError | any) => {
+        const originalRequest = error.config;
 
-        if (error?.response?.status === 401) {
-          // Token expired or invalid
-          // Could trigger a refresh or redirect to login
-          if (typeof window !== 'undefined') {
-            const currentPath = window.location.pathname;
-            if (!currentPath.includes('/login') && !currentPath.includes('/register') && !currentPath.includes('/forgot-password')) {
-              // Redirect to login page preserving the intended destination
-              window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
+        // Handle 401 errors
+        if (error.response?.status === 401) {
+          // Try to refresh token (if not already retrying)
+          if (!originalRequest._retry) {
+            if (this.isRefreshing) {
+              // If already refreshing, wait for the new token
+              return new Promise((resolve) => {
+                this.subscribeTokenRefresh((token: string) => {
+                  originalRequest.headers.Authorization = `Bearer ${token}`;
+                  resolve(this.client(originalRequest));
+                });
+              });
+            }
+
+            originalRequest._retry = true;
+            this.isRefreshing = true;
+
+            try {
+              const refreshToken = TokenManager.getRefreshToken();
+              const userRole = TokenManager.getUserRole();
+
+              if (!refreshToken || !userRole) {
+                throw new Error('No refresh token available');
+              }
+
+              // Call appropriate refresh endpoint based on role
+              let refreshEndpoint;
+              switch (userRole) {
+                case 'customer':
+                  refreshEndpoint = '/customers/refresh-token';
+                  break;
+                case 'provider':
+                  refreshEndpoint = '/providers/refresh-token';
+                  break;
+                case 'admin':
+                  refreshEndpoint = '/author/refresh-token';
+                  break;
+                default:
+                  throw new Error('Invalid user role');
+              }
+
+              const response = await axios.post(`${API_URL}${refreshEndpoint}`, { refreshToken });
+              const { accessToken, refreshToken: newRefreshToken, expiresIn } = response.data;
+
+              // Store new tokens (token rotation)
+              TokenManager.setTokens(accessToken, newRefreshToken, expiresIn);
+
+              // Update Authorization header
+              originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+
+              // Notify all waiting requests
+              this.onTokenRefreshed(accessToken);
+
+              // Retry original request
+              return this.client(originalRequest);
+            } catch (refreshError) {
+              // Refresh failed - clear tokens and redirect to login
+              TokenManager.clearTokens();
+              this.onTokenRefreshed(''); // Clear waiting requests
+
+              if (typeof window !== 'undefined') {
+                const currentPath = window.location.pathname;
+                if (!currentPath.includes('/login') && !currentPath.includes('/register')) {
+                  window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
+                }
+              }
+
+              return Promise.reject(refreshError);
+            } finally {
+              this.isRefreshing = false;
             }
           }
         }
+
         return Promise.reject(error);
       }
     );
+  }
+
+  private subscribeTokenRefresh(callback: (token: string) => void) {
+    this.refreshSubscribers.push(callback);
+  }
+
+  private onTokenRefreshed(token: string) {
+    this.refreshSubscribers.forEach(callback => callback(token));
+    this.refreshSubscribers = [];
   }
 
   public getClient(): AxiosInstance {
@@ -145,3 +257,4 @@ class ApiClient {
 }
 
 export const apiClient = new ApiClient();
+export { TokenManager };

@@ -359,7 +359,7 @@ export default function AdminPaymentsPage() {
     // Online payments
     switch (methodLower) {
       case "card":
-        return <CreditCard className="h-5 w-5 text-blue-600" />;
+        return <CreditCard className="h-5 w-5 text-violet-600" />;
       case "upi":
         return <Smartphone className="h-5 w-5 text-emerald-600" />;
       case "netbanking":
@@ -367,9 +367,9 @@ export default function AdminPaymentsPage() {
       case "wallet":
         return <WalletCards className="h-5 w-5 text-purple-600" />;
       case "stripe":
-        return <CreditCard className="h-5 w-5 text-blue-600" />;
+        return <CreditCard className="h-5 w-5 text-violet-600" />;
       default:
-        return <Wallet className="h-5 w-5 text-blue-600" />;
+        return <Wallet className="h-5 w-5 text-violet-600" />;
     }
   };
 
@@ -394,7 +394,7 @@ export default function AdminPaymentsPage() {
             value={timeRange}
             onValueChange={(value: any) => setTimeRange(value)}
           >
-            <SelectTrigger className="w-32 sm:w-40 border-blue-200">
+            <SelectTrigger className="w-32 sm:w-40 border-violet-200">
               <SelectValue placeholder="Time Range" />
             </SelectTrigger>
             <SelectContent>
@@ -406,7 +406,7 @@ export default function AdminPaymentsPage() {
           </Select>
           <Button
             variant="outline"
-            className="border-blue-200 text-blue-700 hover:bg-blue-50"
+            className="border-violet-200 text-violet-700 hover:bg-violet-50"
             onClick={() => router.push("/admin/payments/invoices")}
           >
             <FileText className="h-4 w-4 mr-2" />
@@ -469,13 +469,13 @@ export default function AdminPaymentsPage() {
         </div>
 
         {/* Platform Fees */}
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-4 sm:p-6 border-2 border-blue-200 shadow-lg hover:shadow-xl transition-shadow">
+        <div className="bg-gradient-to-br from-violet-50 to-indigo-50 rounded-2xl p-4 sm:p-6 border-2 border-violet-200 shadow-lg hover:shadow-xl transition-shadow">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center shadow-md">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-violet-400 to-indigo-500 flex items-center justify-center shadow-md">
               <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
           </div>
-          <p className="text-xs sm:text-sm font-semibold text-blue-900 uppercase tracking-wide mb-1">
+          <p className="text-xs sm:text-sm font-semibold text-violet-900 uppercase tracking-wide mb-1">
             Platform Fees
           </p>
           <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
@@ -544,7 +544,7 @@ export default function AdminPaymentsPage() {
         </div>
         <div className="bg-white rounded-xl p-3 sm:p-4 border border-gray-200 shadow-sm">
           <div className="flex items-center gap-2">
-            <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+            <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-violet-600" />
             <div>
               <p className="text-[10px] sm:text-xs text-gray-600 font-medium">
                 Avg Payment
@@ -564,7 +564,7 @@ export default function AdminPaymentsPage() {
       {/* Recent Payments & Pending Invoices */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Payments */}
-        <div className="bg-white rounded-2xl shadow-lg border-2 border-blue-100 p-4 sm:p-6">
+        <div className="bg-white rounded-2xl shadow-lg border-2 border-violet-100 p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4 sm:mb-6">
             <div>
               <h2 className="text-lg sm:text-xl font-bold text-gray-900">
@@ -578,7 +578,7 @@ export default function AdminPaymentsPage() {
               variant="outline"
               size="sm"
               onClick={() => router.push("/admin/payments/history")}
-              className="border-blue-200 text-blue-700 hover:bg-blue-50 text-xs sm:text-sm"
+              className="border-violet-200 text-violet-700 hover:bg-violet-50 text-xs sm:text-sm"
             >
               View All
             </Button>
@@ -592,16 +592,16 @@ export default function AdminPaymentsPage() {
                   payment.gateway === "razorpay";
                 const paymentTypeLabel = isOnline ? "Online" : "Cash";
                 const paymentTypeColor = isOnline
-                  ? "bg-blue-100 text-blue-700 border-blue-200"
+                  ? "bg-violet-100 text-violet-700 border-violet-200"
                   : "bg-green-100 text-green-700 border-green-200";
 
                 return (
                   <div
                     key={payment.id}
-                    className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-blue-50/50 transition-colors"
+                    className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-200 hover:border-violet-300 hover:bg-violet-50/50 transition-colors"
                   >
                     <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 flex items-center justify-center shrink-0">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-50 to-indigo-50 border-2 border-violet-200 flex items-center justify-center shrink-0">
                         {getPaymentMethodIcon(payment.paymentMethod)}
                       </div>
                       <div className="min-w-0 flex-1">
@@ -645,7 +645,7 @@ export default function AdminPaymentsPage() {
                   Payment transactions will appear here once customers start
                   paying for services through the platform.
                 </p>
-                <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-blue-50 rounded-xl border border-blue-200 max-w-md mx-auto">
+                <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-violet-50 rounded-xl border border-violet-200 max-w-md mx-auto">
                   <p className="text-xs sm:text-sm text-gray-700 flex items-start gap-2">
                     <Lightbulb className="h-4 w-4 text-yellow-600 mt-0.5 shrink-0" />
                     <span>
@@ -660,7 +660,7 @@ export default function AdminPaymentsPage() {
         </div>
 
         {/* Pending Invoices */}
-        <div className="bg-white rounded-2xl shadow-lg border-2 border-blue-100 p-4 sm:p-6">
+        <div className="bg-white rounded-2xl shadow-lg border-2 border-violet-100 p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4 sm:mb-6">
             <div>
               <h2 className="text-lg sm:text-xl font-bold text-gray-900">
@@ -674,7 +674,7 @@ export default function AdminPaymentsPage() {
               variant="outline"
               size="sm"
               onClick={() => router.push("/admin/payments/invoices")}
-              className="border-blue-200 text-blue-700 hover:bg-blue-50 text-xs sm:text-sm"
+              className="border-violet-200 text-violet-700 hover:bg-violet-50 text-xs sm:text-sm"
             >
               View All
             </Button>
@@ -717,8 +717,8 @@ export default function AdminPaymentsPage() {
               ))
             ) : (
               <div className="text-center py-8 sm:py-12">
-                <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full mb-3 sm:mb-4">
-                  <FileText className="h-8 w-8 sm:h-10 sm:w-10 text-blue-600" />
+                <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-violet-100 to-indigo-100 rounded-full mb-3 sm:mb-4">
+                  <FileText className="h-8 w-8 sm:h-10 sm:w-10 text-violet-600" />
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2">
                   No Pending Invoices
@@ -727,9 +727,9 @@ export default function AdminPaymentsPage() {
                   Invoices will be generated when service requests are completed
                   and awaiting payment.
                 </p>
-                <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-blue-50 rounded-xl border border-blue-200 max-w-md mx-auto">
+                <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-violet-50 rounded-xl border border-violet-200 max-w-md mx-auto">
                   <p className="text-xs sm:text-sm text-gray-700 flex items-start gap-2">
-                    <Info className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
+                    <Info className="h-4 w-4 text-violet-600 mt-0.5 shrink-0" />
                     <span>
                       <strong>Info:</strong> Invoices are automatically created
                       when providers mark a service as "completed".
@@ -743,7 +743,7 @@ export default function AdminPaymentsPage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4 sm:p-6 border-2 border-blue-200">
+      <div className="bg-gradient-to-r from-violet-50 to-indigo-50 rounded-2xl p-4 sm:p-6 border-2 border-violet-200">
         <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4">
           Quick Actions
         </h2>
@@ -751,7 +751,7 @@ export default function AdminPaymentsPage() {
           <Button
             variant="outline"
             onClick={() => router.push("/admin/payments/invoices")}
-            className="justify-start border-blue-200 text-blue-700 hover:bg-blue-50 h-auto py-3 px-4"
+            className="justify-start border-violet-200 text-violet-700 hover:bg-violet-50 h-auto py-3 px-4"
           >
             <FileText className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             <div className="text-left">
@@ -766,7 +766,7 @@ export default function AdminPaymentsPage() {
           <Button
             variant="outline"
             onClick={() => router.push("/admin/payments/history")}
-            className="justify-start border-blue-200 text-blue-700 hover:bg-blue-50 h-auto py-3 px-4"
+            className="justify-start border-violet-200 text-violet-700 hover:bg-violet-50 h-auto py-3 px-4"
           >
             <Calendar className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             <div className="text-left">
@@ -781,7 +781,7 @@ export default function AdminPaymentsPage() {
           <Button
             variant="outline"
             onClick={() => router.push("/admin/payments/distribute")}
-            className="justify-start border-blue-200 text-blue-700 hover:bg-blue-50 h-auto py-3 px-4"
+            className="justify-start border-violet-200 text-violet-700 hover:bg-violet-50 h-auto py-3 px-4"
           >
             <Wallet className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             <div className="text-left">
@@ -796,7 +796,7 @@ export default function AdminPaymentsPage() {
           <Button
             variant="outline"
             onClick={() => router.push("/admin/payments/providers")}
-            className="justify-start border-blue-200 text-blue-700 hover:bg-blue-50 h-auto py-3 px-4"
+            className="justify-start border-violet-200 text-violet-700 hover:bg-violet-50 h-auto py-3 px-4"
           >
             <User className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             <div className="text-left">

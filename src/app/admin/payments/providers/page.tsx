@@ -126,7 +126,7 @@ export default function ProviderEarningsPage() {
             variant="outline"
             size="sm"
             onClick={() => router.push("/admin/payments")}
-            className="border-blue-200 text-blue-700 hover:bg-blue-50 w-fit"
+            className="border-violet-200 text-violet-700 hover:bg-violet-50 w-fit"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Payments
@@ -145,7 +145,7 @@ export default function ProviderEarningsPage() {
             <div className="flex items-center gap-3">
               <Button
                 onClick={() => router.push("/admin/payments/distribute")}
-                className="text-white gap-2 bg-blue-600 hover:bg-blue-700 whitespace-nowrap"
+                className="text-white gap-2 bg-violet-600 hover:bg-violet-700 whitespace-nowrap"
               >
                 <Wallet className="h-4 w-4" />
                 Distribute Payments
@@ -159,8 +159,8 @@ export default function ProviderEarningsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white rounded-xl p-4 sm:p-6 border border-gray-200 shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <User className="h-5 w-5 text-blue-600" />
+                <div className="p-2 bg-violet-100 rounded-lg">
+                  <User className="h-5 w-5 text-violet-600" />
                 </div>
                 <div>
                   <p className="text-xs text-gray-600">Total Providers</p>
@@ -226,7 +226,7 @@ export default function ProviderEarningsPage() {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              className="pl-10 border-blue-200 focus:border-blue-400 focus:ring-blue-400"
+              className="pl-10 border-violet-200 focus:border-violet-400 focus:ring-blue-400"
             />
           </div>
         </div>
@@ -264,7 +264,7 @@ export default function ProviderEarningsPage() {
                 <div key={earning.providerId} className="p-4 space-y-3">
                   {/* Provider Header */}
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-semibold shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-linear-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white font-semibold shrink-0">
                       {earning.providerName.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -361,7 +361,7 @@ export default function ProviderEarningsPage() {
                     <tr key={earning.providerId} className="hover:bg-gray-50">
                       <td className="px-4 sm:px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-semibold text-sm">
+                          <div className="w-10 h-10 rounded-full bg-linear-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white font-semibold text-sm">
                             {earning.providerName.charAt(0).toUpperCase()}
                           </div>
                           <div>
@@ -426,7 +426,7 @@ export default function ProviderEarningsPage() {
               size="sm"
               onClick={handlePreviousPage}
               disabled={currentPage === 1}
-              className="gap-1 border-blue-200 text-blue-700 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="gap-1 border-violet-200 text-violet-700 hover:bg-violet-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <ChevronLeft className="h-4 w-4" />
               Previous
@@ -445,8 +445,8 @@ export default function ProviderEarningsPage() {
                     }}
                     className={
                       currentPage === page
-                        ? "bg-blue-600 hover:bg-blue-700 text-white"
-                        : "border-blue-200 text-blue-700 hover:bg-blue-50"
+                        ? "bg-violet-600 hover:bg-violet-700 text-white"
+                        : "border-violet-200 text-violet-700 hover:bg-violet-50"
                     }
                   >
                     {page}
@@ -460,7 +460,7 @@ export default function ProviderEarningsPage() {
               size="sm"
               onClick={handleNextPage}
               disabled={currentPage === totalPages}
-              className="gap-1 border-blue-200 text-blue-700 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="gap-1 border-violet-200 text-violet-700 hover:bg-violet-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next
               <ChevronRight className="h-4 w-4" />

@@ -179,27 +179,27 @@ export default function AdminProvidersPage() {
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white rounded-2xl shadow-lg border border-blue-100 p-4 sm:p-6">
+      <div className="bg-white rounded-2xl shadow-lg border border-violet-100 p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-violet-500" />
             <Input
               type="text"
               placeholder="Search by name, email, or phone..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 border-blue-200 focus:border-blue-400 focus:ring-blue-400"
+              className="pl-10 border-violet-200 focus:border-violet-400 focus:ring-blue-400"
             />
           </div>
 
           <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
-            <SelectTrigger className="w-full sm:w-48 border-blue-200 bg-white shadow-sm hover:shadow-md transition-shadow focus:border-blue-400 focus:ring-blue-400">
+            <SelectTrigger className="w-full sm:w-48 border-violet-200 bg-white shadow-sm hover:shadow-md transition-shadow focus:border-violet-400 focus:ring-blue-400">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
-            <SelectContent className="bg-white border border-blue-200 shadow-lg">
-              <SelectItem value="all" className="hover:bg-blue-50 focus:bg-blue-100 cursor-pointer">All Providers</SelectItem>
-              <SelectItem value="active" className="hover:bg-blue-50 focus:bg-blue-100 cursor-pointer">Active</SelectItem>
-              <SelectItem value="suspended" className="hover:bg-blue-50 focus:bg-blue-100 cursor-pointer">Suspended</SelectItem>
+            <SelectContent className="bg-white border border-violet-200 shadow-lg">
+              <SelectItem value="all" className="hover:bg-violet-50 focus:bg-violet-100 cursor-pointer">All Providers</SelectItem>
+              <SelectItem value="active" className="hover:bg-violet-50 focus:bg-violet-100 cursor-pointer">Active</SelectItem>
+              <SelectItem value="suspended" className="hover:bg-violet-50 focus:bg-violet-100 cursor-pointer">Suspended</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -226,7 +226,7 @@ export default function AdminProvidersPage() {
 
           {/* Pagination Controls */}
           {totalPages > 1 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-2xl shadow-lg border border-blue-100 p-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-2xl shadow-lg border border-violet-100 p-4">
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <span>Showing</span>
                 <span className="font-semibold text-gray-900">
@@ -247,7 +247,7 @@ export default function AdminProvidersPage() {
                   size="sm"
                   onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                   disabled={currentPage === 1}
-                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                  className="border-violet-200 text-violet-700 hover:bg-violet-50"
                 >
                   Previous
                 </Button>
@@ -273,8 +273,8 @@ export default function AdminProvidersPage() {
                         onClick={() => setCurrentPage(pageNum)}
                         className={
                           currentPage === pageNum
-                            ? "bg-blue-600 text-white hover:bg-blue-700"
-                            : "border-blue-200 text-blue-700 hover:bg-blue-50"
+                            ? "bg-violet-600 text-white hover:bg-violet-700"
+                            : "border-violet-200 text-violet-700 hover:bg-violet-50"
                         }
                       >
                         {pageNum}
@@ -288,7 +288,7 @@ export default function AdminProvidersPage() {
                   size="sm"
                   onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                   disabled={currentPage === totalPages}
-                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                  className="border-violet-200 text-violet-700 hover:bg-violet-50"
                 >
                   Next
                 </Button>
@@ -302,7 +302,7 @@ export default function AdminProvidersPage() {
                     setItemsPerPage(Number(e.target.value));
                     setCurrentPage(1);
                   }}
-                  className="border border-blue-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="border border-violet-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
                   <option value={12}>12</option>
                   <option value={24}>24</option>
@@ -336,7 +336,7 @@ export default function AdminProvidersPage() {
                 onChange={(e) => setSuspensionReason(e.target.value)}
                 placeholder="e.g., Violation of service terms, multiple customer complaints, etc."
                 rows={3}
-                className="border-blue-200 focus:border-blue-400 focus:ring-blue-400"
+                className="border-violet-200 focus:border-violet-400 focus:ring-blue-400"
               />
             </div>
           </div>
@@ -391,7 +391,7 @@ function ProviderCard({
   const experiencePercentage = Math.min((provider.experienceYears / 10) * 100, 100);
 
   return (
-    <div className="group bg-white rounded-2xl shadow-md border border-blue-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+    <div className="group bg-white rounded-2xl shadow-md border border-violet-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
       <div className="relative">
         {/* Background with contextual image */}
         <div className="h-32 bg-white relative overflow-hidden border-b border-gray-100">
@@ -403,13 +403,13 @@ function ProviderCard({
             }}
           />
           {/* Gradient overlay for better contrast */}
-          <div className="absolute inset-0 bg-linear-to-br from-blue-50/30 to-blue-50/30" />
+          <div className="absolute inset-0 bg-linear-to-br from-violet-50/30 to-fuchsia-50/30" />
 
           {/* View Button - Top Right */}
           <div className="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <Button
               onClick={onViewDetails}
-              className="bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white p-2 h-9 w-9 shadow-lg"
+              className="bg-linear-to-r from-violet-600 to-fuchsia-700 hover:from-violet-700 hover:to-fuchsia-800 text-white p-2 h-9 w-9 shadow-lg"
             >
               <Eye className="h-4 w-4" />
             </Button>
@@ -423,7 +423,7 @@ function ProviderCard({
                 Suspended
               </Badge>
             ) : provider.isActive ? (
-              <Badge className="bg-blue-500/90 text-white border-0 px-3 py-1 backdrop-blur-sm">
+              <Badge className="bg-violet-500/90 text-white border-0 px-3 py-1 backdrop-blur-sm">
                 <CheckCircle className="h-3 w-3 mr-1" />
                 Active
               </Badge>
@@ -446,7 +446,7 @@ function ProviderCard({
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-blue-500 to-blue-700">
+              <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-violet-500 to-fuchsia-700">
                 <span className="text-3xl font-bold text-white">
                   {provider.name.charAt(0).toUpperCase()}
                 </span>
@@ -497,7 +497,7 @@ function ProviderCard({
             {provider.name}
           </h3>
           <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Mail className="h-4 w-4 text-blue-500" />
+            <Mail className="h-4 w-4 text-violet-500" />
             <span className="truncate">{provider.email}</span>
           </div>
         </div>
@@ -517,15 +517,15 @@ function ProviderCard({
           </div>
 
           {/* Services Completed */}
-          <div className="bg-white rounded-xl p-3 border-2 border-blue-200 text-center">
-            <Briefcase className="h-4 w-4 text-blue-600 mx-auto mb-1" />
+          <div className="bg-white rounded-xl p-3 border-2 border-violet-200 text-center">
+            <Briefcase className="h-4 w-4 text-violet-600 mx-auto mb-1" />
             <p className="text-lg font-bold text-gray-900">{provider.totalJobsCompleted}</p>
             <p className="text-xs text-gray-600 font-medium">Completed</p>
           </div>
 
           {/* Years of Experience */}
-          <div className="bg-white rounded-xl p-3 border-2 border-blue-200 text-center">
-            <Award className="h-4 w-4 text-blue-600 mx-auto mb-1" />
+          <div className="bg-white rounded-xl p-3 border-2 border-violet-200 text-center">
+            <Award className="h-4 w-4 text-violet-600 mx-auto mb-1" />
             <p className="text-lg font-bold text-gray-900">{provider.experienceYears}</p>
             <p className="text-xs text-gray-600 font-medium">Years Exp.</p>
           </div>
@@ -537,7 +537,7 @@ function ProviderCard({
             <Button
               onClick={onUnsuspend}
               disabled={processing}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white h-10 font-medium"
+              className="flex-1 bg-violet-600 hover:bg-violet-700 text-white h-10 font-medium"
             >
               <Zap className="h-4 w-4 mr-1.5" />
               Activate
@@ -568,8 +568,8 @@ function EmptyState({
 }) {
   return (
     <div className="text-center py-12">
-      <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-        <Search className="h-8 w-8 text-blue-500" />
+      <div className="inline-flex items-center justify-center w-16 h-16 bg-violet-100 rounded-full mb-4">
+        <Search className="h-8 w-8 text-violet-500" />
       </div>
       <h3 className="text-lg font-bold text-gray-900 mb-2">
         {searchQuery || statusFilter !== "all" ? "No providers found" : "No providers yet"}

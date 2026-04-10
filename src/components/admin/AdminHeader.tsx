@@ -43,21 +43,21 @@ export function AdminHeader({ user, onMenuClick }: AdminHeaderProps) {
   };
 
   return (
-    <header className="bg-white/80 backdrop-blur-xl shadow-sm border-b border-blue-100 sticky top-0 z-30">
+    <header className="bg-white/80 backdrop-blur-xl shadow-sm border-b border-violet-100 sticky top-0 z-30">
       <div className="flex items-center justify-between px-4 lg:px-8 py-5">
         {/* Left: Menu button + Title */}
         <div className="flex items-center gap-4">
           {/* Mobile menu button */}
           <button
             onClick={onMenuClick}
-            className="lg:hidden p-2 rounded-lg hover:bg-blue-50 transition-colors"
+            className="lg:hidden p-2 rounded-lg hover:bg-violet-50 transition-colors"
           >
             <Menu className="h-6 w-6 text-gray-700" />
           </button>
 
           {/* Page title */}
           <div>
-            <h1 className="text-xl lg:text-2xl font-bold bg-linear-to-r from-blue-600 via-blue-700 to-blue-800 bg-clip-text text-transparent">
+            <h1 className="text-xl lg:text-2xl font-bold bg-linear-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
               {user?.name ? `${user.name}'s Dashboard` : 'Admin Dashboard'}
             </h1>
             <p className="text-sm text-gray-500 hidden sm:block">
@@ -74,7 +74,7 @@ export function AdminHeader({ user, onMenuClick }: AdminHeaderProps) {
               onClick={() => setShowDropdown(!showDropdown)}
               className="flex items-center gap-2 focus:outline-none"
             >
-              <div className="w-10 h-10 bg-linear-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold shadow-md hover:shadow-lg transition-shadow">
+              <div className="w-10 h-10 bg-linear-to-br from-violet-400 via-purple-400 to-fuchsia-400 rounded-full flex items-center justify-center text-white font-semibold shadow-md hover:shadow-lg transition-shadow">
                 {getInitials(user?.name)}
               </div>
               <ChevronDown
@@ -91,11 +91,11 @@ export function AdminHeader({ user, onMenuClick }: AdminHeaderProps) {
                   className="fixed inset-0 z-50 bg-transparent"
                   onClick={() => setShowDropdown(false)}
                 />
-                <div className="fixed left-4 right-4 sm:absolute sm:left-auto sm:right-0 sm:w-56 top-18 sm:mt-2 bg-white rounded-xl shadow-lg border border-blue-100 py-2 z-50">
+                <div className="fixed left-4 right-4 sm:absolute sm:left-auto sm:right-0 sm:w-56 top-18 sm:mt-2 bg-white rounded-xl shadow-lg border border-violet-100 py-2 z-50">
                   {/* User Info Section */}
-                  <div className="px-4 py-3 border-b border-blue-100">
+                  <div className="px-4 py-3 border-b border-violet-100">
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 bg-linear-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold shadow-md">
+                      <div className="w-10 h-10 bg-linear-to-br from-violet-400 via-purple-400 to-fuchsia-400 rounded-full flex items-center justify-center text-white font-semibold shadow-md">
                         {getInitials(user?.name)}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -108,13 +108,13 @@ export function AdminHeader({ user, onMenuClick }: AdminHeaderProps) {
                   {/* Settings Button */}
                   <button
                     onClick={handleProfileClick}
-                    className="flex items-center gap-3 w-full px-4 py-3 text-gray-700 hover:bg-blue-50 transition-colors"
+                    className="flex items-center gap-3 w-full px-4 py-3 text-gray-700 hover:bg-violet-50 transition-colors"
                   >
                     <Shield className="h-4 w-4" />
                     <span className="text-sm font-medium">Settings</span>
                   </button>
 
-                  <div className="border-t border-blue-100 my-1" />
+                  <div className="border-t border-violet-100 my-1" />
 
                   {/* Logout Button */}
                   <button

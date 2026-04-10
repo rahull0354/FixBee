@@ -118,7 +118,7 @@ export default function AdminCustomerDetailPage() {
           The customer you're looking for doesn't exist.
         </p>
         <Link href="/admin/customers">
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+          <Button className="bg-violet-600 hover:bg-violet-700 text-white">
             Back to Customers
           </Button>
         </Link>
@@ -133,7 +133,7 @@ export default function AdminCustomerDetailPage() {
         <div className="space-y-1">
           <Link
             href="/admin/customers"
-            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold transition-colors text-sm sm:text-base"
+            className="inline-flex items-center gap-2 text-violet-600 hover:text-violet-700 font-semibold transition-colors text-sm sm:text-base"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Customers
@@ -160,7 +160,7 @@ export default function AdminCustomerDetailPage() {
       </div>
 
       {/* Profile Header Card */}
-      <div className="bg-linear-to-r from-blue-500 to-blue-600 rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 text-white">
+      <div className="bg-linear-to-r from-violet-500 to-fuchsia-600 rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 text-white">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
           {/* Profile Picture */}
           <div className="relative shrink-0">
@@ -182,7 +182,7 @@ export default function AdminCustomerDetailPage() {
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2">
               {customer.name}
             </h2>
-            <div className="flex flex-col items-center sm:items-start gap-1.5 sm:gap-2 text-blue-100 mb-2 sm:mb-3">
+            <div className="flex flex-col items-center sm:items-start gap-1.5 sm:gap-2 text-violet-100 mb-2 sm:mb-3">
               <span className="flex items-center gap-1.5 text-sm sm:text-base">
                 <Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
                 <span className="break-all">{customer.email}</span>
@@ -230,10 +230,10 @@ export default function AdminCustomerDetailPage() {
         {/* Left Column - Main Info */}
         <div className="lg:col-span-2 space-y-4 sm:space-y-6">
           {/* Contact Information */}
-          <div className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden">
-            <div className="bg-linear-to-r from-blue-50 to-indigo-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-blue-100">
+          <div className="bg-white rounded-2xl shadow-lg border border-violet-100 overflow-hidden">
+            <div className="bg-linear-to-r from-violet-50 to-indigo-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-violet-100">
               <div className="flex items-center gap-2 sm:gap-3">
-                <div className="h-8 w-8 sm:h-10 sm:w-10 bg-linear-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
+                <div className="h-8 w-8 sm:h-10 sm:w-10 bg-linear-to-br from-violet-400 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
                   <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-gray-900">
@@ -243,8 +243,8 @@ export default function AdminCustomerDetailPage() {
             </div>
             <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
               <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-xl">
-                <div className="h-9 w-9 sm:h-10 sm:w-10 bg-blue-100 rounded-lg flex items-center justify-center shrink-0">
-                  <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                <div className="h-9 w-9 sm:h-10 sm:w-10 bg-violet-100 rounded-lg flex items-center justify-center shrink-0">
+                  <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-violet-600" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-xs text-gray-500 uppercase tracking-wide">
@@ -275,7 +275,7 @@ export default function AdminCustomerDetailPage() {
           </div>
 
           {/* Account Information */}
-          <div className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-lg border border-violet-100 overflow-hidden">
             <div className="bg-linear-to-r from-purple-50 to-indigo-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-purple-100">
               <div className="flex items-center gap-2 sm:gap-3">
                 <div className="h-8 w-8 sm:h-10 sm:w-10 bg-linear-to-br from-purple-400 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -329,7 +329,7 @@ export default function AdminCustomerDetailPage() {
         {/* Right Column - Sidebar */}
         <div className="space-y-4 sm:space-y-6">
           {/* Account Status */}
-          <div className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-lg border border-violet-100 overflow-hidden">
             <div className="bg-linear-to-r from-emerald-50 to-teal-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-emerald-100">
               <div className="flex items-center gap-2 sm:gap-3">
                 <div className="h-8 w-8 sm:h-10 sm:w-10 bg-linear-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -361,7 +361,7 @@ export default function AdminCustomerDetailPage() {
           </div>
 
           {/* Services Distribution */}
-          <div className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-lg border border-violet-100 overflow-hidden">
             <div className="bg-linear-to-r from-purple-50 to-violet-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-purple-100">
               <div className="flex items-center gap-2 sm:gap-3">
                 <div className="h-8 w-8 sm:h-10 sm:w-10 bg-linear-to-br from-purple-400 to-violet-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -514,14 +514,14 @@ function StatCard({
 }) {
   const colorClasses = {
     yellow: "from-yellow-50 to-amber-50 border-yellow-200",
-    blue: "from-blue-50 to-indigo-50 border-blue-200",
+    blue: "from-violet-50 to-indigo-50 border-violet-200",
     emerald: "from-emerald-50 to-teal-50 border-emerald-200",
     purple: "from-violet-50 to-purple-50 border-violet-200",
   };
 
   const iconClasses = {
     yellow: "from-yellow-400 to-amber-500",
-    blue: "from-blue-400 to-indigo-500",
+    blue: "from-violet-400 to-indigo-500",
     emerald: "from-emerald-400 to-teal-500",
     purple: "from-violet-400 to-purple-500",
   };

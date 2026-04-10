@@ -55,13 +55,13 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
       >
         <div className="flex h-full flex-col">
           {/* Logo & Close button */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-blue-100">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-violet-100">
             <Link href="/admin/dashboard" className="flex items-center gap-3" onClick={onClose}>
-              <div className="w-10 h-10 bg-linear-to-br from-blue-400 via-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 bg-linear-to-br from-violet-400 via-purple-400 to-fuchsia-400 rounded-xl flex items-center justify-center shadow-lg">
                 <Shield className="h-5 w-5 text-white" />
               </div>
               <div>
-                <span className="text-xl font-bold bg-linear-to-r from-blue-600 via-blue-700 to-blue-800 bg-clip-text text-transparent">
+                <span className="text-xl font-bold bg-linear-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
                   FixBee
                 </span>
                 <p className="text-xs text-gray-500">Admin Panel</p>
@@ -69,7 +69,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
             </Link>
             <button
               onClick={onClose}
-              className="p-2 rounded-lg hover:bg-blue-50 transition-colors"
+              className="p-2 rounded-lg hover:bg-violet-50 transition-colors"
             >
               <X className="h-5 w-5 text-gray-600" />
             </button>
@@ -86,8 +86,8 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
                   onClick={onClose}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                     isActive
-                      ? 'bg-linear-to-r from-blue-600 via-blue-700 to-blue-800 text-white shadow-lg'
-                      : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                      ? 'bg-linear-to-r from-violet-500 via-purple-500 to-fuchsia-500 text-white shadow-lg'
+                      : 'text-gray-700 hover:bg-violet-50 hover:text-violet-600'
                   }`}
                 >
                   <item.icon className={`h-5 w-5 ${isActive ? 'text-white' : ''}`} />
@@ -98,9 +98,9 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           </nav>
 
           {/* User info */}
-          <div className="border-t border-blue-100 p-4">
-            <div className="flex items-center gap-3 px-4 py-3 bg-blue-50 rounded-xl">
-              <div className="w-10 h-10 bg-linear-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold shadow-md">
+          <div className="border-t border-violet-100 p-4">
+            <div className="flex items-center gap-3 px-4 py-3 bg-violet-50 rounded-xl">
+              <div className="w-10 h-10 bg-linear-to-br from-violet-400 via-purple-400 to-fuchsia-400 rounded-full flex items-center justify-center text-white font-semibold shadow-md">
                 {getInitials(user?.name)}
               </div>
               <div className="flex-1 min-w-0">
@@ -114,15 +114,15 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
 
       {/* Desktop sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:w-72 lg:block">
-        <div className="flex h-full flex-col bg-white/80 backdrop-blur-xl shadow-xl border-r border-blue-100">
+        <div className="flex h-full flex-col bg-white/80 backdrop-blur-xl shadow-xl border-r border-violet-100">
           {/* Logo */}
-          <div className="flex items-center px-6 py-6 border-b border-blue-100">
+          <div className="flex items-center px-6 py-6 border-b border-violet-100">
             <Link href="/admin/dashboard" className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-linear-to-br from-blue-400 via-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 bg-linear-to-br from-violet-400 via-purple-400 to-fuchsia-400 rounded-xl flex items-center justify-center shadow-lg">
                 <Shield className="h-5 w-5 text-white" />
               </div>
               <div>
-                <span className="text-xl font-bold bg-linear-to-r from-blue-600 via-blue-700 to-blue-800 bg-clip-text text-transparent">
+                <span className="text-xl font-bold bg-linear-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
                   FixBee
                 </span>
                 <p className="text-xs text-gray-500">Admin Panel</p>
@@ -140,8 +140,8 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
                   href={item.href}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                     isActive
-                      ? 'bg-linear-to-r from-blue-600 via-blue-700 to-blue-800 text-white shadow-lg'
-                      : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                      ? 'bg-linear-to-r from-violet-500 via-purple-500 to-fuchsia-500 text-white shadow-lg'
+                      : 'text-gray-700 hover:bg-violet-50 hover:text-violet-600'
                   }`}
                 >
                   <item.icon className={`h-5 w-5 ${isActive ? 'text-white' : ''}`} />
@@ -152,9 +152,9 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           </nav>
 
           {/* User info */}
-          <div className="border-t border-blue-100 p-4">
-            <div className="flex items-center gap-3 px-4 py-3 bg-blue-50 rounded-xl">
-              <div className="w-10 h-10 bg-linear-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold shadow-md">
+          <div className="border-t border-violet-100 p-4">
+            <div className="flex items-center gap-3 px-4 py-3 bg-violet-50 rounded-xl">
+              <div className="w-10 h-10 bg-linear-to-br from-violet-400 via-purple-400 to-fuchsia-400 rounded-full flex items-center justify-center text-white font-semibold shadow-md">
                 {getInitials(user?.name)}
               </div>
               <div className="flex-1 min-w-0">

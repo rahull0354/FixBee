@@ -757,36 +757,6 @@ export default function CustomerProfilePage() {
               </div>
             </div>
 
-            {/* Danger Zone */}
-            <div className="bg-white rounded-2xl shadow-lg border border-red-100 overflow-hidden">
-              <div className="bg-linear-to-r from-red-50 to-orange-50 px-4 sm:px-6 py-3 sm:py-4 border-b border-red-200">
-                <h3 className="text-base sm:text-lg font-bold text-red-800 flex items-center gap-2">
-                  <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
-                  Danger Zone
-                </h3>
-              </div>
-
-              <div className="p-3 sm:p-4">
-                <div className="p-3 sm:p-4 bg-linear-to-r from-red-50 to-orange-50 rounded-xl border border-red-200">
-                  <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
-                    <div className="p-1.5 sm:p-2 bg-red-200 rounded-lg shrink-0">
-                      <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-red-700" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold text-gray-800 text-xs sm:text-sm">Deactivate Account</p>
-                      <p className="text-[11px] sm:text-xs text-gray-600">Permanently delete all data</p>
-                    </div>
-                  </div>
-                  <Button
-                    onClick={() => setDeactivateDialogOpen(true)}
-                    className="w-full bg-white text-red-600 hover:bg-red-50 hover:border-red-300 border-red-200 font-semibold text-xs sm:text-sm"
-                  >
-                    Deactivate Account
-                  </Button>
-                </div>
-              </div>
-            </div>
-
 
         </div>
       </div>

@@ -152,7 +152,7 @@ export default function AdminProviderDetailPage() {
           The provider you're looking for doesn't exist.
         </p>
         <Link href="/admin/providers">
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+          <Button className="bg-violet-600 hover:bg-violet-700 text-white">
             Back to Providers
           </Button>
         </Link>
@@ -167,7 +167,7 @@ export default function AdminProviderDetailPage() {
         <div className="space-y-1">
           <Link
             href="/admin/providers"
-            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+            className="inline-flex items-center gap-2 text-violet-600 hover:text-violet-700 font-semibold transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Providers
@@ -228,7 +228,7 @@ export default function AdminProviderDetailPage() {
       </div>
 
       {/* Profile Header Card */}
-      <div className="bg-linear-to-r from-blue-500 to-blue-600 rounded-2xl shadow-xl p-6 sm:p-8 text-white">
+      <div className="bg-linear-to-r from-violet-500 to-fuchsia-600 rounded-2xl shadow-xl p-6 sm:p-8 text-white">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
           {/* Profile Picture */}
           <div className="relative">
@@ -250,7 +250,7 @@ export default function AdminProviderDetailPage() {
             <h2 className="text-2xl sm:text-3xl font-bold mb-2">
               {provider.name}
             </h2>
-            <div className="flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-4 text-blue-100 mb-3">
+            <div className="flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-4 text-violet-100 mb-3">
               <span className="flex items-center gap-1">
                 <Mail className="h-4 w-4" />
                 {provider.email}
@@ -263,7 +263,7 @@ export default function AdminProviderDetailPage() {
               )}
             </div>
             {provider.bio && (
-              <p className="text-blue-100 text-sm sm:text-base max-w-2xl line-clamp-2">
+              <p className="text-violet-100 text-sm sm:text-base max-w-2xl line-clamp-2">
                 {provider.bio}
               </p>
             )}
@@ -276,7 +276,7 @@ export default function AdminProviderDetailPage() {
               <span className="text-base font-bold">
                 {provider.rating?.toFixed(1) || "0.0"}
               </span>
-              <span className="text-sm text-blue-100">
+              <span className="text-sm text-violet-100">
                 ({provider.reviewCount} reviews)
               </span>
             </div>
@@ -317,7 +317,7 @@ export default function AdminProviderDetailPage() {
         <div className="lg:col-span-2 space-y-6">
           {/* Skills */}
           {provider.skills && provider.skills.length > 0 && (
-            <div className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-lg border border-violet-100 overflow-hidden">
               <div className="bg-linear-to-r from-violet-50 to-purple-50 px-6 py-4 border-b border-violet-100">
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 bg-linear-to-br from-violet-400 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -343,7 +343,7 @@ export default function AdminProviderDetailPage() {
 
           {/* Certifications */}
           {provider.certifications && provider.certifications.length > 0 && (
-            <div className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-lg border border-violet-100 overflow-hidden">
               <div className="bg-linear-to-r from-amber-50 to-orange-50 px-6 py-4 border-b border-amber-100">
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 bg-linear-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -359,7 +359,7 @@ export default function AdminProviderDetailPage() {
                   {provider.certifications.map((cert: any, index: number) => (
                     <div
                       key={index}
-                      className="border border-blue-100 rounded-xl p-4 hover:border-blue-200 transition-colors"
+                      className="border border-violet-100 rounded-xl p-4 hover:border-violet-200 transition-colors"
                     >
                       <div className="flex items-start justify-between mb-2">
                         <h4 className="font-semibold text-gray-900">
@@ -377,7 +377,7 @@ export default function AdminProviderDetailPage() {
                           href={cert.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs text-blue-600 hover:text-blue-700 mt-2 inline-block"
+                          className="text-xs text-violet-600 hover:text-violet-700 mt-2 inline-block"
                         >
                           View Certificate →
                         </a>
@@ -391,7 +391,7 @@ export default function AdminProviderDetailPage() {
 
           {/* Service Areas */}
           {provider.serviceAreas && provider.serviceAreas.length > 0 && (
-            <div className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-lg border border-violet-100 overflow-hidden">
               <div className="bg-linear-to-r from-emerald-50 to-teal-50 px-6 py-4 border-b border-emerald-100">
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 bg-linear-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -407,7 +407,7 @@ export default function AdminProviderDetailPage() {
                   {provider.serviceAreas.map((area: any, index: number) => (
                     <div
                       key={index}
-                      className="border border-blue-100 rounded-xl p-4"
+                      className="border border-violet-100 rounded-xl p-4"
                     >
                       <h4 className="font-semibold text-gray-900 mb-2">
                         {area.city}
@@ -417,7 +417,7 @@ export default function AdminProviderDetailPage() {
                           {area.areas.map((areaName: string, i: number) => (
                             <span
                               key={i}
-                              className="text-xs text-blue-700 bg-blue-50 px-2 py-1 rounded-md"
+                              className="text-xs text-violet-700 bg-violet-50 px-2 py-1 rounded-md"
                             >
                               {areaName}
                             </span>
@@ -435,7 +435,7 @@ export default function AdminProviderDetailPage() {
         {/* Right Column - Sidebar */}
         <div className="space-y-6">
           {/* Pricing */}
-          <div className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-lg border border-violet-100 overflow-hidden">
             <div className="bg-linear-to-r from-emerald-50 to-teal-50 px-6 py-4 border-b border-emerald-100">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 bg-linear-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -475,10 +475,10 @@ export default function AdminProviderDetailPage() {
           </div>
 
           {/* Availability */}
-          <div className="bg-white rounded-2xl shadow-lg border border-blue-100 overflow-hidden">
-            <div className="bg-linear-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-blue-100">
+          <div className="bg-white rounded-2xl shadow-lg border border-violet-100 overflow-hidden">
+            <div className="bg-linear-to-r from-violet-50 to-indigo-50 px-6 py-4 border-b border-violet-100">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 bg-linear-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
+                <div className="h-10 w-10 bg-linear-to-br from-violet-400 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
                   <Clock className="h-5 w-5 text-white" />
                 </div>
                 <h3 className="text-lg font-bold text-gray-900">
@@ -506,7 +506,7 @@ export default function AdminProviderDetailPage() {
                     {provider.workingDays.map((day: string, index: number) => (
                       <span
                         key={index}
-                        className="text-xs text-blue-700 bg-blue-50 px-2 py-1 rounded-md"
+                        className="text-xs text-violet-700 bg-violet-50 px-2 py-1 rounded-md"
                       >
                         {day}
                       </span>
@@ -574,7 +574,7 @@ export default function AdminProviderDetailPage() {
                 onChange={(e) => setSuspensionReason(e.target.value)}
                 placeholder="e.g., Violation of service terms, multiple customer complaints, etc."
                 rows={3}
-                className="border-blue-200 focus:border-blue-400 focus:ring-blue-400"
+                className="border-violet-200 focus:border-violet-400 focus:ring-blue-400"
               />
             </div>
           </div>
@@ -625,14 +625,14 @@ function StatCard({
 }) {
   const colorClasses = {
     yellow: "from-yellow-50 to-amber-50 border-yellow-200",
-    blue: "from-blue-50 to-indigo-50 border-blue-200",
+    blue: "from-violet-50 to-indigo-50 border-violet-200",
     emerald: "from-emerald-50 to-teal-50 border-emerald-200",
     purple: "from-violet-50 to-purple-50 border-violet-200",
   };
 
   const iconClasses = {
     yellow: "from-yellow-400 to-amber-500",
-    blue: "from-blue-400 to-indigo-500",
+    blue: "from-violet-400 to-indigo-500",
     emerald: "from-emerald-400 to-teal-500",
     purple: "from-violet-400 to-purple-500",
   };

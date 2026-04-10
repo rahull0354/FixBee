@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { providerApi } from "@/lib/api/provider";
+import { SessionManager } from "@/components/auth/SessionManager";
 import {
   ArrowLeft,
   Building2,
@@ -799,6 +800,26 @@ export default function ProviderSettingsPage() {
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Active Sessions Section */}
+      <Card className="border-emerald-100 shadow-lg">
+        <CardContent className="p-4 sm:p-6">
+          <div className="flex items-center gap-3 mb-4 sm:mb-6">
+            <div className="p-2 sm:p-3 bg-emerald-100 rounded-xl">
+              <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600" />
+            </div>
+            <div>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900">
+                Active Sessions
+              </h2>
+              <p className="text-xs sm:text-sm text-gray-600">
+                Manage your active sessions across devices
+              </p>
+            </div>
+          </div>
+          <SessionManager />
         </CardContent>
       </Card>
 

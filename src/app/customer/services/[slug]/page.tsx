@@ -91,7 +91,7 @@ export default function ServiceDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50 p-4">
+      <div className="flex items-center justify-center min-h-screen bg-linear-to-br from-sky-50 via-white to-blue-50 p-4">
         <div className="text-center space-y-4">
           <Loader2 className="h-10 w-10 sm:h-12 sm:w-12 animate-spin text-sky-500 mx-auto" />
           <p className="text-gray-600 font-medium text-sm sm:text-base">Loading service details...</p>
@@ -102,9 +102,9 @@ export default function ServiceDetailPage() {
 
   if (!category) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50 p-4 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-sky-50 via-white to-blue-50 p-4 flex items-center justify-center">
         <div className="bg-white rounded-2xl p-6 sm:p-8 lg:p-12 shadow-lg border border-sky-100 text-center max-w-md w-full">
-          <Briefcase className="h-12 w-12 sm:h-14 sm:h-16 text-gray-400 mx-auto mb-4" />
+          <Briefcase className="h-12 w-12 sm:h-16 text-gray-400 mx-auto mb-4" />
           <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">Service Not Found</h2>
           <p className="text-sm sm:text-base text-gray-600 mb-6">The service you're looking for doesn't exist.</p>
           <Link
@@ -173,7 +173,7 @@ export default function ServiceDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-linear-to-br from-sky-50 via-white to-blue-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8">
         {/* Back Button */}
         <Link

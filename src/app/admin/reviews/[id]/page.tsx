@@ -326,16 +326,16 @@ export default function AdminReviewDetailsPage() {
       </div>
 
       {/* Review Card */}
-      <div className="bg-white rounded-2xl shadow-lg border-2 border-blue-100 p-3 sm:p-4 md:p-6">
+      <div className="bg-white rounded-2xl shadow-lg border-2 border-violet-100 p-3 sm:p-4 md:p-6">
         <div className="space-y-3 sm:space-y-4 md:space-y-6">
           {/* Customer & Rating Header */}
           <div className="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-3 md:gap-4 pb-3 sm:pb-4 md:pb-6 border-b border-gray-200">
             <div className="flex items-center gap-2 sm:gap-3 md:gap-4 w-full sm:w-auto">
               <div className="relative shrink-0">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl bg-linear-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-base sm:text-lg md:text-xl shadow-md">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl bg-linear-to-br from-violet-400 to-fuchsia-600 flex items-center justify-center text-white font-bold text-base sm:text-lg md:text-xl shadow-md">
                   {review.customer?.name?.charAt(0) || "C"}
                 </div>
-                <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 sm:p-1 shadow border border-blue-200">
+                <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 sm:p-1 shadow border border-violet-200">
                   <div className="bg-linear-to-br from-yellow-400 to-amber-500 rounded-full p-0.5 sm:p-1">
                     <Star className="h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3 fill-white" />
                   </div>
@@ -405,7 +405,7 @@ export default function AdminReviewDetailsPage() {
           {review.serviceRequest && (
             <div className="bg-gray-50 rounded-lg p-2.5 sm:p-3 md:p-4">
               <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
-                <Briefcase className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 text-blue-600" />
+                <Briefcase className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 text-violet-600" />
                 <span className="text-xs sm:text-sm">Service Request</span>
               </div>
               <div className="text-xs sm:text-sm md:text-base font-semibold text-gray-900 leading-tight">
@@ -423,7 +423,7 @@ export default function AdminReviewDetailsPage() {
           <div className="space-y-3 sm:space-y-4 md:space-y-6">
             {/* Conversation Header */}
             <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-semibold text-gray-700 pb-2 border-b border-gray-200">
-              <MessageSquare className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-600" />
+              <MessageSquare className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-violet-600" />
               <span className="text-xs sm:text-sm">Review Comment</span>
             </div>
 
@@ -431,7 +431,7 @@ export default function AdminReviewDetailsPage() {
             <div className="flex gap-1.5 sm:gap-2 md:gap-3">
               {/* Customer Avatar */}
               <div className="shrink-0">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full bg-linear-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold text-xs sm:text-sm md:text-base shadow-md">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full bg-linear-to-br from-violet-400 to-fuchsia-600 flex items-center justify-center text-white font-semibold text-xs sm:text-sm md:text-base shadow-md">
                   {review.customer?.name?.charAt(0) || "C"}
                 </div>
               </div>
@@ -546,10 +546,10 @@ export default function AdminReviewDetailsPage() {
           {/* Provider & Customer Info Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {/* Customer Info */}
-            <div className="bg-blue-50 rounded-xl p-3 sm:p-4 border border-blue-200">
+            <div className="bg-violet-50 rounded-xl p-3 sm:p-4 border border-violet-200">
               <div className="flex items-center gap-1.5 sm:gap-2 mb-2">
-                <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-600" />
-                <p className="text-[10px] sm:text-xs font-bold text-blue-900 uppercase">Customer</p>
+                <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-violet-600" />
+                <p className="text-[10px] sm:text-xs font-bold text-violet-900 uppercase">Customer</p>
               </div>
               <p className="text-xs sm:text-sm font-semibold text-gray-900 mb-1 truncate">
                 {review.customer?.name || "Unknown"}
@@ -560,7 +560,7 @@ export default function AdminReviewDetailsPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full border-blue-200 text-blue-700 hover:bg-blue-50 text-xs h-8 sm:h-9"
+                className="w-full border-violet-200 text-violet-700 hover:bg-violet-50 text-xs h-8 sm:h-9"
                 onClick={() => router.push(`/admin/customers/${review.customer?.id}`)}
               >
                 View Profile
@@ -593,12 +593,12 @@ export default function AdminReviewDetailsPage() {
       </div>
 
       {/* Action Buttons */}
-      <div className="bg-white rounded-2xl shadow-lg border-2 border-blue-100 p-3 sm:p-4 md:p-6">
+      <div className="bg-white rounded-2xl shadow-lg border-2 border-violet-100 p-3 sm:p-4 md:p-6">
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <Button
             variant="outline"
             onClick={() => router.push("/admin/reviews")}
-            className="w-full sm:w-auto border-blue-200 text-blue-700 hover:bg-blue-50 text-xs sm:text-sm h-8 sm:h-9 md:h-10"
+            className="w-full sm:w-auto border-violet-200 text-violet-700 hover:bg-violet-50 text-xs sm:text-sm h-8 sm:h-9 md:h-10"
           >
             Back to Reviews
           </Button>
@@ -609,7 +609,7 @@ export default function AdminReviewDetailsPage() {
             className={`w-full sm:w-auto border-2 font-semibold text-xs sm:text-sm h-8 sm:h-9 md:h-10 ${
               review.isVisible
                 ? "border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50"
-                : "border-blue-300 text-blue-700 hover:border-blue-400 hover:bg-blue-50"
+                : "border-violet-300 text-violet-700 hover:border-violet-400 hover:bg-violet-50"
             }`}
           >
             {processing ? (
@@ -669,7 +669,7 @@ export default function AdminReviewDetailsPage() {
                 onChange={(e) => setFlagReason(e.target.value)}
                 placeholder="e.g., Inappropriate content, fake review, violates guidelines, etc."
                 rows={3}
-                className="border-blue-200 focus:border-blue-400 focus:ring-blue-400"
+                className="border-violet-200 focus:border-violet-400 focus:ring-blue-400"
               />
             </div>
             <div className="flex items-center gap-2">

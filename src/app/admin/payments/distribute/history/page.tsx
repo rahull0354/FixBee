@@ -182,7 +182,7 @@ export default function PayoutHistoryPage() {
       case "pending":
         return "bg-yellow-100 text-yellow-800 border-yellow-200";
       case "processing":
-        return "bg-blue-100 text-blue-800 border-blue-200";
+        return "bg-violet-100 text-violet-800 border-violet-200";
       case "failed":
         return "bg-red-100 text-red-800 border-red-200";
       default:
@@ -197,7 +197,7 @@ export default function PayoutHistoryPage() {
       case "pending":
         return <Clock className="h-5 w-5 text-yellow-600" />;
       case "processing":
-        return <Clock className="h-5 w-5 text-blue-600 animate-pulse" />;
+        return <Clock className="h-5 w-5 text-violet-600 animate-pulse" />;
       case "failed":
         return <XCircle className="h-5 w-5 text-red-600" />;
       default:
@@ -435,7 +435,7 @@ export default function PayoutHistoryPage() {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
             <Button
               variant="outline"
-              className="border-blue-200 text-blue-700 hover:bg-blue-50 w-full sm:w-auto justify-center"
+              className="border-violet-200 text-violet-700 hover:bg-violet-50 w-full sm:w-auto justify-center"
               onClick={exportToCSV}
               disabled={filteredPayouts.length === 0}
             >
@@ -443,7 +443,7 @@ export default function PayoutHistoryPage() {
               Export CSV
             </Button>
             <Button
-              className="bg-linear-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white w-full sm:w-auto justify-center"
+              className="bg-linear-to-r from-sky-500 to-fuchsia-600 hover:from-sky-600 hover:to-fuchsia-700 text-white w-full sm:w-auto justify-center"
               onClick={loadPayoutHistory}
             >
               <RefreshCcw className="h-4 w-4 mr-2" />
@@ -465,8 +465,8 @@ export default function PayoutHistoryPage() {
                 {payouts.length}
               </p>
             </div>
-            <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-              <IndianRupee className="h-5 w-5 text-blue-600" />
+            <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center">
+              <IndianRupee className="h-5 w-5 text-violet-600" />
             </div>
           </div>
         </div>
@@ -523,78 +523,78 @@ export default function PayoutHistoryPage() {
               placeholder="Search by provider, transaction ID..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 border-blue-300 h-12"
+              className="pl-10 border-violet-300 h-12"
             />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-48 border-blue-200 bg-white shadow-sm hover:shadow-md transition-shadow h-12">
+            <SelectTrigger className="w-full sm:w-48 border-violet-200 bg-white shadow-sm hover:shadow-md transition-shadow h-12">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
-            <SelectContent className="bg-white border border-blue-200 shadow-lg">
+            <SelectContent className="bg-white border border-violet-200 shadow-lg">
               <SelectItem
                 value="all"
-                className="focus:bg-blue-50 focus:text-blue-900 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-blue-500 hover:data-[state=checked]:text-white"
+                className="focus:bg-violet-50 focus:text-violet-900 data-[state=checked]:bg-violet-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-violet-500 hover:data-[state=checked]:text-white"
               >
                 All Status
               </SelectItem>
               <SelectItem
                 value="completed"
-                className="focus:bg-blue-50 focus:text-blue-900 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-blue-500 hover:data-[state=checked]:text-white"
+                className="focus:bg-violet-50 focus:text-violet-900 data-[state=checked]:bg-violet-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-violet-500 hover:data-[state=checked]:text-white"
               >
                 Completed
               </SelectItem>
               <SelectItem
                 value="pending"
-                className="focus:bg-blue-50 focus:text-blue-900 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-blue-500 hover:data-[state=checked]:text-white"
+                className="focus:bg-violet-50 focus:text-violet-900 data-[state=checked]:bg-violet-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-violet-500 hover:data-[state=checked]:text-white"
               >
                 Pending
               </SelectItem>
               <SelectItem
                 value="processing"
-                className="focus:bg-blue-50 focus:text-blue-900 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-blue-500 hover:data-[state=checked]:text-white"
+                className="focus:bg-violet-50 focus:text-violet-900 data-[state=checked]:bg-violet-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-violet-500 hover:data-[state=checked]:text-white"
               >
                 Processing
               </SelectItem>
               <SelectItem
                 value="failed"
-                className="focus:bg-blue-50 focus:text-blue-900 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-blue-500 hover:data-[state=checked]:text-white"
+                className="focus:bg-violet-50 focus:text-violet-900 data-[state=checked]:bg-violet-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-violet-500 hover:data-[state=checked]:text-white"
               >
                 Failed
               </SelectItem>
             </SelectContent>
           </Select>
           <Select value={methodFilter} onValueChange={setMethodFilter}>
-            <SelectTrigger className="w-full sm:w-48 border-blue-200 bg-white shadow-sm hover:shadow-md transition-shadow h-12">
+            <SelectTrigger className="w-full sm:w-48 border-violet-200 bg-white shadow-sm hover:shadow-md transition-shadow h-12">
               <SelectValue placeholder="Method" />
             </SelectTrigger>
-            <SelectContent className="bg-white border border-blue-200 shadow-lg">
+            <SelectContent className="bg-white border border-violet-200 shadow-lg">
               <SelectItem
                 value="all"
-                className="focus:bg-blue-50 focus:text-blue-900 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-blue-500 hover:data-[state=checked]:text-white"
+                className="focus:bg-violet-50 focus:text-violet-900 data-[state=checked]:bg-violet-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-violet-500 hover:data-[state=checked]:text-white"
               >
                 All Methods
               </SelectItem>
               <SelectItem
                 value="bank_transfer"
-                className="focus:bg-blue-50 focus:text-blue-900 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-blue-500 hover:data-[state=checked]:text-white"
+                className="focus:bg-violet-50 focus:text-violet-900 data-[state=checked]:bg-violet-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-violet-500 hover:data-[state=checked]:text-white"
               >
                 Bank Transfer
               </SelectItem>
               <SelectItem
                 value="upi"
-                className="focus:bg-blue-50 focus:text-blue-900 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-blue-500 hover:data-[state=checked]:text-white"
+                className="focus:bg-violet-50 focus:text-violet-900 data-[state=checked]:bg-violet-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-violet-500 hover:data-[state=checked]:text-white"
               >
                 UPI
               </SelectItem>
               <SelectItem
                 value="cheque"
-                className="focus:bg-blue-50 focus:text-blue-900 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-blue-500 hover:data-[state=checked]:text-white"
+                className="focus:bg-violet-50 focus:text-violet-900 data-[state=checked]:bg-violet-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-violet-500 hover:data-[state=checked]:text-white"
               >
                 Cheque
               </SelectItem>
               <SelectItem
                 value="cash"
-                className="focus:bg-blue-50 focus:text-blue-900 data-[state=checked]:bg-blue-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-blue-500 hover:data-[state=checked]:text-white"
+                className="focus:bg-violet-50 focus:text-violet-900 data-[state=checked]:bg-violet-500 data-[state=checked]:text-white hover:data-[state=checked]:bg-violet-500 hover:data-[state=checked]:text-white"
               >
                 Cash
               </SelectItem>
@@ -604,13 +604,13 @@ export default function PayoutHistoryPage() {
       </div>
 
       {/* Payout List */}
-      <div className="bg-white rounded-2xl shadow-lg border-2 border-blue-100 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-lg border-2 border-violet-100 overflow-hidden">
         {currentPayouts.length > 0 ? (
           <>
             {/* Desktop Table */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full border-collapse">
-                <thead className="bg-linear-to-r from-blue-50 to-indigo-50 border-b-2 border-blue-200">
+                <thead className="bg-linear-to-r from-violet-50 to-indigo-50 border-b-2 border-violet-200">
                   <tr>
                     <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                       Provider
@@ -639,12 +639,12 @@ export default function PayoutHistoryPage() {
                   {currentPayouts.map((payout) => (
                     <tr
                       key={payout.id}
-                      className="hover:bg-blue-50/30 transition-colors"
+                      className="hover:bg-violet-50/30 transition-colors"
                     >
                       <td className="px-6 py-4 align-middle">
                         <div className="flex items-center gap-3 min-w-50">
-                          <div className="w-12 h-12 rounded-lg bg-linear-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 flex items-center justify-center shrink-0">
-                            <Building className="h-6 w-6 text-blue-600" />
+                          <div className="w-12 h-12 rounded-lg bg-linear-to-br from-violet-50 to-indigo-50 border-2 border-violet-200 flex items-center justify-center shrink-0">
+                            <Building className="h-6 w-6 text-violet-600" />
                           </div>
                           <div className="min-w-0">
                             <p className="font-semibold text-gray-900 text-sm truncate">
@@ -699,7 +699,7 @@ export default function PayoutHistoryPage() {
                               setSelectedPayout(payout);
                               setShowDetailsDialog(true);
                             }}
-                            className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300"
+                            className="border-violet-200 text-violet-700 hover:bg-violet-50 hover:border-violet-300"
                           >
                             <Eye className="h-4 w-4 mr-1" />
                             View
@@ -710,7 +710,7 @@ export default function PayoutHistoryPage() {
                               size="sm"
                               onClick={() => handleProcessPayout(payout)}
                               disabled={processingPayout === payout.id}
-                              className="bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white shadow-sm"
+                              className="bg-gradient-to-r from-sky-500 to-fuchsia-600 hover:from-sky-600 hover:to-fuchsia-700 text-white shadow-sm"
                             >
                               {processingPayout === payout.id ? (
                                 <>
@@ -732,24 +732,24 @@ export default function PayoutHistoryPage() {
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  className="border-blue-200 hover:bg-blue-50 h-8 w-8 p-0"
+                                  className="border-violet-200 hover:bg-violet-50 h-8 w-8 p-0"
                                 >
                                   <MoreVertical className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent
                                 align="end"
-                                className="w-48 bg-white border-2 border-blue-200 shadow-lg"
+                                className="w-48 bg-white border-2 border-violet-200 shadow-lg"
                               >
                                 <DropdownMenuItem
                                   onClick={() => handleCompletePayout(payout)}
                                   disabled={completingPayout === payout.id || failingPayout === payout.id}
-                                  className="text-gray-700 focus:text-blue-700 focus:bg-blue-50 cursor-pointer"
+                                  className="text-gray-700 focus:text-violet-700 focus:bg-violet-50 cursor-pointer"
                                 >
-                                  <Check className="h-4 w-4 mr-2 text-blue-600" />
+                                  <Check className="h-4 w-4 mr-2 text-violet-600" />
                                   {completingPayout === payout.id ? "Completing..." : "Mark as Complete"}
                                 </DropdownMenuItem>
-                                <DropdownMenuSeparator className="bg-blue-100" />
+                                <DropdownMenuSeparator className="bg-violet-100" />
                                 <DropdownMenuItem
                                   onClick={() => handleFailPayout(payout)}
                                   disabled={failingPayout === payout.id || completingPayout === payout.id}
@@ -774,12 +774,12 @@ export default function PayoutHistoryPage() {
               {currentPayouts.map((payout) => (
                 <div
                   key={payout.id}
-                  className="bg-white border-2 border-blue-100 rounded-xl p-4 space-y-3"
+                  className="bg-white border-2 border-violet-100 rounded-xl p-4 space-y-3"
                 >
                   {/* Provider Header */}
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-linear-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 flex items-center justify-center shrink-0">
-                      <Building className="h-5 w-5 text-blue-600" />
+                    <div className="w-10 h-10 rounded-lg bg-linear-to-br from-violet-50 to-indigo-50 border-2 border-violet-200 flex items-center justify-center shrink-0">
+                      <Building className="h-5 w-5 text-violet-600" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-gray-900 text-sm truncate">
@@ -850,7 +850,7 @@ export default function PayoutHistoryPage() {
                         setSelectedPayout(payout);
                         setShowDetailsDialog(true);
                       }}
-                      className="flex-1 border-blue-200 text-blue-700 hover:bg-blue-50"
+                      className="flex-1 border-violet-200 text-violet-700 hover:bg-violet-50"
                     >
                       <Eye className="h-4 w-4 mr-1" />
                       View
@@ -860,7 +860,7 @@ export default function PayoutHistoryPage() {
                       <Button
                         size="sm"
                         onClick={() => handleProcessPayout(payout)}
-                        className="flex-1 bg-linear-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white"
+                        className="flex-1 bg-linear-to-r from-sky-500 to-fuchsia-600 hover:from-sky-600 hover:to-fuchsia-700 text-white"
                       >
                         <Play className="h-4 w-4 mr-1" />
                         Process
@@ -873,7 +873,7 @@ export default function PayoutHistoryPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="flex-1 border-blue-200 text-blue-700 hover:bg-blue-50"
+                            className="flex-1 border-violet-200 text-violet-700 hover:bg-violet-50"
                           >
                             Actions
                             <MoreVertical className="h-4 w-4 ml-1" />
@@ -881,16 +881,16 @@ export default function PayoutHistoryPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                           align="end"
-                          className="w-48 bg-white border-2 border-blue-200 shadow-lg"
+                          className="w-48 bg-white border-2 border-violet-200 shadow-lg"
                         >
                           <DropdownMenuItem
                             onClick={() => handleCompletePayout(payout)}
-                            className="text-gray-700 focus:text-blue-700 focus:bg-blue-50 cursor-pointer"
+                            className="text-gray-700 focus:text-violet-700 focus:bg-violet-50 cursor-pointer"
                           >
-                            <Check className="h-4 w-4 mr-2 text-blue-600" />
+                            <Check className="h-4 w-4 mr-2 text-violet-600" />
                             Mark as Complete
                           </DropdownMenuItem>
-                          <DropdownMenuSeparator className="bg-blue-100" />
+                          <DropdownMenuSeparator className="bg-violet-100" />
                           <DropdownMenuItem
                             onClick={() => handleFailPayout(payout)}
                             className="text-gray-700 focus:text-red-700 focus:bg-red-50 cursor-pointer"
@@ -925,7 +925,7 @@ export default function PayoutHistoryPage() {
 
       {/* Pagination */}
       {filteredPayouts.length > itemsPerPage && (
-        <div className="bg-white rounded-2xl shadow-lg border-2 border-blue-100 p-4">
+        <div className="bg-white rounded-2xl shadow-lg border-2 border-violet-100 p-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             {/* Page Info */}
             <div className="text-sm text-gray-600 text-center sm:text-left">
@@ -951,7 +951,7 @@ export default function PayoutHistoryPage() {
                 size="sm"
                 onClick={handlePrevPage}
                 disabled={!hasPrevPage}
-                className="border-blue-200 text-blue-700 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="border-violet-200 text-violet-700 hover:bg-violet-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ArrowLeft className="h-4 w-4" />
               </Button>
@@ -993,8 +993,8 @@ export default function PayoutHistoryPage() {
                         onClick={() => handlePageChange(page)}
                         className={
                           currentPage === page
-                            ? "h-8 w-8 p-0 bg-linear-to-r from-sky-500 to-blue-600 text-white text-sm font-semibold"
-                            : "h-8 w-8 p-0 border-blue-200 text-blue-700 hover:bg-blue-50 text-sm font-semibold"
+                            ? "h-8 w-8 p-0 bg-linear-to-r from-sky-500 to-fuchsia-600 text-white text-sm font-semibold"
+                            : "h-8 w-8 p-0 border-violet-200 text-violet-700 hover:bg-violet-50 text-sm font-semibold"
                         }
                       >
                         {page}
@@ -1009,7 +1009,7 @@ export default function PayoutHistoryPage() {
                 size="sm"
                 onClick={handleNextPage}
                 disabled={!hasNextPage}
-                className="border-blue-200 text-blue-700 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="border-violet-200 text-violet-700 hover:bg-violet-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ArrowLeft className="h-4 w-4 rotate-180" />
               </Button>
@@ -1020,7 +1020,7 @@ export default function PayoutHistoryPage() {
 
       {/* Details Dialog */}
       <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
-        <DialogContent className="sm:max-w-lg bg-white border-2 border-blue-200">
+        <DialogContent className="sm:max-w-lg bg-white border-2 border-violet-200">
           <DialogHeader>
             <DialogTitle className="text-xl text-gray-900">
               Payout Details
@@ -1033,10 +1033,10 @@ export default function PayoutHistoryPage() {
           {selectedPayout && (
             <div className="space-y-4 py-4">
               {/* Provider Info */}
-              <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+              <div className="bg-violet-50 rounded-xl p-4 border border-violet-200">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-lg bg-linear-to-br from-blue-100 to-indigo-100 flex items-center justify-center">
-                    <Building className="h-6 w-6 text-blue-600" />
+                  <div className="w-12 h-12 rounded-lg bg-linear-to-br from-violet-100 to-indigo-100 flex items-center justify-center">
+                    <Building className="h-6 w-6 text-violet-600" />
                   </div>
                   <div className="flex-1">
                     <p className="font-bold text-gray-900 text-lg">
@@ -1057,11 +1057,11 @@ export default function PayoutHistoryPage() {
 
               {/* Amount & Status */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
-                  <p className="text-xs font-semibold text-blue-900 uppercase mb-1">
+                <div className="bg-violet-50 rounded-xl p-4 border border-violet-200">
+                  <p className="text-xs font-semibold text-violet-900 uppercase mb-1">
                     Payout Amount
                   </p>
-                  <p className="text-2xl font-bold text-blue-900">
+                  <p className="text-2xl font-bold text-violet-900">
                     {formatCurrency(
                       selectedPayout.totalAmount || selectedPayout.amount,
                     )}
@@ -1188,8 +1188,8 @@ export default function PayoutHistoryPage() {
               )}
 
               {/* Status Progress Indicator */}
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
-                <p className="text-xs font-semibold text-blue-900 uppercase mb-3">
+              <div className="bg-gradient-to-r from-violet-50 to-indigo-50 rounded-xl p-4 border border-violet-200">
+                <p className="text-xs font-semibold text-violet-900 uppercase mb-3">
                   Payout Progress
                 </p>
                 <div className="flex items-center justify-between">
@@ -1199,7 +1199,7 @@ export default function PayoutHistoryPage() {
                         selectedPayout.status === "pending" ||
                         selectedPayout.status === "processing" ||
                         selectedPayout.status === "completed"
-                          ? "bg-blue-500 text-white"
+                          ? "bg-violet-500 text-white"
                           : "bg-gray-300 text-gray-600"
                       }`}
                     >
@@ -1210,7 +1210,7 @@ export default function PayoutHistoryPage() {
                     </p>
                   </div>
                   <div
-                    className={`h-0.5 w-8 ${selectedPayout.status !== "pending" ? "bg-blue-500" : "bg-gray-300"}`}
+                    className={`h-0.5 w-8 ${selectedPayout.status !== "pending" ? "bg-violet-500" : "bg-gray-300"}`}
                   ></div>
                   <div className="flex flex-col items-center flex-1">
                     <div
@@ -1265,7 +1265,7 @@ export default function PayoutHistoryPage() {
                     handleProcessPayout(selectedPayout);
                   }}
                   disabled={processingPayout === selectedPayout.id}
-                  className="bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white w-full sm:w-auto shadow-md"
+                  className="bg-gradient-to-r from-sky-500 to-fuchsia-600 hover:from-sky-600 hover:to-fuchsia-700 text-white w-full sm:w-auto shadow-md"
                 >
                   {processingPayout === selectedPayout.id ? (
                     <>
@@ -1288,7 +1288,7 @@ export default function PayoutHistoryPage() {
                       handleCompletePayout(selectedPayout);
                     }}
                     disabled={completingPayout === selectedPayout.id}
-                    className="bg-linear-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white w-full sm:w-auto shadow-md"
+                    className="bg-linear-to-r from-sky-500 to-fuchsia-600 hover:from-sky-600 hover:to-fuchsia-700 text-white w-full sm:w-auto shadow-md"
                   >
                     {completingPayout === selectedPayout.id ? (
                       <>
@@ -1329,7 +1329,7 @@ export default function PayoutHistoryPage() {
             <Button
               variant="outline"
               onClick={() => setShowDetailsDialog(false)}
-              className="w-full sm:w-auto border-blue-200 hover:bg-blue-50"
+              className="w-full sm:w-auto border-violet-200 hover:bg-violet-50"
             >
               Close
             </Button>
@@ -1339,14 +1339,14 @@ export default function PayoutHistoryPage() {
 
       {/* Process Payout Dialog */}
       <Dialog open={showProcessDialog} onOpenChange={setShowProcessDialog}>
-        <DialogContent className="sm:max-w-md bg-white border-2 border-blue-200">
+        <DialogContent className="sm:max-w-md bg-white border-2 border-violet-200">
           <DialogHeader>
             <DialogTitle className="text-xl text-gray-900">
               Start Processing Payout
             </DialogTitle>
             <DialogDescription className="text-gray-600">
               Initiate processing for{" "}
-              <span className="font-bold text-blue-600">
+              <span className="font-bold text-violet-600">
                 {selectedPayout?.providerName || "Provider"}
               </span>
             </DialogDescription>
@@ -1354,10 +1354,10 @@ export default function PayoutHistoryPage() {
 
           <div className="space-y-4 py-4">
             {/* Payout Summary */}
-            <div className="bg-blue-50 rounded-xl p-4 border border-blue-200 space-y-2">
+            <div className="bg-violet-50 rounded-xl p-4 border border-violet-200 space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Payout Amount</span>
-                <span className="font-bold text-lg text-blue-700">
+                <span className="font-bold text-lg text-violet-700">
                   {formatCurrency(
                     selectedPayout?.totalAmount || selectedPayout?.amount,
                   )}
@@ -1377,8 +1377,8 @@ export default function PayoutHistoryPage() {
               </div>
             </div>
 
-            <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
-              <p className="text-sm text-blue-900">
+            <div className="bg-violet-50 rounded-xl p-4 border border-violet-200">
+              <p className="text-sm text-violet-900">
                 This will mark the payout as{" "}
                 <span className="font-bold">"Processing"</span> and allow you to
                 complete or fail it later.
@@ -1398,7 +1398,7 @@ export default function PayoutHistoryPage() {
                 value={processNotes}
                 onChange={(e) => setProcessNotes(e.target.value)}
                 placeholder="Add any notes about this payout processing..."
-                className="w-full min-h-25 px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white"
+                className="w-full min-h-25 px-3 py-2 border border-violet-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white"
               />
             </div>
           </div>
@@ -1407,14 +1407,14 @@ export default function PayoutHistoryPage() {
             <Button
               variant="outline"
               onClick={() => setShowProcessDialog(false)}
-              className="flex-1 border-blue-200 hover:bg-blue-50"
+              className="flex-1 border-violet-200 hover:bg-violet-50"
             >
               Cancel
             </Button>
             <Button
               onClick={confirmProcessPayout}
               disabled={processingPayout === selectedPayout?.id}
-              className="flex-1 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white"
+              className="flex-1 bg-gradient-to-r from-sky-500 to-fuchsia-600 hover:from-sky-600 hover:to-fuchsia-700 text-white"
             >
               {processingPayout === selectedPayout?.id ? (
                 <>
@@ -1434,14 +1434,14 @@ export default function PayoutHistoryPage() {
 
       {/* Complete Payout Dialog */}
       <Dialog open={showCompleteDialog} onOpenChange={setShowCompleteDialog}>
-        <DialogContent className="sm:max-w-md bg-white border-2 border-blue-200">
+        <DialogContent className="sm:max-w-md bg-white border-2 border-violet-200">
           <DialogHeader>
             <DialogTitle className="text-xl text-gray-900">
               Complete Payout
             </DialogTitle>
             <DialogDescription className="text-gray-600">
               Confirm payout completion for{" "}
-              <span className="font-bold text-blue-600">
+              <span className="font-bold text-violet-600">
                 {selectedPayout?.providerName || "Provider"}
               </span>
             </DialogDescription>
@@ -1449,10 +1449,10 @@ export default function PayoutHistoryPage() {
 
           <div className="space-y-4 py-4">
             {/* Payout Summary */}
-            <div className="bg-blue-50 rounded-xl p-4 border border-blue-200 space-y-2">
+            <div className="bg-violet-50 rounded-xl p-4 border border-violet-200 space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Payout Amount</span>
-                <span className="font-bold text-lg text-blue-700">
+                <span className="font-bold text-lg text-violet-700">
                   {formatCurrency(
                     selectedPayout?.totalAmount || selectedPayout?.amount,
                   )}
@@ -1466,7 +1466,7 @@ export default function PayoutHistoryPage() {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Status</span>
-                <Badge className="bg-blue-100 text-blue-800 border-blue-200 text-xs font-semibold">
+                <Badge className="bg-violet-100 text-violet-800 border-violet-200 text-xs font-semibold">
                   {selectedPayout?.status}
                 </Badge>
               </div>
@@ -1493,7 +1493,7 @@ export default function PayoutHistoryPage() {
                 onChange={(e) => setCompleteTransactionId(e.target.value)}
                 placeholder="Enter bank reference number or UTR"
                 required
-                className="border-blue-300 focus:ring-blue-500 bg-white"
+                className="border-violet-300 focus:ring-blue-500 bg-white"
               />
             </div>
 
@@ -1509,7 +1509,7 @@ export default function PayoutHistoryPage() {
                 value={completeNotes}
                 onChange={(e) => setCompleteNotes(e.target.value)}
                 placeholder="Add any completion notes..."
-                className="w-full min-h-20 px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white"
+                className="w-full min-h-20 px-3 py-2 border border-violet-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white"
               />
             </div>
           </div>
@@ -1518,14 +1518,14 @@ export default function PayoutHistoryPage() {
             <Button
               variant="outline"
               onClick={() => setShowCompleteDialog(false)}
-              className="flex-1 border-blue-200 hover:bg-blue-50"
+              className="flex-1 border-violet-200 hover:bg-violet-50"
             >
               Cancel
             </Button>
             <Button
               onClick={confirmCompletePayout}
               disabled={completingPayout === selectedPayout?.id}
-              className="flex-1 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white"
+              className="flex-1 bg-gradient-to-r from-sky-500 to-fuchsia-600 hover:from-sky-600 hover:to-fuchsia-700 text-white"
             >
               {completingPayout === selectedPayout?.id ? (
                 <>
@@ -1569,28 +1569,28 @@ export default function PayoutHistoryPage() {
 
           <div className="space-y-4 py-2">
             {/* Payout Summary */}
-            <div className="bg-blue-50 rounded-xl p-4 border border-blue-200 space-y-3">
+            <div className="bg-violet-50 rounded-xl p-4 border border-violet-200 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-blue-900">
+                <span className="text-sm font-semibold text-violet-900">
                   Payout Amount
                 </span>
-                <span className="font-bold text-xl text-blue-700">
+                <span className="font-bold text-xl text-violet-700">
                   {formatCurrency(
                     selectedPayout?.totalAmount || selectedPayout?.amount,
                   )}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-blue-900">
+                <span className="text-sm font-semibold text-violet-900">
                   Requested On
                 </span>
-                <span className="font-semibold text-blue-700">
+                <span className="font-semibold text-violet-700">
                   {formatDate(selectedPayout?.requestedAt)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-blue-900">Current Status</span>
-                <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-xs font-semibold">
+                <span className="text-sm text-violet-900">Current Status</span>
+                <Badge className="bg-violet-100 text-violet-700 border-violet-200 text-xs font-semibold">
                   {selectedPayout?.status}
                 </Badge>
               </div>
@@ -1656,7 +1656,7 @@ export default function PayoutHistoryPage() {
                   setFailNotes(e.target.value);
                 }}
                 placeholder="Add any additional notes or context..."
-                className="w-full min-h-20 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none bg-white text-sm placeholder:text-gray-400 transition-all"
+                className="w-full min-h-20 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-violet-500 resize-none bg-white text-sm placeholder:text-gray-400 transition-all"
               />
             </div>
           </div>

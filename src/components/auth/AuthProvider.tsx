@@ -3,7 +3,9 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AuthState, UserRole } from '@/types/auth';
 import { authApi } from '@/lib/api/auth';
+import { TokenManager } from '@/lib/api/client';
 import { toast } from 'sonner';
+import { useSessionCheck } from '@/lib/hooks/useSessionCheck';
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string, role: UserRole) => Promise<void>;
@@ -18,7 +20,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
-    token: null,
+    accessToken: null,
+    refreshToken: null,
     isAuthenticated: false,
   });
   const [loading, setLoading] = useState(true);
@@ -29,28 +32,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Check session validity periodically (every 2 minutes)
+  // This ensures the user is logged out if their session is revoked from another device
+  // Uses the sessions list to verify current session still exists
+  useSessionCheck(2 * 60 * 1000, true);
+
   const checkAuth = () => {
     try {
-      // Check localStorage for stored user data
       if (typeof window === 'undefined') {
         setLoading(false);
         return;
       }
 
       const storedUser = localStorage.getItem('fixbee_user');
+      const accessToken = TokenManager.getAccessToken();
+      const refreshToken = TokenManager.getRefreshToken();
 
-      if (storedUser) {
+      // Check if we have valid tokens and user data
+      if (storedUser && accessToken && refreshToken && !TokenManager.isTokenExpired()) {
         try {
           const user = JSON.parse(storedUser);
-          // Only set authenticated if we have actual user data (not temp user)
           if (user.id !== 'temp') {
             setAuthState({
               user: user,
-              token: null,
+              accessToken: accessToken,
+              refreshToken: refreshToken,
               isAuthenticated: true,
             });
 
-            // Check and store suspension status for providers
+            // Set suspension cookie for providers
             if (user.role === 'provider') {
               const isSuspended = !user.isActive || user.isSuspended;
               if (isSuspended) {
@@ -60,43 +70,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               }
             }
           } else {
-            // Clear temp user from localStorage
-            localStorage.removeItem('fixbee_user');
-            setAuthState({
-              user: null,
-              token: null,
-              isAuthenticated: false,
-            });
+            clearAuthData();
           }
         } catch (error) {
-          // Invalid data in localStorage, clear it
-          localStorage.removeItem('fixbee_user');
-          setAuthState({
-            user: null,
-            token: null,
-            isAuthenticated: false,
-          });
+          // Invalid data, clear it
+          clearAuthData();
         }
+      } else {
+        // No valid auth data
+        clearAuthData();
       }
-      // Note: user_role cookie is only used to remember which role to pre-fill on login page
-      // It does NOT authenticate the user
     } catch (error) {
       console.error('Error checking authentication:', error);
+      clearAuthData();
     } finally {
       setLoading(false);
     }
   };
 
-  const getCookie = (name: string): string | null => {
-    if (typeof document === 'undefined') return null;
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
-    return null;
+  const clearAuthData = () => {
+    TokenManager.clearTokens();
+    localStorage.removeItem('fixbee_user');
+    localStorage.removeItem('userRole');
+    setAuthState({
+      user: null,
+      accessToken: null,
+      refreshToken: null,
+      isAuthenticated: false,
+    });
   };
 
   const login = async (email: string, password: string, role: UserRole) => {
     try {
+      console.log(`Attempting ${role} login for:`, email);
+
       let response;
 
       switch (role) {
@@ -113,49 +120,77 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           throw new Error('Invalid role');
       }
 
-      // Extract user data from response
-      const responseObj = response as any;
-      const user = responseObj.user || responseObj.checkCustomer || responseObj.checkServiceProvider || responseObj.checkProvider || responseObj.checkAdmin || responseObj.author || responseObj.checkAuthor || responseObj;
-      const token = responseObj.token;
+      // Handle both OLD and NEW response formats for backwards compatibility
+      // OLD format: { token, user/customer/serviceProvider/author }
+      // NEW format: { accessToken, refreshToken, expiresIn, customer/serviceProvider/author }
 
-      // Clear any existing auth data
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('fixbee_user');
-        document.cookie = 'user_role=; path=/; max-age=0';
+      // Cast to any to access old format properties not in AuthResponse type
+      const responseAny = response as any;
+
+      const isNewFormat = responseAny.accessToken && responseAny.refreshToken;
+      const isOldFormat = responseAny.token && responseAny.success !== false;
+
+      if (!isNewFormat && !isOldFormat) {
+        throw new Error('Invalid response from server - unrecognized format');
       }
 
-      // Store authentication data
-      if (typeof window !== 'undefined') {
-        // Set auth_token cookie for backend authentication (7 days)
-        if (token) {
-          document.cookie = `auth_token=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
-        }
+      let user, accessToken, refreshToken, expiresIn;
 
-        // Set user_role cookie for middleware (7 days)
-        document.cookie = `user_role=${role}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+      if (isNewFormat) {
+        // NEW FORMAT - check all possible user data keys
+        user = responseAny.customer || responseAny.serviceProvider || responseAny.provider || responseAny.author || responseAny.admin ||
+               responseAny.user || responseAny.checkCustomer || responseAny.checkServiceProvider || responseAny.checkProvider || responseAny.checkAuthor || responseAny.checkAdmin;
+        accessToken = responseAny.accessToken;
+        refreshToken = responseAny.refreshToken;
+        expiresIn = responseAny.expiresIn;
+      } else {
+        // OLD FORMAT - backwards compatibility
+        user = responseAny.user || responseAny.customer || responseAny.serviceProvider || responseAny.checkCustomer || responseAny.checkServiceProvider || responseAny.checkProvider || responseAny.author || responseAny.checkAuthor || responseAny.checkAdmin;
+        accessToken = responseAny.token;
+        refreshToken = responseAny.token; // Use same token as refresh for now
+        expiresIn = 7 * 24 * 60 * 60; // 7 days in seconds
+      }
 
-        // Set is_suspended cookie for providers if user is suspended
-        if (role === 'provider' && (user.isSuspended || user.isActive === false)) {
-          document.cookie = `is_suspended=true; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
-        } else {
-          // Clear suspension cookie if not suspended
-          document.cookie = 'is_suspended=; path=/; max-age=0';
-        }
+      if (!user) {
+        throw new Error('Invalid response from server - missing user data');
+      }
 
-        // Store user info in localStorage
-        localStorage.setItem('fixbee_user', JSON.stringify({ ...user, role }));
+      if (!accessToken) {
+        throw new Error('Invalid response from server - missing access token');
+      }
+
+      // Clear any existing auth data
+      clearAuthData();
+
+      // Store tokens using TokenManager (with session ID if provided)
+      TokenManager.setTokens(accessToken, refreshToken, expiresIn, response.sessionId);
+
+      // Store user info in localStorage
+      localStorage.setItem('fixbee_user', JSON.stringify({ ...user, role }));
+      localStorage.setItem('userRole', role);
+
+      // Set user_role cookie for middleware (7 days)
+      document.cookie = `user_role=${role}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+
+      // Set is_suspended cookie for providers if user is suspended
+      if (role === 'provider' && (user.isSuspended || user.isActive === false)) {
+        document.cookie = `is_suspended=true; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+      } else {
+        document.cookie = 'is_suspended=; path=/; max-age=0';
       }
 
       // Update auth state
       setAuthState({
         user: { ...user, role },
-        token: token || null,
+        accessToken: accessToken,
+        refreshToken: refreshToken,
         isAuthenticated: true,
       });
 
       toast.success('Login successful!');
     } catch (error: any) {
-      // Extract error message
+      console.error('Login error:', error);
+
       let message = 'Login failed';
 
       if (error?.response?.data?.message) {
@@ -181,30 +216,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         response = await authApi.providerRegister(data);
       }
 
-      // Extract user data from response
-      const responseObj = response as any;
-      const user = responseObj.user || responseObj.customer || responseObj.checkCustomer || responseObj.serviceProvider || responseObj.checkServiceProvider || responseObj.provider || responseObj.checkProvider || responseObj;
-      const token = responseObj.token;
+      // Extract user data from response (handle all possible keys)
+      const responseAny = response as any;
+      const user = responseAny.customer || responseAny.serviceProvider || responseAny.provider ||
+                   responseAny.checkCustomer || responseAny.checkServiceProvider || responseAny.checkProvider ||
+                   responseAny.user;
 
       if (typeof window !== 'undefined') {
         // Clear any existing auth data
-        localStorage.removeItem('fixbee_user');
-        document.cookie = 'auth_token=; path=/; max-age=0';
-        document.cookie = 'user_role=; path=/; max-age=0';
+        clearAuthData();
 
         // Set user_role cookie to remember registration role
         document.cookie = `user_role=${role}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+        localStorage.setItem('userRole', role);
       }
 
       setAuthState({
         user: null,
-        token: null,
+        accessToken: null,
+        refreshToken: null,
         isAuthenticated: false,
       });
 
       toast.success('Registration successful! Please login to continue.');
     } catch (error: any) {
-      // Extract error message
       let message = 'Registration failed';
 
       if (error?.response?.data?.message) {
@@ -221,36 +256,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
-    // Clear all auth data
-    if (typeof window !== 'undefined') {
-      // Clear localStorage
-      localStorage.removeItem('fixbee_user');
+    try {
+      const refreshToken = TokenManager.getRefreshToken();
+      const userRole = TokenManager.getUserRole();
 
-      // Clear cookies with proper settings
-      const cookiesToClear = ['auth_token', 'user_role'];
-      cookiesToClear.forEach(cookieName => {
-        // Clear cookie for root path
-        document.cookie = `${cookieName}=; path=/; max-age=0; SameSite=Lax`;
-        // Also try clearing with domain
-        document.cookie = `${cookieName}=; path=/; domain=${window.location.hostname}; max-age=0; SameSite=Lax`;
+      // Call backend logout endpoint if we have a refresh token
+      if (refreshToken && userRole) {
+        try {
+          switch (userRole) {
+            case 'customer':
+              await authApi.customerLogout(refreshToken);
+              break;
+            case 'provider':
+              await authApi.providerLogout(refreshToken);
+              break;
+            case 'admin':
+              await authApi.adminLogout(refreshToken);
+              break;
+          }
+        } catch (error) {
+          // Log the error but continue with logout
+          console.error('Backend logout failed:', error);
+        }
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      // Clear all auth data regardless of backend logout success
+      clearAuthData();
+
+      if (typeof window !== 'undefined') {
+        // Clear cookies
+        const cookiesToClear = ['user_role', 'is_suspended'];
+        cookiesToClear.forEach(cookieName => {
+          document.cookie = `${cookieName}=; path=/; max-age=0; SameSite=Lax`;
+          document.cookie = `${cookieName}=; path=/; domain=${window.location.hostname}; max-age=0; SameSite=Lax`;
+        });
+
+        toast.success('Logged out successfully');
+
+        // Redirect to home
+        window.location.href = '/';
+      }
+
+      setAuthState({
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+        isAuthenticated: false,
       });
-
-      // Clear cookies immediately and redirect BEFORE updating state
-      toast.success('Logged out successfully');
-
-      // Use href instead of replace to ensure immediate navigation
-      window.location.href = '/';
     }
-
-    setAuthState({
-      user: null,
-      token: null,
-      isAuthenticated: false,
-    });
   };
 
   const updateUser = (userData: any) => {
-    // Merge with existing user data, preserving the role
     const updatedUser = {
       ...authState.user,
       ...userData,
@@ -262,7 +320,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user: updatedUser,
     });
 
-    // Update localStorage with new user data
     if (typeof window !== 'undefined') {
       localStorage.setItem('fixbee_user', JSON.stringify(updatedUser));
     }
